@@ -1,0 +1,61 @@
+format = "deployment-tools-operation-bindings/v1"
+
+[[implementations]]
+id = "cli:domain-ops:info"
+stage = "scaffold"
+symbol = "deployment_tools_client.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_info_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_info_failure_for_every_tool"]
+recovery = []
+
+[[implementations]]
+id = "cli:domain-ops:validate"
+stage = "scaffold"
+symbol = "deployment_tools_client.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_validate_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_validate_failure_for_every_tool"]
+recovery = []
+
+[[implementations]]
+id = "cli:host-ops:info"
+stage = "scaffold"
+symbol = "deployment_tools_host.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_info_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_info_failure_for_every_tool"]
+recovery = []
+
+[[implementations]]
+id = "cli:host-ops:validate"
+stage = "scaffold"
+symbol = "deployment_tools_host.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_validate_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_validate_failure_for_every_tool"]
+recovery = []
+
+[[implementations]]
+id = "cli:app-ops:info"
+stage = "scaffold"
+symbol = "deployment_tools_app.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_info_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_info_failure_for_every_tool"]
+recovery = []
+
+[[implementations]]
+id = "cli:app-ops:validate"
+stage = "scaffold"
+symbol = "deployment_tools_app.cli:main"
+read_only = true
+[implementations.tests]
+success = ["tests/test_operation_coverage.py::test_validate_success_for_every_tool"]
+failure = ["tests/test_operation_coverage.py::test_validate_failure_for_every_tool"]
+recovery = []

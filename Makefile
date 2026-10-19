@@ -2,25 +2,53 @@ SHELL := bash
 .DEFAULT_GOAL := help
 
 MISE_BIN ?= mise
-PYTHON_PATHS := packages scripts tests
+FILES ?= .
+TESTS ?= tests
+PYTHON_PATHS ?= packages scripts tests
+BUNDLE_OUTPUT ?= artifacts/scaffold-bundle
 UV_RUN = "$(MISE_BIN)" x -- uv run --locked --all-packages --group dev
+VALIDATE = $(UV_RUN) python -m scripts.validation run --target $@ --
 args ?=
 
-.PHONY: help setup check test unit ruff ruff-fix format format-check fix mypy lint compile contracts package audit policy license governance bundle dist-smoke
+.PHONY: help setup check test unit ruff ruff-fix format format-check fix mypy lint compile contracts dist package audit policy license governance bundle dist-smoke operation-qualification
 
 help:
 	@printf '%s\n' \
-		'make setup         Install locked tools/dependencies and the local commit hook.' \
-		'make unit          Run the local unit suite.' \
-		'make lint          Check Ruff formatting, lint and strict mypy.' \
-		'make fix           Apply safe Ruff fixes and formatting.' \
-		'make check         Check public content, contracts, lint, types and units.' \
-		'make audit         Audit all locked runtime, build and development dependencies.' \
-		'make package       Build and inspect all component wheels.' \
-		'make policy        Check component, interface and state contracts.' \
-		'make governance    Audit live GitHub controls without changing them.' \
-		'make bundle        Prepare a hash-locked offline scaffold bundle.' \
-		'make dist-smoke    Exercise every independent installed distribution.'
+		'Targets:' \
+		'  make setup         Install locked tools/dependencies and the local commit hook.' \
+		'  make unit          Run the local unit suite.' \
+		'  make ruff          Check Python lint.' \
+		'  make ruff-fix      Apply safe Ruff fixes.' \
+		'  make format        Format Python files.' \
+		'  make format-check  Check Python formatting.' \
+		'  make fix           Run ruff-fix, then format.' \
+		'  make mypy          Run strict type checks.' \
+		'  make license       Verify Apache-2.0 REUSE provenance.' \
+		'  make lint          Run formatting, lint, types and licensing checks.' \
+		'  make compile       Byte-compile repository Python files.' \
+		'  make test          Run lint and units.' \
+		'  make contracts     Validate schemas and synthetic fixtures.' \
+		'  make policy        Check component, interface and state contracts.' \
+		'  make check         Run lint, contracts, policy, operation coverage and units; check public content.' \
+		'  make audit         Audit all locked runtime, build and development dependencies.' \
+		'  make dist          Rebuild and inspect every component wheel.' \
+		'  make package       Alias for dist.' \
+		'  make dist-smoke    Rebuild wheels; prepare and exercise a temporary offline bundle.' \
+		'  make bundle        Build a persistent offline scaffold bundle in a new output directory.' \
+		'  make governance    Audit live GitHub controls without changing them.' \
+		'  make operation-qualification  Check the source-derived operation coverage map.' \
+		'' \
+		'Variables:' \
+		"  args='...'         Forward tool flags to unit, ruff, ruff-fix, format, format-check or mypy." \
+		"                     For operation-qualification: check (default), generate or report [--require-current-proofs]." \
+		"  TESTS='...'        Select unit test paths or node IDs; default: tests." \
+		"  FILES='...'        Select Ruff/format paths; default: ." \
+		"  PYTHON_PATHS='...' Select compile paths; default: packages scripts tests." \
+		'  BUNDLE_OUTPUT=...  Persistent bundle destination; it must not already exist.' \
+		'  MISE_BIN=...       Use a particular mise executable.' \
+		'' \
+		'Validation receipts: artifacts/validation; includes source identity, selection, timing and results.' \
+		'Use TESTS for unit paths and args for pytest flags; test/check also invoke other tools.'
 
 setup:
 	"$(MISE_BIN)" install --locked
@@ -28,57 +56,61 @@ setup:
 	git config --local core.hooksPath .githooks
 
 ruff:
-	$(UV_RUN) python -m ruff check $(PYTHON_PATHS) $(args)
+	$(VALIDATE) python -m ruff check $(FILES) $(args)
 
 ruff-fix:
-	$(UV_RUN) python -m ruff check --fix $(PYTHON_PATHS) $(args)
+	$(VALIDATE) python -m ruff check --fix $(FILES) $(args)
 
 format:
-	$(UV_RUN) python -m ruff format $(PYTHON_PATHS) $(args)
+	$(VALIDATE) python -m ruff format $(FILES) $(args)
 
 format-check:
-	$(UV_RUN) python -m ruff format --check $(PYTHON_PATHS) $(args)
+	$(VALIDATE) python -m ruff format --check $(FILES) $(args)
 
 fix: ruff-fix format
 
 mypy:
-	$(UV_RUN) python -m mypy $(args)
+	$(VALIDATE) python -m mypy $(args)
 
 lint: format-check ruff mypy license
 
 compile:
-	$(UV_RUN) python -m compileall -q $(PYTHON_PATHS)
+	$(VALIDATE) python -m compileall -q $(PYTHON_PATHS)
 
 unit:
-	$(UV_RUN) python -m pytest -q $(args)
+	$(VALIDATE) python -m pytest -q $(TESTS) $(args)
 
 test: lint unit
 
 contracts:
-	$(UV_RUN) python -m scripts.check_contracts
+	$(VALIDATE) python -m scripts.check_contracts
 
-check: lint contracts policy unit
+check: lint contracts policy operation-qualification unit
 	$(UV_RUN) python scripts/check_public.py
 
-package:
-	"$(MISE_BIN)" x -- uv build --all-packages --wheel
-	$(UV_RUN) python -m scripts.check_wheel dist
+package: dist
+
+dist:
+	$(VALIDATE) python -m scripts.distributions build
 
 audit:
 	"$(MISE_BIN)" x -- uv export --quiet --locked --all-packages --all-groups --no-emit-workspace --no-hashes --format requirements-txt --output-file .venv/audit-requirements.txt
-	$(UV_RUN) pip-audit --strict --no-deps --disable-pip -r .venv/audit-requirements.txt
+	$(VALIDATE) python -m pip_audit --strict --no-deps --disable-pip -r .venv/audit-requirements.txt
 
 policy:
-	$(UV_RUN) python -m scripts.project_policy --history
+	$(VALIDATE) python -m scripts.project_policy --history
 
 license:
-	$(UV_RUN) python -m reuse lint
+	$(VALIDATE) python -m reuse lint
 
 governance:
-	$(UV_RUN) python -m scripts.check_repository --scope full
+	$(VALIDATE) python -m scripts.check_repository --scope full
 
-bundle:
-	$(UV_RUN) python -m scripts.distributions prepare --bundle artifacts/scaffold-bundle
+bundle: dist
+	$(VALIDATE) python -m scripts.distributions prepare --bundle "$(BUNDLE_OUTPUT)"
 
-dist-smoke:
-	$(UV_RUN) python -m scripts.distributions smoke --bundle artifacts/scaffold-bundle
+dist-smoke: dist
+	$(VALIDATE) python -m scripts.distributions smoke-fresh
+
+operation-qualification:
+	$(VALIDATE) python -m scripts.operation_qualification $(if $(strip $(args)),$(args),check)

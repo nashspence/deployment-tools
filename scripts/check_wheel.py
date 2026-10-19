@@ -44,6 +44,8 @@ def check_wheels(directory: Path) -> None:
                     raise ValueError("wheel crossed component boundary")
                 if entry.suffix.lower() in {
                     ".md",
+                    ".pyc",
+                    ".pyo",
                     ".age",
                     ".pem",
                     ".key",

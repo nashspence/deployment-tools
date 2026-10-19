@@ -1,0 +1,276 @@
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import platform
+import re
+import subprocess
+import sys
+import tempfile
+import time
+import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+from filelock import FileLock
+
+from scripts.project_policy import ROOT
+
+FORMAT = "deployment-tools-validation/v1"
+MAX_RECEIPTS = 64
+MAX_BYTES = 4 * 1024 * 1024
+OVERRIDES = (
+    "PYTEST_ADDOPTS",
+    "PYTEST_PLUGINS",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+    "PYTHONPATH",
+    "PYTHONOPTIMIZE",
+    "MYPYPATH",
+    "MYPY_CONFIG_FILE_DIR",
+    "RUFF_OUTPUT_FORMAT",
+    "RUFF_NO_CACHE",
+    "COVERAGE_PROCESS_START",
+)
+# These are complete repository checks. Other/custom invocations are iteration records.
+CANONICAL = {
+    "unit": ["python", "-m", "pytest", "-q", "tests"],
+    "ruff": ["python", "-m", "ruff", "check", "."],
+    "format-check": ["python", "-m", "ruff", "format", "--check", "."],
+    "mypy": ["python", "-m", "mypy"],
+    "compile": ["python", "-m", "compileall", "-q", "packages", "scripts", "tests"],
+    "contracts": ["python", "-m", "scripts.check_contracts"],
+    "policy": ["python", "-m", "scripts.project_policy", "--history"],
+    "license": ["python", "-m", "reuse", "lint"],
+    "governance": ["python", "-m", "scripts.check_repository", "--scope", "full"],
+    "dist": ["python", "-m", "scripts.distributions", "build"],
+    "dist-smoke": ["python", "-m", "scripts.distributions", "smoke-fresh"],
+    "operation-qualification": ["python", "-m", "scripts.operation_qualification", "check"],
+}
+TARGETS = set(CANONICAL) | {"ruff-fix", "format", "bundle", "audit"}
+SAFE_NODE = re.compile(r"tests/[A-Za-z0-9_./-]+\.py(?:::[A-Za-z0-9_]+)+(?:\[[A-Za-z0-9_.-]+\])?")
+
+
+def digest(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def source_identity(root: Path = ROOT) -> dict[str, Any]:
+    def git(*args: str) -> bytes:
+        return subprocess.check_output(["git", *args], cwd=root, stderr=subprocess.DEVNULL)
+
+    sha = git("rev-parse", "HEAD").decode().strip()
+    status = git("status", "--porcelain", "--untracked-files=all")
+    fingerprint = hashlib.sha256(status)
+    fingerprint.update(git("diff", "HEAD", "--binary"))
+    fingerprint.update(git("diff", "--cached", "--binary"))
+    for name in sorted(git("ls-files", "--others", "--exclude-standard", "-z").split(b"\0")):
+        if name:
+            path = root / os.fsdecode(name)
+            fingerprint.update(name)
+            fingerprint.update(
+                path.read_bytes() if not path.is_symlink() else os.fsencode(os.readlink(path))
+            )
+    return {"commit": sha, "clean": not status, "fingerprint": fingerprint.hexdigest()}
+
+
+def selection(target: str, command: list[str]) -> dict[str, Any]:
+    normalized = list(command)
+    if target == "unit":
+        normalized = [
+            part
+            for part in command
+            if not re.fullmatch(r"--junitxml=artifacts/[A-Za-z0-9_./-]+\.xml", part)
+        ]
+    overrides = [key for key in OVERRIDES if os.environ.get(key)]
+    # Record source test references only; arbitrary arguments and environment values stay out.
+    tests = [
+        part
+        for part in command
+        if SAFE_NODE.fullmatch(part) or re.fullmatch(r"tests(?:/[A-Za-z0-9_./-]+)?", part)
+    ]
+    return {
+        "canonical": normalized == CANONICAL.get(target) and not overrides,
+        "tests": tests if target == "unit" else [],
+        "invocation_sha256": digest(command),
+        "environment_overrides": overrides,
+    }
+
+
+def read_test_results(path: Path) -> dict[str, Any] | None:
+    if not path.is_file() or path.stat().st_size > 2_000_000:
+        return None
+    value = json.loads(path.read_text(encoding="utf-8"))
+    collected = value["collected"]
+    outcomes = value["outcomes"]
+    if (
+        not collected
+        or len(collected) != len(set(collected))
+        or not all(SAFE_NODE.fullmatch(node) for node in collected)
+        or set(outcomes) != set(collected)
+        or any(outcome not in {"passed", "failed", "skipped"} for outcome in outcomes.values())
+    ):
+        return None
+    return {
+        "collected_sha256": digest(sorted(collected)),
+        "outcomes": outcomes,
+        "exit_status": value["exit_status"],
+    }
+
+
+def full_check_passed(receipt: dict[str, Any]) -> bool:
+    tests = receipt.get("tests")
+    return bool(
+        receipt["state"] == "completed"
+        and receipt["exit_status"] == 0
+        and receipt["selection"]["canonical"]
+        and receipt["source_before"]["clean"]
+        and receipt["source_before"] == receipt["source_after"]
+        and (
+            receipt["target"] != "unit"
+            or (
+                tests
+                and tests["exit_status"] == 0
+                and tests["outcomes"]
+                and all(result in {"passed", "skipped"} for result in tests["outcomes"].values())
+            )
+        )
+    )
+
+
+def prune(directory: Path, current: Path, incoming_size: int) -> None:
+    candidates = []
+    for path in directory.glob("*.json"):
+        if not re.fullmatch(r"[a-f0-9]{32}\.json", path.name) or path.is_symlink():
+            continue
+        candidates.append(path)
+    size = sum(path.stat().st_size for path in candidates)
+    count = len(candidates) + int(current not in candidates)
+    size += incoming_size - (current.stat().st_size if current in candidates else 0)
+    for path in sorted(candidates, key=lambda item: item.stat().st_mtime):
+        if count <= MAX_RECEIPTS and size <= MAX_BYTES:
+            break
+        if path == current:
+            continue
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if value.get("format") == FORMAT and value.get("state") in {"completed", "interrupted"}:
+            size -= path.stat().st_size
+            count -= 1
+            path.unlink()
+    if count > MAX_RECEIPTS or size > MAX_BYTES:
+        raise ValueError("validation receipt retention limit reached")
+
+
+def write_receipt(path: Path, value: dict[str, Any]) -> None:
+    content = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    with FileLock(str(path.parent / ".lock"), timeout=10):
+        prune(path.parent, path, len(content.encode("utf-8")))
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(content, encoding="utf-8", newline="\n")
+        temporary.chmod(0o600)
+        temporary.replace(path)
+
+
+def run(target: str, command: list[str], root: Path = ROOT) -> int:
+    if target not in TARGETS or not command or command[0] not in {"python", "uv"}:
+        raise ValueError("unknown validation target or executable")
+    directory = root / "artifacts/validation"
+    if not directory.resolve().is_relative_to(root.resolve()):
+        raise ValueError("validation receipts must stay inside the checkout")
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / (uuid.uuid4().hex + ".json")
+    started = time.monotonic()
+    receipt: dict[str, Any] = {
+        "format": FORMAT,
+        "scope": "repository-validation",
+        "id": path.stem,
+        "target": target,
+        "source_before": source_identity(root),
+        "source_after": None,
+        "selection": selection(target, command),
+        "profile": {
+            "platform": sys.platform,
+            "machine": platform.machine(),
+            "python": platform.python_version(),
+        },
+        "started_at": datetime.now(UTC).isoformat(),
+        "duration_seconds": None,
+        "state": "running",
+        "exit_status": None,
+        "tests": None,
+        "full_check_passed": False,
+        "production_qualified": False,
+    }
+    write_receipt(path, receipt)
+    status = 127
+    state = "completed"
+    child = None
+    with tempfile.TemporaryDirectory(prefix="deployment-tools-test-results-") as temporary:
+        report = Path(temporary) / "tests.json"
+        invocation = list(command)
+        environment = dict(os.environ)
+        if target == "unit" and command[1:3] == ["-m", "pytest"]:
+            invocation[3:3] = ["-p", "scripts.validation_pytest"]
+            environment["DEPLOYMENT_TOOLS_TEST_REPORT"] = str(report)
+        try:
+            child = subprocess.Popen(invocation, cwd=root, env=environment)
+            status = child.wait()
+            if status < 0:
+                state, status = "interrupted", 128 - status
+        except KeyboardInterrupt:
+            state, status = "interrupted", 130
+            if child is not None and child.poll() is None:
+                child.terminate()
+                try:
+                    child.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    child.kill()
+                    child.wait()
+        except OSError:
+            print("Validation executable could not be started", file=sys.stderr)
+        finally:
+            try:
+                receipt["tests"] = read_test_results(report) if target == "unit" else None
+                receipt["source_after"] = source_identity(root)
+            except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+                receipt["source_after"] = None
+            receipt.update(
+                state=state,
+                exit_status=status,
+                duration_seconds=round(time.monotonic() - started, 6),
+            )
+            receipt["full_check_passed"] = full_check_passed(receipt)
+            write_receipt(path, receipt)
+    print(
+        json.dumps(
+            {
+                "receipt": path.relative_to(root).as_posix(),
+                "exit_status": status,
+                "full_check_passed": receipt["full_check_passed"],
+            }
+        ),
+        file=sys.stderr,
+    )
+    return status
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=["run"])
+    parser.add_argument("--target", choices=sorted(TARGETS), required=True)
+    args, command = parser.parse_known_args()
+    if command[:1] == ["--"]:
+        command = command[1:]
+    try:
+        status = run(args.target, command)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+        raise SystemExit("validation receipt could not be recorded") from None
+    raise SystemExit(status)
+
+
+if __name__ == "__main__":
+    main()
