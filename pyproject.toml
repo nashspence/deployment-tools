@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==82.0.1"]
+requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,12 +7,17 @@ name = "deployment-tools"
 version = "0.1.0.dev0"
 description = "Generic SSH-oriented deployment tools: contract models and implementation scaffold"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = [
   "jsonschema==4.26.0",
   "referencing==0.37.0",
   "PyYAML==6.0.3",
-  "cryptography==46.0.5",
+  "cryptography==50.0.2",
 ]
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "setuptools==84.0.0", "pip-audit>=2.10,<3"]
 
 [project.scripts]
 domain-ops = "deployment_tools.cli:domain_main"

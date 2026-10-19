@@ -1,11 +1,19 @@
-.PHONY: check test package
+.PHONY: setup check test package audit
+setup:
+	mise exec -- uv sync --locked --group dev
+	git config --local core.hooksPath .githooks
+
 check:
-	python scripts/check_public.py
-	python scripts/check_contracts.py
-	python -m pytest
+	mise exec -- uv run --locked --group dev python scripts/check_public.py
+	mise exec -- uv run --locked --group dev python scripts/check_contracts.py
+	$(MAKE) test
 
 test:
-	python -m pytest
+	mise exec -- uv run --locked --group dev python -m pytest
 
 package:
-	python -c "from setuptools.build_meta import build_wheel; build_wheel('dist')"
+	mise exec -- uv build --wheel
+
+audit:
+	mise exec -- uv export --quiet --locked --all-groups --no-emit-project --no-hashes --format requirements-txt --output-file .venv/audit-requirements.txt
+	mise exec -- uv run --locked --group dev pip-audit --strict --no-deps --disable-pip -r .venv/audit-requirements.txt

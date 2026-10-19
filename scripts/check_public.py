@@ -20,7 +20,7 @@ SECRET_PATTERNS=[
 BLOCKED_PARTS={'.ssh','.env','baseline','historical','history','audit','docs','plan','evidence','node_modules'}
 BLOCKED_SUFFIX={'.age','.pem','.key','.bundle','.sqlite','.db','.zip','.gz','.pdf','.docx','.md'}
 ALLOWED_DOMAINS={'github.com','api.github.com','raw.githubusercontent.com','docs.github.com',
-                 'json-schema.org','pypi.org','files.pythonhosted.org','localhost'}
+                 'json-schema.org','pypi.org','files.pythonhosted.org','localhost','www.apache.org','apache.org'}
 
 def git(*args):
     return subprocess.check_output(['git',*args],cwd=ROOT,stderr=subprocess.DEVNULL)
