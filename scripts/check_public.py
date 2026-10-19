@@ -51,7 +51,10 @@ def check_text(name,text,extra_terms=(),*,git_commit=False):
         except ValueError:pass
     email_text=text
     if git_commit:
-        email_text=re.sub(r'^(?:author|committer) GitHub <noreply@github\.com> [0-9]+ [+-][0-9]{4}$','',text,flags=re.MULTILINE)
+        headers,separator,message=text.partition('\n\n')
+        headers=re.sub(r'^(?:author|committer) [^<>\n]+ <[^<>\n]+> [0-9]+ [+-][0-9]{4}$','',headers,flags=re.MULTILINE)
+        message=re.sub(r'^Signed-off-by: dependabot\[bot\] <support@github\.com>$','',message,flags=re.MULTILINE)
+        email_text=headers+separator+message
     for email in re.findall(r'(?<![\w.+-])[\w.+-]+@([\w.-]+\.[A-Za-z]{2,})',email_text):
         if not (email.endswith(('.invalid','.example','.test','users.noreply.github.com')) or email in {'example.com','example.org','example.net'}):
             problems.append(f'{name}: non-example email/SSH domain')
