@@ -3,9 +3,7 @@
 import json
 from urllib.parse import unquote, urldefrag, urljoin
 
-from jsonschema import Draft202012Validator
-
-from deployment_tools.models.contracts import (
+from deployment_tools_contracts.validation import (
     SCHEMAS,
     strict_json,
     strict_yaml,
@@ -16,6 +14,8 @@ from deployment_tools.models.contracts import (
     validate_host,
     validate_plan,
 )
+from jsonschema import Draft202012Validator
+
 from tests.support import fixture_path
 
 

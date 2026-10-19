@@ -18,3 +18,5 @@ coverage.xml
 *.bundle
 .mypy_cache/
 .ruff_cache/
+mise.local.toml
+mise.local.lock

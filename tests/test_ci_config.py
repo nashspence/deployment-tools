@@ -23,8 +23,12 @@ class WorkflowSafety(unittest.TestCase):
         commands = "\n".join(
             step.get("run", "") for step in self.workflow["jobs"]["tests"]["steps"]
         )
-        self.assertIn('uv sync --locked --group dev --python "${{ matrix.python }}"', commands)
-        self.assertIn('uv run --locked --group dev --python "${{ matrix.python }}"', commands)
+        self.assertIn(
+            'uv sync --locked --all-packages --group dev --python "${{ matrix.python }}"', commands
+        )
+        self.assertIn(
+            'uv run --locked --all-packages --group dev --python "${{ matrix.python }}"', commands
+        )
 
     def test_no_privileged_pr_target(self):
         self.assertNotIn("pull_request_target", self.workflow["on"])
@@ -38,8 +42,14 @@ class WorkflowSafety(unittest.TestCase):
     def test_no_self_hosted_runners_or_secrets(self):
         text = (ROOT / ".github/workflows/ci.yml").read_text()
         self.assertNotIn("secrets.", text)
-        for job in self.workflow["jobs"].values():
-            self.assertEqual(job["runs-on"], "ubuntu-24.04")
+        for name, job in self.workflow["jobs"].items():
+            if name == "installed":
+                self.assertEqual(job["runs-on"], "${{ matrix.os }}")
+                self.assertEqual(
+                    job["strategy"]["matrix"]["os"], ["ubuntu-24.04", "macos-15", "windows-2025"]
+                )
+            else:
+                self.assertEqual(job["runs-on"], "ubuntu-24.04")
 
     def test_actions_are_sha_pinned(self):
         for job in self.workflow["jobs"].values():
@@ -110,7 +120,7 @@ class SecurityGates(unittest.TestCase):
 
         config = tomllib.loads((ROOT / "pyproject.toml").read_text())
         self.assertTrue(config["tool"]["mypy"]["strict"])
-        self.assertEqual(config["tool"]["mypy"]["files"], ["src"])
+        self.assertIn("packages", config["tool"]["mypy"]["files"])
         workflow = yaml.load(
             (ROOT / ".github/workflows/ci.yml").read_text(), Loader=yaml.BaseLoader
         )
@@ -119,8 +129,8 @@ class SecurityGates(unittest.TestCase):
             self.assertNotIn("if", job)
             self.assertNotIn("continue-on-error", job)
         commands = "\n".join(step.get("run", "") for step in workflow["jobs"]["ruff"]["steps"])
-        self.assertIn("ruff check src scripts tests", commands)
-        self.assertIn("ruff format --check src scripts tests", commands)
+        self.assertIn("ruff check packages scripts tests", commands)
+        self.assertIn("ruff format --check packages scripts tests", commands)
 
     def test_commit_hook_propagates_unit_failure(self):
         import os

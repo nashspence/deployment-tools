@@ -4,8 +4,8 @@ import json
 import unittest
 from pathlib import Path
 
-from deployment_tools.models.contracts import ContractError, strict_yaml
-from deployment_tools.models.directory import (
+from deployment_tools_contracts.validation import ContractError, strict_yaml
+from deployment_tools_directory.projection import (
     NOW,
     WORKFLOWS,
     ReloadModel,
@@ -19,6 +19,7 @@ from deployment_tools.models.directory import (
     validate_runtime,
     workflow,
 )
+
 from tests.support import fixture_path
 
 R = Path(__file__).resolve().parents[1]

@@ -8,6 +8,7 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -59,11 +60,11 @@ ALLOWED_DOMAINS = {
 }
 
 
-def git(*args):
+def git(*args: str) -> bytes:
     return subprocess.check_output(["git", *args], cwd=ROOT, stderr=subprocess.DEVNULL)
 
 
-def concrete_host_allowed(host):
+def concrete_host_allowed(host: str) -> bool:
     if (
         host in ALLOWED_DOMAINS
         or host.endswith((".invalid", ".example", ".test"))
@@ -84,7 +85,9 @@ def concrete_host_allowed(host):
         return False
 
 
-def check_text(name, text, extra_terms=(), *, git_commit=False):
+def check_text(
+    name: str, text: str, extra_terms: Sequence[str] = (), *, git_commit: bool = False
+) -> list[str]:
     problems = []
     for regex in SECRET_PATTERNS:
         if regex.search(text):
@@ -127,7 +130,7 @@ def check_text(name, text, extra_terms=(), *, git_commit=False):
     return problems
 
 
-def run(history=False, denylist=None):
+def run(history: bool = False, denylist: str | None = None) -> int:
     terms = json.loads(Path(denylist).read_text()) if denylist else []
     problems = []
     objects = 0

@@ -7,7 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from deployment_tools.cli import main
+from deployment_tools_cli.validation import main
+
 from tests.support import FIXTURES, ROOT
 
 
@@ -71,7 +72,7 @@ class Scaffold(unittest.TestCase):
             self.assertNotIn(str(p), out.getvalue())
 
     def test_imported_cli_does_not_dispatch_network(self):
-        source = (ROOT / "src/deployment_tools/cli.py").read_text()
+        source = (ROOT / "packages/cli-support/src/deployment_tools_cli/validation.py").read_text()
         self.assertNotIn("subprocess", source)
         self.assertNotIn("requests", source)
 

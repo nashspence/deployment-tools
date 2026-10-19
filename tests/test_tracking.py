@@ -10,11 +10,11 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch
 
-from deployment_tools.models.client import check_closeout, validate_session
-from deployment_tools.models.contracts import ContractError, canonical, validate
-from deployment_tools.models.journal import Journal
-from deployment_tools.models.submission import prepare_delivery, submit_once
-from deployment_tools.models.tracking import (
+from deployment_tools_client.submission import prepare_delivery, submit_once
+from deployment_tools_client.workspace import check_closeout, validate_session
+from deployment_tools_contracts.validation import ContractError, canonical, validate
+from deployment_tools_owner.journal import Journal
+from deployment_tools_reporting.reports import (
     comment_match,
     render_issue_comment,
     report,
@@ -22,8 +22,9 @@ from deployment_tools.models.tracking import (
     validate_index_auth,
     validate_profile,
 )
-from deployment_tools.models.tracking_store import EventStore
-from tests.support import PACKAGE, fixture_path
+from deployment_tools_reporting.store import EventStore
+
+from tests.support import ROOT, fixture_path
 
 
 def load(p):
@@ -499,7 +500,9 @@ class Noninterference(unittest.TestCase):
         self.assertEqual(r["tracking"], "not-attempted")
 
     def test_no_tracking_import_dependency(self):
-        tree = ast.parse((PACKAGE / "models/submission.py").read_text())
+        tree = ast.parse(
+            (ROOT / "packages/client/src/deployment_tools_client/submission.py").read_text()
+        )
         imports = [
             ast.unparse(n) for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
         ]
@@ -512,7 +515,7 @@ class Noninterference(unittest.TestCase):
 
     def test_tracking_unavailable_cannot_be_called_by_submission(self):
         with patch(
-            "deployment_tools.models.tracking.report", side_effect=AssertionError("must not run")
+            "deployment_tools_reporting.reports.report", side_effect=AssertionError("must not run")
         ):
             d = prepare_delivery(self.template)
             r = submit_once(d, lambda x: {"request_id": x["request_id"], "state": "accepted"})
@@ -644,10 +647,10 @@ class Noninterference(unittest.TestCase):
         import contextlib
         import io
 
-        from deployment_tools.cli import main
+        from deployment_tools_cli.validation import main
 
         with patch(
-            "deployment_tools.models.tracking.report",
+            "deployment_tools_reporting.reports.report",
             side_effect=AssertionError("reporting must be explicit"),
         ):
             with contextlib.redirect_stdout(io.StringIO()):
@@ -656,7 +659,7 @@ class Noninterference(unittest.TestCase):
 
 class DiscoveryNonblocking(unittest.TestCase):
     def test_directory_has_no_receipt_preflight_or_storage_gate(self):
-        from deployment_tools.models.directory import WORKFLOWS
+        from deployment_tools_directory.projection import WORKFLOWS
 
         text = " ".join(x for steps in WORKFLOWS.values() for x in steps).lower()
         for obsolete in [

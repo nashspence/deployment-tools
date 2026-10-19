@@ -1,52 +1,30 @@
-[build-system]
-requires = ["setuptools==84.0.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "deployment-tools"
-version = "0.1.0.dev0"
-description = "Generic SSH-oriented deployment tools: contract models and implementation scaffold"
-requires-python = ">=3.11"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
-dependencies = [
-  "jsonschema==4.26.0",
-  "referencing==0.37.0",
-  "PyYAML==6.0.3",
-  "cryptography==50.0.2",
-]
+[tool.uv.workspace]
+members = ["packages/*"]
 
 [dependency-groups]
 dev = [
   "pytest==9.1.1",
   "setuptools==84.0.0",
   "pip-audit>=2.10,<3",
+  "reuse>=6,<7",
+  "packaging>=26,<27",
+  "pip>=26,<27",
   "mypy>=2.3,<3",
   "ruff>=0.16,<1",
   "types-PyYAML>=6,<7",
   "types-jsonschema>=4.26,<5",
 ]
 
-[project.scripts]
-domain-ops = "deployment_tools.cli:domain_main"
-host-ops = "deployment_tools.cli:host_main"
-app-ops = "deployment_tools.cli:app_main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-data]
-deployment_tools = ["contracts/*.json", "contracts/*.sql"]
-
 [tool.pytest.ini_options]
-pythonpath = ["src", "."]
+pythonpath = ["."]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src"]
+exclude = ["(^|/)build/"]
+files = ["packages", "scripts/project_policy.py", "scripts/check_repository.py", "scripts/check_wheel.py", "scripts/bundle_install.py", "scripts/distributions.py", "scripts/smoke_installed.py"]
 
 [tool.ruff]
 target-version = "py311"

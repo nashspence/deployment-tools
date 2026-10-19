@@ -1,0 +1,103 @@
+from __future__ import annotations
+
+import argparse
+import importlib
+import importlib.util
+import io
+import json
+import pkgutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--component", required=True)
+    parser.add_argument("--bundle", type=Path, required=True)
+    parser.add_argument("--fixtures", type=Path, required=True)
+    args = parser.parse_args()
+    manifest = json.loads((args.bundle / "manifest.json").read_text())
+    selected = manifest["components"][args.component]
+    expected = set(selected["dependencies"])
+    for item in manifest["components"].values():
+        present = importlib.util.find_spec(item["module"]) is not None
+        if present != (item["distribution"] in expected):
+            raise AssertionError("installed dependency closure changed")
+        if present:
+            module = importlib.import_module(item["module"])
+            assert module.__file__ is not None
+            if not (Path(module.__file__).parent / "py.typed").is_file():
+                raise AssertionError("installed type marker missing")
+            for entry in pkgutil.walk_packages(module.__path__, module.__name__ + "."):
+                importlib.import_module(entry.name)
+    from deployment_tools_contracts import canonical, digest, strict_json, strict_yaml, validate
+
+    data = strict_yaml((args.fixtures / "domain/domain.yaml").read_text())
+    validate("source.schema.json", data)
+    assert strict_json(canonical(data)) == data
+    assert digest(data).startswith("sha256:")
+    if args.component in {"client", "host", "app"}:
+        tool = {"client": "domain-ops", "host": "host-ops", "app": "app-ops"}[args.component]
+        executable = Path(sys.executable).parent / (
+            tool + ".exe" if sys.platform == "win32" else tool
+        )
+        result = subprocess.run(
+            [str(executable), "info", "--json"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=15,
+        )
+        info = json.loads(result.stdout)
+        assert (
+            info["tool"] == tool
+            and info["native_mutations"] is False
+            and info["production_qualified"] is False
+        )
+        subprocess.run(
+            [str(executable), "validate", str(args.fixtures / "domain/domain.yaml"), "--json"],
+            capture_output=True,
+            check=True,
+            timeout=15,
+        )
+        rejected = subprocess.run([str(executable), "apply"], capture_output=True, timeout=15)
+        assert rejected.returncode == 2
+    if args.component == "client":
+        from deployment_tools_client.wire import frame, read_frame
+
+        assert read_frame(io.BytesIO(frame({"test": True}))) == {"test": True}
+    if args.component == "owner-support":
+        from deployment_tools_owner.journal import Journal
+
+        with tempfile.TemporaryDirectory() as temporary:
+            store = Journal(
+                Path(temporary) / "journal.db", "fixture-owner", "fixture-epoch", initialize=True
+            )
+            assert store.generation == 0
+            store.close()
+    if args.component == "reporting":
+        from deployment_tools_reporting.store import EventStore
+
+        event = json.loads((args.fixtures / "tracking/event.json").read_text())
+        with tempfile.TemporaryDirectory() as temporary:
+            reporting = EventStore(
+                Path(temporary) / "index.db", event["domain_id"], "fixture-service", initialize=True
+            )
+            first, envelope = reporting.put(event, principal="fixture-reporter", scopes={"append"})
+            repeated, _ = reporting.put(event, principal="fixture-reporter", scopes={"append"})
+            assert first == 201 and repeated == 200 and envelope["event"] == event
+            reporting.close()
+    if args.component == "directory":
+        from deployment_tools_directory.projection import load_directory, prepare_projection
+
+        projection = prepare_projection(
+            load_directory((args.fixtures / "directory/directory.yaml").read_text())
+        )
+        assert projection["catalogue"]["authority"].startswith("discovery-only")
+    print(json.dumps({"component": args.component, "passed": True, "production_qualified": False}))
+
+
+if __name__ == "__main__":
+    main()

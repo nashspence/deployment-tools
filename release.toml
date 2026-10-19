@@ -1,0 +1,76 @@
+format = "deployment-tools-release/v1"
+version = "0.1.0.dev0"
+stage = "reference-scaffold"
+production_qualified = false
+compatibility_starts_at = "1.0.0"
+python_minimum = "3.11"
+python_tests = ["3.11", "3.12", "3.13"]
+scaffold_install_tests = ["ubuntu-24.04", "macos-15", "windows-2025"]
+native_qualified_profiles = []
+
+[interfaces]
+python_modules = ["deployment_tools_contracts"]
+cli_tools = ["domain-ops", "host-ops", "app-ops"]
+snapshot = "policy/interfaces.json"
+pre_v1_changes = "explicit-reviewed-snapshot-update"
+stable_fields = ["public-python-signatures", "cli-options", "exit-status", "structured-output", "wire-schemas"]
+
+[state]
+inventory = "state/inventory.toml"
+fixture_retention = "immutable-from-introduction"
+transition = "explicit-owner-forward-transition"
+downgrade_support = false
+
+[publication]
+channel = "github-release"
+environment = "release-publication"
+immutable_releases = true
+exact_source_required = true
+source_lock_digests_required = true
+hash_checked_offline_install = true
+qualified_native_release_allowed = false
+
+[governance]
+repository_name = "nashspence/deployment-tools"
+branch = "main"
+workflow_integration_id = 15368
+required_checks = [
+  "Contracts and unit tests (Python 3.11)",
+  "Contracts and unit tests (Python 3.12)",
+  "Contracts and unit tests (Python 3.13)",
+  "Public tree and full-history secret scan",
+  "Build and install wheel outside source checkout",
+  "Dependency review", "Dependency audit", "Strict mypy", "Ruff",
+  "CodeQL (python)", "CodeQL (actions)",
+  "Component and compatibility policy", "Licensing provenance",
+  "Installed distributions (ubuntu-24.04)",
+  "Installed distributions (macos-15)",
+  "Installed distributions (windows-2025)",
+]
+
+[governance.repository]
+visibility = "public"
+has_issues = true
+has_pull_requests = true
+pull_request_creation_policy = "collaborators_only"
+has_projects = false
+has_discussions = false
+has_wiki = false
+allow_auto_merge = true
+allow_squash_merge = true
+allow_merge_commit = false
+allow_rebase_merge = false
+delete_branch_on_merge = true
+
+[governance.security]
+query_suite = "security-extended"
+languages = ["python", "actions"]
+security_alerts_threshold = "all"
+alerts_threshold = "all"
+secret_scanning = "enabled"
+secret_scanning_push_protection = "enabled"
+dependabot_security_updates = "enabled"
+
+[governance.workflows]
+default_workflow_permissions = "read"
+can_approve_pull_request_reviews = false
