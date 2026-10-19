@@ -11,6 +11,7 @@ from typing import Any
 from urllib.parse import unquote, urlsplit
 
 import yaml
+from deployment_tools_contracts.bounds import Bounds, bounds
 from deployment_tools_contracts.validation import (
     SCHEMAS,
     ContractError,
@@ -144,6 +145,18 @@ def validate_directory(v: dict[str, Any]) -> dict[str, Any]:
     return v
 
 
+@bounds(
+    Bounds(
+        id="directory.load",
+        work="O(input_bytes)-bounded-parser-depth",
+        extent="complete-document-or-rejection",
+        limits=(("input_bytes", 65536), ("nesting", 16)),
+        capacity=(),
+        proofs=(
+            "tests/test_engineering.py::test_directory_capacity_is_rejection_not_silent_truncation",
+        ),
+    )
+)
 def load_directory(text: str) -> dict[str, Any]:
     if len(text.encode()) > 65536:
         raise ContractError("directory input limit")

@@ -1,0 +1,99 @@
+from __future__ import annotations
+
+import copy
+import json
+from unittest.mock import patch
+
+import pytest
+
+from scripts import profile, run_stats, validation
+from scripts.engineering import proof_passed
+from scripts.project_policy import ROOT
+from scripts.validation_pytest import safe_node, write_stats
+from tests.test_validation import checkout, latest  # noqa: F401
+
+
+def test_measurements_include_required_units_and_scopes():
+    observed = run_stats.RunStats().finish()
+    assert run_stats.valid_stats(observed)
+    assert observed["rss_high_water_bytes"] > 0
+    assert observed["rss_high_water_scope"] == "process-lifetime"
+    assert observed["non_contractual"] is True
+    for field in ("elapsed_seconds", "cpu_user_seconds", "rss_high_water_bytes"):
+        invalid = {**observed, field: float("nan")}
+        assert not run_stats.valid_stats(invalid)
+    assert not run_stats.valid_stats(None)
+
+
+def test_performance_targets_are_report_only_even_when_missed():
+    observed = run_stats.RunStats().finish()
+    for metric in ("elapsed_seconds", "cpu_user_seconds", "rss_high_water_bytes"):
+        observed[metric] = 10**12
+    result = run_stats.comparison(ROOT, ["tests"], observed, success=True, filtered=False)
+    assert result["report_only"] and result["status"] == "compared"
+    assert all(m["status"] == "missed" for m in result["metrics"].values())
+    assert run_stats.valid_stats(observed)
+    for success, filtered in ((False, False), (True, True)):
+        result = run_stats.comparison(ROOT, ["tests"], observed, success=success, filtered=filtered)
+        assert result["status"] == "not-compared"
+    assert (
+        run_stats.comparison(
+            ROOT, ["tests/test_missing.py"], observed, success=True, filtered=False
+        )["status"]
+        == "not-compared"
+    )
+
+
+def test_missing_required_stats_blocks_complete_run_but_large_metrics_do_not(checkout):  # noqa: F811
+    assert validation.run("unit", validation.CANONICAL["unit"], checkout) == 0
+    receipt = latest(checkout)
+    assert receipt["full_check_passed"]
+    assert run_stats.valid_phases(receipt["tests"]["phases"])
+    assert not run_stats.valid_phases({"node": {"call": {"seconds": 1.0}}})
+    large = copy.deepcopy(receipt)
+    large["tests"]["stats"]["elapsed_seconds"] = 10**12
+    large["tests"]["stats"]["rss_high_water_bytes"] = 10**15
+    assert validation.full_check_passed(large)
+    large["tests"]["stats"] = None
+    assert not validation.full_check_passed(large)
+    with patch.object(validation, "read_test_results", return_value=None):
+        assert validation.run("unit", validation.CANONICAL["unit"], checkout) == 2
+    assert not latest(checkout)["full_check_passed"]
+
+
+def test_test_stats_retention_bounds_and_sanitization(tmp_path):
+    unrelated = tmp_path / "artifacts/test-stats/keep.json"
+    unrelated.parent.mkdir(parents=True)
+    unrelated.write_text("retained")
+    for _ in range(35):
+        write_stats(tmp_path, {"format": "deployment-tools-pytest-timing/v1"})
+    assert len(list(unrelated.parent.glob("*.json"))) == 33
+    assert unrelated.read_text() == "retained"
+    assert "PRIVATE_SENTINEL" not in safe_node("tests/example.py::test_a[PRIVATE_SENTINEL/invalid]")
+    with pytest.raises(ValueError, match="capacity"):
+        write_stats(tmp_path, {"value": "x" * 2_000_001})
+
+
+def test_profile_is_bounded_non_contractual_and_cannot_qualify(tmp_path, monkeypatch):
+    monkeypatch.setattr(profile, "ROOT", tmp_path)
+    monkeypatch.setattr(profile, "source_identity", lambda: {"clean": False})
+    assert profile.run("canonical", 256, 3) == 0
+    value = json.loads((tmp_path / "artifacts/profiles/canonical.json").read_text())
+    assert value["non_contractual"] is True
+    assert value["qualification_eligible"] is False
+    assert value["production_qualified"] is False
+    assert run_stats.valid_stats(value["stats"])
+    assert value["functions"] and len(value["functions"]) <= 30
+    assert all(not row["file"].startswith("/") for row in value["functions"])
+    for size, repeats in ((0, 1), (65537, 1), (1, 1001)):
+        with pytest.raises(ValueError, match="unbounded"):
+            profile.run("canonical", size, repeats)
+    with pytest.raises(ValueError):
+        profile.run("arbitrary-command", 1, 1)
+
+
+def test_parameterized_proofs_require_all_executed_cases_and_no_skips():
+    reference = "tests/example.py::test_a"
+    assert proof_passed(reference, {reference + "[a]": "passed", reference + "[b]": "passed"})
+    assert not proof_passed(reference, {reference + "[a]": "passed", reference + "[b]": "skipped"})
+    assert not proof_passed(reference, {})

@@ -14,8 +14,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from deployment_tools_contracts.bounds import Bounds, bounds
 from deployment_tools_contracts.validation import ContractError, canonical, digest
 
+from deployment_tools_reporting.migrations import check_revision
 from deployment_tools_reporting.reports import validate_event
 
 
@@ -35,6 +37,7 @@ class EventStore:
             raise ContractError("missing index; explicit initialization required")
         self.db = sqlite3.connect(path, timeout=0.25)
         try:
+            check_revision(self.db)
             self.db.execute("PRAGMA journal_mode=WAL")
             self.db.execute("PRAGMA synchronous=FULL")
             self.db.execute("PRAGMA foreign_keys=ON")
@@ -84,6 +87,19 @@ class EventStore:
             "event": json.loads(row[5]),
         }
 
+    @bounds(
+        Bounds(
+            id="reporting.put",
+            work="O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan",
+            extent="one-immutable-event",
+            limits=(),
+            capacity=("max_events", "max_workflows"),
+            proofs=(
+                "tests/test_engineering.py::test_reporting_capacity_rejects_new_identity_but_allows_replay",
+                "tests/test_engineering.py::test_reporting_crash_replay_preserves_committed_event",
+            ),
+        )
+    )
     def put(
         self,
         event: dict[str, Any],
@@ -157,6 +173,19 @@ class EventStore:
         ).fetchone()
         return self._envelope(row) if row else None
 
+    @bounds(
+        Bounds(
+            id="reporting.events",
+            work="O(log(retained_events)+page_items^2*event_bytes)",
+            extent="complete-page-with-resume-cursor",
+            limits=(("page_items", 100), ("page_items_bytes", 1000000)),
+            capacity=(),
+            proofs=(
+                "tests/test_engineering.py::test_event_pages_use_bounded_indexed_work_and_preserve_full_extent",
+                "tests/test_engineering.py::test_event_byte_capacity_continues_or_rejects_explicitly",
+            ),
+        )
+    )
     def events(
         self,
         workflow_id: str,
@@ -177,6 +206,8 @@ class EventStore:
         for row in rows[:limit]:
             candidate = [*items, self._envelope(row)]
             if len(canonical(candidate)) > 1000000:
+                if not items:
+                    raise ContractError("record exceeds response capacity")
                 break
             items = candidate
         more = len(rows) > len(items)
@@ -189,6 +220,18 @@ class EventStore:
             "next_after": items[-1]["sequence"] if more and items else None,
         }
 
+    @bounds(
+        Bounds(
+            id="reporting.workflows",
+            work="O(retained_events*log(retained_events))-reference-grouping",
+            extent="complete-page-with-resume-cursor",
+            limits=(("page_items", 100),),
+            capacity=(),
+            proofs=(
+                "tests/test_engineering.py::test_workflow_pagination_preserves_logical_extent",
+            ),
+        )
+    )
     def workflows(
         self,
         *,

@@ -18,6 +18,7 @@ from typing import Any
 from filelock import FileLock
 
 from scripts.project_policy import ROOT
+from scripts.run_stats import valid_phases, valid_stats
 
 FORMAT = "deployment-tools-validation/v1"
 MAX_RECEIPTS = 64
@@ -49,7 +50,17 @@ CANONICAL = {
     "dist-smoke": ["python", "-m", "scripts.distributions", "smoke-fresh"],
     "operation-qualification": ["python", "-m", "scripts.operation_qualification", "check"],
 }
-TARGETS = set(CANONICAL) | {"ruff-fix", "format", "bundle", "audit"}
+TEST_TARGETS = {"unit", "database-qualification"}
+CANONICAL["database-qualification"] = ["python", "-m", "pytest", "-q", "tests/test_migrations.py"]
+CANONICAL["engineering"] = ["python", "-m", "scripts.engineering", "check"]
+TARGETS = set(CANONICAL) | {
+    "ruff-fix",
+    "format",
+    "bundle",
+    "audit",
+    "profile",
+    "database-qualification",
+}
 SAFE_NODE = re.compile(r"tests/[A-Za-z0-9_./-]+\.py(?:::[A-Za-z0-9_]+)+(?:\[[A-Za-z0-9_.-]+\])?")
 
 
@@ -80,11 +91,14 @@ def source_identity(root: Path = ROOT) -> dict[str, Any]:
 
 def selection(target: str, command: list[str]) -> dict[str, Any]:
     normalized = list(command)
-    if target == "unit":
+    if target in TEST_TARGETS:
         normalized = [
             part
             for part in command
-            if not re.fullmatch(r"--junitxml=artifacts/[A-Za-z0-9_./-]+\.xml", part)
+            if not re.fullmatch(
+                r"--junitxml=artifacts/[A-Za-z0-9_./-]+\.xml|--durations=[0-9]+|--durations-min=[0-9.]+",
+                part,
+            )
         ]
     overrides = [key for key in OVERRIDES if os.environ.get(key)]
     # Record source test references only; arbitrary arguments and environment values stay out.
@@ -95,7 +109,7 @@ def selection(target: str, command: list[str]) -> dict[str, Any]:
     ]
     return {
         "canonical": normalized == CANONICAL.get(target) and not overrides,
-        "tests": tests if target == "unit" else [],
+        "tests": tests if target in TEST_TARGETS else [],
         "invocation_sha256": digest(command),
         "environment_overrides": overrides,
     }
@@ -108,7 +122,11 @@ def read_test_results(path: Path) -> dict[str, Any] | None:
     collected = value["collected"]
     outcomes = value["outcomes"]
     if (
-        not collected
+        not valid_stats(value.get("stats"))
+        or not valid_phases(value.get("phases"))
+        or value.get("profiling_target", {}).get("report_only") is not True
+        or set(value.get("phases", {})) != set(collected)
+        or not collected
         or len(collected) != len(set(collected))
         or not all(SAFE_NODE.fullmatch(node) for node in collected)
         or set(outcomes) != set(collected)
@@ -116,6 +134,10 @@ def read_test_results(path: Path) -> dict[str, Any] | None:
     ):
         return None
     return {
+        "stats": value["stats"],
+        "phases": value["phases"],
+        "fixtures": value["fixtures"],
+        "profiling_target": value["profiling_target"],
         "collected_sha256": digest(sorted(collected)),
         "outcomes": outcomes,
         "exit_status": value["exit_status"],
@@ -131,9 +153,10 @@ def full_check_passed(receipt: dict[str, Any]) -> bool:
         and receipt["source_before"]["clean"]
         and receipt["source_before"] == receipt["source_after"]
         and (
-            receipt["target"] != "unit"
+            receipt["target"] not in TEST_TARGETS
             or (
                 tests
+                and valid_stats(tests.get("stats"))
                 and tests["exit_status"] == 0
                 and tests["outcomes"]
                 and all(result in {"passed", "skipped"} for result in tests["outcomes"].values())
@@ -213,7 +236,7 @@ def run(target: str, command: list[str], root: Path = ROOT) -> int:
         report = Path(temporary) / "tests.json"
         invocation = list(command)
         environment = dict(os.environ)
-        if target == "unit" and command[1:3] == ["-m", "pytest"]:
+        if target in TEST_TARGETS and command[1:3] == ["-m", "pytest"]:
             invocation[3:3] = ["-p", "scripts.validation_pytest"]
             environment["DEPLOYMENT_TOOLS_TEST_REPORT"] = str(report)
         try:
@@ -234,10 +257,13 @@ def run(target: str, command: list[str], root: Path = ROOT) -> int:
             print("Validation executable could not be started", file=sys.stderr)
         finally:
             try:
-                receipt["tests"] = read_test_results(report) if target == "unit" else None
+                receipt["tests"] = read_test_results(report) if target in TEST_TARGETS else None
                 receipt["source_after"] = source_identity(root)
             except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
                 receipt["source_after"] = None
+            if status == 0 and target in TEST_TARGETS and receipt["tests"] is None:
+                status = 2
+                print("Required test statistics/results are missing or invalid", file=sys.stderr)
             receipt.update(
                 state=state,
                 exit_status=status,

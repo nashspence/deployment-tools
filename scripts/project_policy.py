@@ -195,7 +195,16 @@ def fixture_history_errors(root: Path) -> list[str]:
         return ["full history required to check immutable state fixtures"]
     paths = set(
         subprocess.run(
-            ["git", "log", "--diff-filter=A", "--name-only", "--format=", "--", "state/fixtures"],
+            [
+                "git",
+                "log",
+                "--diff-filter=A",
+                "--name-only",
+                "--format=",
+                "--",
+                "state/fixtures",
+                "packages/*/src/*/migrations/versions/v*.py",
+            ],
             cwd=root,
             capture_output=True,
             text=True,
@@ -216,7 +225,7 @@ def fixture_history_errors(root: Path) -> list[str]:
         ).stdout
         path = root / name
         if not path.is_file() or path.is_symlink() or path.read_bytes() != original:
-            errors.append("immutable state fixture changed or removed: " + name)
+            errors.append("immutable state fixture/migration changed or removed: " + name)
     return errors
 
 

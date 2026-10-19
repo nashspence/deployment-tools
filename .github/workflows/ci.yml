@@ -46,8 +46,9 @@ jobs:
       - run: uv sync --locked --all-packages --group dev --python "${{ matrix.python }}"
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python scripts/check_public.py
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.check_contracts
-      - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.validation run --target unit -- python -m pytest -q tests --junitxml=artifacts/unit-tests.xml
+      - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.validation run --target unit -- python -m pytest -q tests --durations=30 --durations-min=0.25 --junitxml=artifacts/unit-tests.xml
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.operation_qualification report --require-current-proofs
+      - run: uv run --locked --all-packages --group dev python -m scripts.engineering report --require-current-proofs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ always() }}
         with:
@@ -56,6 +57,8 @@ jobs:
             artifacts/unit-tests.xml
             artifacts/validation/*.json
             artifacts/operation-qualification.json
+            artifacts/engineering-qualification.json
+            artifacts/test-stats/*.json
           retention-days: 7
           if-no-files-found: ignore
 
@@ -148,6 +151,7 @@ jobs:
       - run: uv sync --locked --all-packages --group dev --python 3.12
       - run: uv run --locked --all-packages --group dev python -m scripts.project_policy --history
       - run: uv run --locked --all-packages --group dev python -m scripts.validation run --target operation-qualification -- python -m scripts.operation_qualification check
+      - run: uv run --locked --all-packages --group dev python -m scripts.engineering check
       - run: uv run --locked --all-packages --group dev python -m scripts.check_repository --scope public
         env:
           GH_TOKEN: ${{ github.token }}

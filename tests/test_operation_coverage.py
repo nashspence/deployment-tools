@@ -132,6 +132,7 @@ def test_unknown_implementation_binding_fails(tmp_path):
 
 def test_report_requires_current_complete_executed_proofs(monkeypatch, tmp_path):
     import scripts.operation_qualification as operations
+    from scripts.run_stats import RunStats
     from scripts.validation import CANONICAL, FORMAT, digest
 
     coverage = build_map()
@@ -155,7 +156,11 @@ def test_report_requires_current_complete_executed_proofs(monkeypatch, tmp_path)
         "source_before": source,
         "source_after": source,
         "selection": {"canonical": True, "invocation_sha256": digest(CANONICAL["unit"])},
-        "tests": {"exit_status": 0, "outcomes": dict.fromkeys(nodes, "passed")},
+        "tests": {
+            "exit_status": 0,
+            "outcomes": dict.fromkeys(nodes, "passed"),
+            "stats": RunStats().finish(),
+        },
         "full_check_passed": True,
         "production_qualified": False,
     }

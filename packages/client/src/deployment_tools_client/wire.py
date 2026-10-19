@@ -7,6 +7,7 @@ import shlex
 import struct
 from typing import Any, BinaryIO
 
+from deployment_tools_contracts.bounds import Bounds, bounds
 from deployment_tools_contracts.validation import MAX_BYTES, ContractError, canonical, strict_json
 
 
@@ -31,6 +32,18 @@ def _exact(stream: BinaryIO, length: int) -> bytes:
     return b"".join(chunks)
 
 
+@bounds(
+    Bounds(
+        id="wire.read-frame",
+        work="O(frame_bytes)",
+        extent="one-complete-frame",
+        limits=(("frame_bytes", 1048576),),
+        capacity=(),
+        proofs=(
+            "tests/test_engineering.py::test_frame_work_tracks_current_frame_not_stream_extent",
+        ),
+    )
+)
 def read_frame(stream: BinaryIO) -> dict[str, Any]:
     length = struct.unpack(">I", _exact(stream, 4))[0]
     if not 0 < length <= MAX_BYTES:

@@ -70,6 +70,7 @@ def main() -> None:
         assert read_frame(io.BytesIO(frame({"test": True}))) == {"test": True}
     if args.component == "owner-support":
         from deployment_tools_owner.journal import Journal
+        from deployment_tools_owner.migrations import upgrade
 
         with tempfile.TemporaryDirectory() as temporary:
             store = Journal(
@@ -77,7 +78,12 @@ def main() -> None:
             )
             assert store.generation == 0
             store.close()
+            upgrade(Path(temporary) / "journal.db")
+            reopened = Journal(Path(temporary) / "journal.db", "fixture-owner", "fixture-epoch")
+            assert reopened.generation == 0
+            reopened.close()
     if args.component == "reporting":
+        from deployment_tools_reporting.migrations import upgrade as reporting_upgrade
         from deployment_tools_reporting.store import EventStore
 
         event = json.loads((args.fixtures / "tracking/event.json").read_text())
@@ -89,6 +95,12 @@ def main() -> None:
             repeated, _ = reporting.put(event, principal="fixture-reporter", scopes={"append"})
             assert first == 201 and repeated == 200 and envelope["event"] == event
             reporting.close()
+            reporting_upgrade(Path(temporary) / "index.db")
+            reopened_index = EventStore(
+                Path(temporary) / "index.db", event["domain_id"], "fixture-service"
+            )
+            assert reopened_index.put(event, principal="reader", scopes={"append"})[0] == 200
+            reopened_index.close()
     if args.component == "directory":
         from deployment_tools_directory.projection import load_directory, prepare_projection
 
