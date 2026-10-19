@@ -1,0 +1,41 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "CleanupReceipt",
+  "owner": {
+    "tool": "app-ops",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "epoch": "44444444-4444-4444-8444-444444444444"
+  },
+  "operation_id": "00000000-0000-4000-8000-000000000030",
+  "plan_digest": "sha256:b19a828d5515a859581c3181db346121e4d113cead4e87a914e7810bbac0cb09",
+  "account": "app-demo-app",
+  "started_at": "2026-10-19T12:00:00Z",
+  "finished_at": "2026-10-19T12:00:02Z",
+  "items": [
+    {
+      "handle": "sha256:f9b4fa935bad938ae659c99dc21313e6eeae24d1b89e6cf17648b7b2b53c08c9",
+      "outcome": "removed",
+      "evidence": [
+        "sha256:54e30f93df7a85bbc14d378cdfb6708b7948309a01cce480e22bb5289e9c8563"
+      ]
+    },
+    {
+      "handle": "sha256:afd844c5c60075285b342c5066758a2d6580c66f41f03e9358bce1576e8a2854",
+      "outcome": "removed",
+      "evidence": [
+        "sha256:ea72e269ddf9e13c7ab8031fc54297e95d7d207fb4b733e01f59d4909f176079"
+      ]
+    },
+    {
+      "handle": "sha256:382dd3eb72f9710a91808e24c772efae56954b74ac825d472aea1578671eca2b",
+      "outcome": "removed",
+      "evidence": [
+        "sha256:653a235ab983e4b1dca59fb7a6e6827981e1da2b0d0c3097b7c2ae05277d86f9"
+      ]
+    }
+  ],
+  "before_used_bytes": 2147483648,
+  "after_used_bytes": 2095054848,
+  "freed_bytes_attributable": null,
+  "state": "verified-complete"
+}

@@ -1,0 +1,11 @@
+{
+  "format": "domain-ops-directory/workflow/v2",
+  "intent": "plan-change",
+  "steps": [
+    "Inspect the independently authenticated native owner, its epoch, accepted source and active holds for the finite intended resources.",
+    "Prepare a source/image/secret-pinned plan with checkpoint, interruption and recovery consequences. A source commit or test pass is not deployment approval.",
+    "Allocate the owner/epoch/request identity once before submission and reuse it after uncertainty. No client file or tracker write is required; the owner durably accepts the reviewed plan before effects.",
+    "A timeout means uncertain acceptance. Do not replay under another request ID or endpoint just because a command returned an SSH error."
+  ],
+  "executes": false
+}

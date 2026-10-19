@@ -1,0 +1,11 @@
+{
+  "format": "domain-ops-directory/workflow/v2",
+  "intent": "cleanup",
+  "steps": [
+    "Stop local writers and account for every branch, stash, staged/dirty/untracked file and linked worktree. Commit and checked push do not prove all other work was preserved.",
+    "Publish, retain or export required source and test-work obligations outside the task tree. Git bundles alone do not contain unfinished files. Optional receipt-only reporting is not a cleanup prerequisite.",
+    "Inspect accepted or uncertain work at the actual owners when necessary. Retaining original request references is useful, but missing tracking alone does not block cleanup or cancel an operation.",
+    "Run workspace close --plan, then recheck with --apply. The initial close command records closure but never recursively deletes files. Remove only the explicitly verified disposable paths afterward. Missing optional tracking produces a warning, not a deletion veto."
+  ],
+  "executes": false
+}

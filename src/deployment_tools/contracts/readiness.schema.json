@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/readiness.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/readiness/v1"
+    },
+    "resource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "domain",
+            "host",
+            "app",
+            "source",
+            "dns",
+            "recovery",
+            "publisher",
+            "backend",
+            "adapter",
+            "interface",
+            "dataset",
+            "component"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "owner_approval": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "old_owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "new_owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 24,
+            "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+          },
+          "repository": {
+            "type": "object",
+            "properties": {
+              "instance": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "repository_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "name": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+              }
+            },
+            "required": [
+              "instance",
+              "repository_id",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 64,
+            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+          },
+          "entrypoint": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+          },
+          "closure_digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "source_id",
+          "repository",
+          "commit",
+          "entrypoint",
+          "closure_digest"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 256
+    },
+    "checkpoint": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 71,
+          "maxLength": 71,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "independent_restore_evidence": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 71,
+          "maxLength": 71,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fence_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 71,
+        "maxLength": 71,
+        "pattern": "^sha256:[0-9a-f]{64}$"
+      },
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "max_downtime_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "max_data_loss_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retention_disposition": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "credential_custody_record": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 71,
+          "maxLength": 71,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "required_cases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$",
+        "minLength": 1,
+        "maxLength": 96
+      },
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "case_evidence": {
+      "type": "object",
+      "minProperties": 0,
+      "maxProperties": 256,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "not_run",
+              "passed",
+              "failed",
+              "not_applicable"
+            ]
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 71,
+                "maxLength": 71,
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "evidence",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "state": {
+      "enum": [
+        "discovery",
+        "blocked",
+        "ready",
+        "cutting-over",
+        "accepted",
+        "recovery-required"
+      ]
+    }
+  },
+  "required": [
+    "format",
+    "resource",
+    "owner_approval",
+    "old_owner",
+    "new_owner",
+    "source_refs",
+    "checkpoint",
+    "independent_restore_evidence",
+    "fence_evidence",
+    "max_downtime_seconds",
+    "max_data_loss_seconds",
+    "retention_disposition",
+    "credential_custody_record",
+    "required_cases",
+    "case_evidence",
+    "state"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,13 @@
+# SYNTHETIC, NOT DEPLOYABLE. Compiler supplies admitted names, mounts, guards and loopback-only port grant.
+[Unit]
+Description=Optional report-only index
+[Container]
+Image=registry.example.invalid/deployment-tools/receipts@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Pull=never
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+User=1000:1000
+Exec=/app/receipts serve --config /etc/receipts/runtime.json
+[Service]
+Restart=on-failure

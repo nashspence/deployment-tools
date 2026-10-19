@@ -1,0 +1,144 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "CleanupInventory",
+  "owner": {
+    "tool": "app-ops",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "epoch": "44444444-4444-4444-8444-444444444444"
+  },
+  "account": "app-demo-app",
+  "account_kind": "app",
+  "store_binding": "sha256:f1651f39f8b68d4ee7e9d1071289b20e36a2ce72893db19ef77fa7da4cd21e69",
+  "generation": 3,
+  "observed_at": "2026-10-19T12:00:00Z",
+  "coverage_complete": true,
+  "exclusive_control": true,
+  "busy": false,
+  "control_writable": true,
+  "items": [
+    {
+      "handle": "sha256:9553e618ec9ff5907c0c50eb706a6b060f5934433ce493ebf754d6b6abb2d81e",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000001",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [
+        "accepted-inactive-target"
+      ],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000101",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:c4674c6e4c72a79fadbfeeb55b778055499316271947703e96e2959f5b4ec53a",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000002",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [
+        "hot-predecessor"
+      ],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000102",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:982dae2243441395a5856afafe15384eff79745b53040d01a0284fc8feba2e96",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000003",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [
+        "sha256:99bb61aa7819dabec8ec5e269bb88cf6b2df36724451a5f7122cc7f272c2b44b"
+      ],
+      "protected_by": [],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000103",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:99bb61aa7819dabec8ec5e269bb88cf6b2df36724451a5f7122cc7f272c2b44b",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000004",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [
+        "checkpoint-local-required"
+      ],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000104",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:f9b4fa935bad938ae659c99dc21313e6eeae24d1b89e6cf17648b7b2b53c08c9",
+      "kind": "container",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000005",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [
+        "sha256:982dae2243441395a5856afafe15384eff79745b53040d01a0284fc8feba2e96"
+      ],
+      "protected_by": [],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000105",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:382dd3eb72f9710a91808e24c772efae56954b74ac825d472aea1578671eca2b",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000006",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000106",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:afd844c5c60075285b342c5066758a2d6580c66f41f03e9358bce1576e8a2854",
+      "kind": "scratch",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000007",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000107",
+      "producer_state": "terminal"
+    },
+    {
+      "handle": "sha256:0e16bb6e8cbe81553579f4789786bad43c789e59e5075da9462c8c2245c3aae4",
+      "kind": "volume",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000008",
+      "managed": true,
+      "last_used_at": "2026-10-01T12:00:00Z",
+      "running": false,
+      "references": [],
+      "protected_by": [
+        "persistent-state"
+      ],
+      "deletion_bytes_estimate": 104857600,
+      "producer_operation": "00000000-0000-4000-8000-000000000108",
+      "producer_state": "terminal"
+    }
+  ],
+  "protected_roots": [
+    "sha256:9553e618ec9ff5907c0c50eb706a6b060f5934433ce493ebf754d6b6abb2d81e",
+    "sha256:c4674c6e4c72a79fadbfeeb55b778055499316271947703e96e2959f5b4ec53a",
+    "sha256:99bb61aa7819dabec8ec5e269bb88cf6b2df36724451a5f7122cc7f272c2b44b",
+    "sha256:0e16bb6e8cbe81553579f4789786bad43c789e59e5075da9462c8c2245c3aae4"
+  ],
+  "minimum_age_seconds": 86400,
+  "max_objects": 64
+}

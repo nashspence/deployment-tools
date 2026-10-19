@@ -1,0 +1,12 @@
+{
+  "format": "domain-ops-directory/workflow/v2",
+  "intent": "start",
+  "steps": [
+    "Use the advertised tools and domain repositories as hints; independently verify source identity and enrolled SSH host trust. Forgejo API/Git access is not owner SSH authority.",
+    "Retrieve both sources in a private task workspace; use an independently verified native installation bundle and a new user-level Python virtual environment. Do not run sudo pip or require a container engine.",
+    "Select the domain directory and your reviewed SSH configuration explicitly. Do not automatically execute repository SSH ProxyCommand or Match directives.",
+    "Run domain-ops --domain <domain-path> info --json and then status. Local info does not prove remote permissions; receiving host-ops/app-ops authorize each operation.",
+    "Inspect, test, plan and confirm before mutations. Local owners retain accepted work; Forgejo Issues and optional reference reports are nonblocking conveniences. No directory tool performs these steps."
+  ],
+  "executes": false
+}

@@ -1,0 +1,13 @@
+{
+  "format": "deployment-ops/receipts-auth/v1",
+  "principals": [
+    {
+      "id": "example-reporter",
+      "token_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scopes": [
+        "read",
+        "append"
+      ]
+    }
+  ]
+}

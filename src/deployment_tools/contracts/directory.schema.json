@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/directory.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "domain-ops-directory/v2"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "domain_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96
+    },
+    "tool_prefix": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48,
+      "pattern": "^[a-z][a-z0-9_]{0,47}$"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "published_at": {
+      "$ref": "common.schema.json#/$defs/Time"
+    },
+    "refresh_after_seconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 604800
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "enum": [
+              "deployment-tools",
+              "domain"
+            ]
+          },
+          "clone_url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^(ssh://|https://)[^\\s]+$"
+          },
+          "documentation_url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^https://[^\\s]+$"
+          },
+          "ref_hint": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^refs/(heads|tags)/[^\\s]+$"
+          }
+        },
+        "required": [
+          "id",
+          "clone_url",
+          "documentation_url",
+          "ref_hint"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "owner_endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "tool": {
+            "enum": [
+              "host-ops",
+              "app-ops"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+          },
+          "network": {
+            "enum": [
+              "lan",
+              "vpn"
+            ]
+          },
+          "ssh_alias": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "trust_profile": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "expected_owner_id": {
+            "$ref": "common.schema.json#/$defs/UUID"
+          },
+          "role_hint": {
+            "$ref": "common.schema.json#/$defs/Role"
+          }
+        },
+        "required": [
+          "id",
+          "tool",
+          "host",
+          "port",
+          "user",
+          "network",
+          "ssh_alias",
+          "trust_profile",
+          "expected_owner_id",
+          "role_hint"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 16,
+      "uniqueItems": true
+    },
+    "recovery_hint": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    }
+  },
+  "required": [
+    "format",
+    "domain_id",
+    "domain_name",
+    "display_name",
+    "tool_prefix",
+    "generation",
+    "published_at",
+    "refresh_after_seconds",
+    "repositories",
+    "owner_endpoints",
+    "recovery_hint"
+  ],
+  "additionalProperties": false
+}

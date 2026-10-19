@@ -1,0 +1,29 @@
+{
+  "format": "deployment-ops/install-bundle/v1",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "tool": "domain-ops",
+  "source_commit": "2222222222222222222222222222222222222222",
+  "platform": "linux-amd64",
+  "python": "cpython-3.12",
+  "native_requirements": [
+    "qualified Linux/glibc baseline",
+    "Python 3.12 with venv and pip",
+    "Git",
+    "OpenSSH client"
+  ],
+  "lock": {
+    "path": "requirements.lock",
+    "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bytes": 100
+  },
+  "wheels": [
+    {
+      "path": "wheels/domain_ops-0.0.0-py3-none-any.whl",
+      "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 100
+    }
+  ],
+  "build_inputs": [],
+  "qualification": "candidate",
+  "evidence": []
+}

@@ -1,0 +1,130 @@
+{
+  "format": "deployment-ops/states/v1",
+  "owner": {
+    "accepted": [
+      "running",
+      "cancelled",
+      "quarantined"
+    ],
+    "running": [
+      "waiting",
+      "succeeded",
+      "failed",
+      "quarantined",
+      "cancelled"
+    ],
+    "waiting": [
+      "running",
+      "cancelled",
+      "quarantined"
+    ],
+    "quarantined": [],
+    "succeeded": [],
+    "failed": [],
+    "cancelled": []
+  },
+  "workflow_phases": {
+    "host-drain": [
+      "prepared",
+      "draining",
+      "quiescent",
+      "host-effect",
+      "reconciling",
+      "completed"
+    ],
+    "interface-binding": [
+      "prepared",
+      "provider-verified",
+      "consumer-adopting",
+      "consumer-verified",
+      "completed"
+    ],
+    "ingress-publication": [
+      "prepared",
+      "candidate-validated",
+      "published",
+      "reloaded",
+      "serving-verified",
+      "completed"
+    ],
+    "secret-rotation": [
+      "prepared",
+      "participants-quiescent",
+      "issuer-changing",
+      "consumers-adopting",
+      "verifying",
+      "completed"
+    ],
+    "checkpoint": [
+      "prepared",
+      "native-capturing",
+      "sealed",
+      "transferred",
+      "complete"
+    ],
+    "relocation": [
+      "prepared",
+      "source-quiescing",
+      "source-fenced",
+      "destination-restoring",
+      "destination-verifying",
+      "placement-committing",
+      "activated",
+      "completed"
+    ],
+    "source-publication": [
+      "prepared",
+      "candidate-verified",
+      "ref-updating",
+      "ref-verified",
+      "completed"
+    ],
+    "dns-change": [
+      "prepared",
+      "provider-observed",
+      "applying",
+      "verifying",
+      "completed"
+    ],
+    "secret-publication": [
+      "prepared",
+      "candidate-verified",
+      "replacing",
+      "verifying",
+      "completed"
+    ],
+    "raw-maintenance": [
+      "prepared",
+      "admission-closed",
+      "quiescent",
+      "external-work",
+      "reconciling",
+      "completed"
+    ],
+    "runtime-upgrade": [
+      "prepared",
+      "draining",
+      "checkpointed",
+      "candidate-verified",
+      "migrating",
+      "switched",
+      "verified",
+      "completed"
+    ]
+  },
+  "client": [
+    "reserved",
+    "attempting",
+    "acceptance_unknown",
+    "accepted",
+    "paused",
+    "rejected"
+  ],
+  "rules": [
+    "No timeout clears a hold.",
+    "Unknown effects cannot succeed.",
+    "Quarantined work needs a new exact recovery operation.",
+    "Transfer requires all participant freeze and commit witnesses.",
+    "Replays are checked before new-admission expiry/generation checks."
+  ]
+}

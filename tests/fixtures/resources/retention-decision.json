@@ -1,0 +1,20 @@
+{
+  "protected_roots": [
+    "sha256:05417b84432476fd99c262f6fd6b1b9042f6122731badb672511f978f49d9971",
+    "sha256:b580611e2f3d8721962df7906f2458c1eab23950d3c99487b46b0c96b3a6fec5"
+  ],
+  "reasons": {
+    "sha256:05417b84432476fd99c262f6fd6b1b9042f6122731badb672511f978f49d9971": [
+      "accepted-target-active-or-inactive",
+      "minimum-retention-age"
+    ],
+    "sha256:b580611e2f3d8721962df7906f2458c1eab23950d3c99487b46b0c96b3a6fec5": [
+      "hot-predecessor-count"
+    ]
+  },
+  "cold_demoted_releases": [
+    "sha256:8d3b141fc65bf5426f78fb6e1dc4584f64ea2e1f310a4a6fd8bf2ccbc7a5760d"
+  ],
+  "protection_generation": 7,
+  "inventory_digest": "sha256:cb1cef3ad3ea649e830912a9b7d455a0acb003fd6b8b2ef393469f44f369898e"
+}

@@ -1,0 +1,65 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "RetentionInventory",
+  "owner": {
+    "tool": "app-ops",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "epoch": "44444444-4444-4444-8444-444444444444"
+  },
+  "account": "app-demo-app",
+  "protection_generation": 7,
+  "observed_at": "2026-10-19T12:00:00Z",
+  "complete": true,
+  "prior_releases": 1,
+  "minimum_prior_age_seconds": 604800,
+  "releases": [
+    {
+      "release_digest": "sha256:dde30bf5e0d0404007b3d5c91f8a01bb3b1f87a584efd736a925b40f3aa538db",
+      "verified_at": "2026-10-18T12:00:00Z",
+      "accepted": true,
+      "recovery_required": true,
+      "runtime_handles": [
+        "sha256:05417b84432476fd99c262f6fd6b1b9042f6122731badb672511f978f49d9971"
+      ],
+      "blocking_refs": [],
+      "archive": null,
+      "cold_demotion_receipt": null
+    },
+    {
+      "release_digest": "sha256:d138ec9d2fbe8931871901c0d4d813f756ab7d06089df360e869bd9979c14ca8",
+      "verified_at": "2026-10-09T12:00:00Z",
+      "accepted": false,
+      "recovery_required": true,
+      "runtime_handles": [
+        "sha256:b580611e2f3d8721962df7906f2458c1eab23950d3c99487b46b0c96b3a6fec5"
+      ],
+      "blocking_refs": [],
+      "archive": null,
+      "cold_demotion_receipt": null
+    },
+    {
+      "release_digest": "sha256:8d3b141fc65bf5426f78fb6e1dc4584f64ea2e1f310a4a6fd8bf2ccbc7a5760d",
+      "verified_at": "2026-09-01T12:00:00Z",
+      "accepted": false,
+      "recovery_required": true,
+      "runtime_handles": [
+        "sha256:c680ab6308b090bc57ef97f158322a7b77985e44447a6de642c8a6466c4384b9"
+      ],
+      "blocking_refs": [],
+      "archive": {
+        "closure_digest": "sha256:8d3b141fc65bf5426f78fb6e1dc4584f64ea2e1f310a4a6fd8bf2ccbc7a5760d",
+        "custody_handle": "sha256:2fd073bf7b03e0ace2e5dd26de973d3fd826b111bb5579de6429ba8522addb79",
+        "evidence_digest": "sha256:68445757432a0b4afaf6a9f71c38975ce6346c4d2784df00ea4c38ecbab987b3",
+        "verified_at": "2026-10-19T11:00:00Z",
+        "valid_until": "2026-10-20T11:00:00Z",
+        "independent": true,
+        "retrievable": true,
+        "includes_images": true,
+        "includes_source": true,
+        "includes_secret_generations": true,
+        "native_restore_verified": true
+      },
+      "cold_demotion_receipt": "sha256:23d8375b48e8cb766748234ea0b5158ada3571f9d7f0ab56a9ff9a7bd77ad396"
+    }
+  ]
+}

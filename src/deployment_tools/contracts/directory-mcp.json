@@ -1,0 +1,44 @@
+{
+  "format": "domain-ops-directory/mcp-profile/v2",
+  "protocol_version": "2026-07-28",
+  "transport": "streamable-http-json",
+  "endpoint": "/mcp",
+  "methods": [
+    "server/discover",
+    "tools/list",
+    "tools/call",
+    "resources/list",
+    "resources/read",
+    "prompts/list",
+    "prompts/get"
+  ],
+  "tool_suffixes": {
+    "discover_management": {
+      "input": "directory-result.schema.json#/$defs/DiscoverArguments",
+      "output": "directory-result.schema.json#/$defs/Discovery"
+    },
+    "get_management_workflow": {
+      "input": "directory-result.schema.json#/$defs/WorkflowArguments",
+      "output": "directory-result.schema.json#/$defs/Workflow"
+    }
+  },
+  "prompt_suffix": "manage_domain",
+  "resource_suffixes": [
+    "catalogue",
+    "workflow"
+  ],
+  "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  "capabilities": {
+    "tools": {},
+    "resources": {},
+    "prompts": {}
+  },
+  "no_network_effects": true,
+  "authentication": "approved-network-only discovery; independent source access and owner SSH",
+  "sdk_interoperability": "not_run"
+}

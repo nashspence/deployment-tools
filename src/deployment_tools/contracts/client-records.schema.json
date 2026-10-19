@@ -1,0 +1,527 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/client-records.schema.json",
+  "$defs": {
+    "Delivery": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "plan_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "subject_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "workflow_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "endpoint_alias": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "trust_profile": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "state": {
+          "enum": [
+            "reserved",
+            "attempting",
+            "acceptance_unknown",
+            "accepted",
+            "paused",
+            "rejected",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "quarantined"
+          ]
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "session_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "action": {
+          "enum": [
+            "app.deploy",
+            "app.upgrade",
+            "app.repair",
+            "app.undeploy",
+            "app.backup",
+            "app.backup-check",
+            "app.restart",
+            "app.maintenance-run",
+            "app.secrets-adopt",
+            "app.restore",
+            "app.drill",
+            "app.recover",
+            "app.cleanup",
+            "app.retire",
+            "app.relocate",
+            "host.apply",
+            "host.runtime-install",
+            "host.reboot",
+            "host.sleep",
+            "host.wake",
+            "host.harvest",
+            "host.clone-sync",
+            "host.secrets-adopt",
+            "host.recover",
+            "host.retire",
+            "source.publish",
+            "dns.reconcile",
+            "publisher.publish",
+            "publisher.recover",
+            "recovery.publish",
+            "backend.check",
+            "backend.prune",
+            "adapter.execute",
+            "backend.enroll"
+          ]
+        },
+        "resource": {
+          "$ref": "common.schema.json#/$defs/Resource"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "owner",
+        "request_id",
+        "plan_digest",
+        "subject_digest",
+        "workflow_id",
+        "endpoint_alias",
+        "trust_profile",
+        "state",
+        "domain_id",
+        "session_id",
+        "action",
+        "resource",
+        "expected_generation"
+      ],
+      "additionalProperties": false,
+      "description": "In-memory/client-supplied delivery reference. Persistence is optional; this is not an owner acceptance record."
+    },
+    "Closeout": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/closeout/v2"
+        },
+        "workspace_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "root": {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        },
+        "tree_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "active_jobs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "foreign_worktrees": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "obligations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/Id"
+              },
+              "kind": {
+                "enum": [
+                  "source",
+                  "receipt",
+                  "report",
+                  "linked-worktree"
+                ]
+              },
+              "disposition": {
+                "enum": [
+                  "unresolved",
+                  "published",
+                  "retained",
+                  "exported"
+                ]
+              },
+              "evidence_digest": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/Digest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "disposition",
+              "evidence_digest"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "unresolved_requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Delivery"
+          },
+          "minItems": 0,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "receipt_export_digest": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_outside_workspace": {
+          "type": "boolean"
+        },
+        "would_delete": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "workspace_id",
+        "root",
+        "tree_digest",
+        "active_jobs",
+        "foreign_worktrees",
+        "obligations",
+        "unresolved_requests",
+        "receipt_export_digest",
+        "evidence_outside_workspace",
+        "would_delete"
+      ],
+      "additionalProperties": false
+    },
+    "ReceiptExport": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/receipt-export/v1"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "created_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "deliveries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Delivery"
+          },
+          "minItems": 1,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "participant_evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Digest"
+          },
+          "minItems": 0,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "credential_material": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "id",
+        "domain_id",
+        "created_at",
+        "deliveries",
+        "participant_evidence",
+        "credential_material"
+      ],
+      "additionalProperties": false
+    },
+    "TestRun": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/test-run/v2"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "workspace_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "source_commit": {
+          "$ref": "common.schema.json#/$defs/Commit"
+        },
+        "snapshot_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "catalogue_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "lock_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "install_bundle_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "suite": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "class": {
+          "enum": [
+            "offline",
+            "observe",
+            "mutate"
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Resource"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "executed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "required": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "skipped_required": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "blocked",
+            "cancelled",
+            "unknown"
+          ]
+        },
+        "deliveries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Delivery"
+          },
+          "minItems": 0,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "output_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "platform": {
+          "enum": [
+            "linux-amd64",
+            "linux-arm64",
+            "macos-amd64",
+            "macos-arm64"
+          ]
+        },
+        "python": {
+          "type": "string",
+          "pattern": "^cpython-3\\.[0-9]+\\.[0-9]+$"
+        }
+      },
+      "required": [
+        "format",
+        "id",
+        "workspace_id",
+        "domain_id",
+        "source_commit",
+        "snapshot_digest",
+        "catalogue_digest",
+        "lock_digest",
+        "install_bundle_digest",
+        "suite",
+        "class",
+        "targets",
+        "executed",
+        "required",
+        "skipped_required",
+        "status",
+        "deliveries",
+        "output_digest",
+        "platform",
+        "python"
+      ],
+      "additionalProperties": false
+    },
+    "Info": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/client-info/v2"
+        },
+        "tool_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "domain_source": {
+          "$ref": "common.schema.json#/$defs/Source"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "ssh_config": {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        },
+        "owner_permissions_checked": {
+          "type": "boolean"
+        },
+        "tool_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "owner_wire": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "source_formats": {
+          "type": "array",
+          "items": {
+            "const": "deployment-ops/source/v2"
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "client_storage_required": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "tool_digest",
+        "domain_id",
+        "domain_source",
+        "dirty",
+        "ssh_config",
+        "owner_permissions_checked",
+        "tool_version",
+        "owner_wire",
+        "source_formats",
+        "client_storage_required"
+      ],
+      "additionalProperties": false
+    },
+    "SourceRecovery": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/source-recovery/v1"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "source": {
+          "$ref": "common.schema.json#/$defs/Repository"
+        },
+        "selection_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "commit": {
+          "$ref": "common.schema.json#/$defs/Commit"
+        },
+        "output_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "destination": {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        },
+        "scope": {
+          "const": "git-source-only"
+        },
+        "policy_activated": {
+          "const": false
+        },
+        "services_restored": {
+          "const": false
+        },
+        "assets_restored": {
+          "const": false
+        },
+        "uncommitted_work_restored": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "id",
+        "domain_id",
+        "source",
+        "selection_digest",
+        "commit",
+        "output_digest",
+        "destination",
+        "scope",
+        "policy_activated",
+        "services_restored",
+        "assets_restored",
+        "uncommitted_work_restored"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

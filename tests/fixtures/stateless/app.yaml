@@ -1,0 +1,76 @@
+format: deployment-ops/source/v2
+kind: App
+id: hello
+runtime: podman-quadlet-v1
+purpose: Synthetic stateless app
+repository_secrets: null
+components:
+  web:
+    unit: quadlet/web.container
+    role: primary
+    profile: ordinary-v1
+    purpose: Synthetic web service
+interfaces:
+  http:
+    component: web
+    protocol: http
+    port: 8080
+    compatibility:
+    - http-v1
+    authentication: public
+    readiness_hook: health
+dependencies: {}
+datasets: {}
+hooks:
+  health:
+    component: web
+    role: health
+    argv:
+    - /app/health
+    mode: read
+    timeout_seconds: 60
+    datasets: []
+    secrets: []
+    network: none
+lifecycle:
+  health:
+  - health
+  configure: null
+  verify_config: null
+  quiesce: null
+  transition_assess: null
+  transition_apply: null
+  transition_verify: null
+  checkpoint_policy: stateless
+  upgrade_mode: replace
+secret_bindings: {}
+maintenance: {}
+protection: null
+resources:
+  minimum_memory_bytes: 134217728
+  minimum_cpu_millis: 100
+  minimum_tasks: 32
+  storage_minimum:
+    runtime:
+      bytes: 268435456
+      inodes: 1024
+    state:
+      bytes: 67108864
+      inodes: 1024
+    scratch:
+      bytes: 268435456
+      inodes: 1024
+    logs:
+      bytes: 67108864
+      inodes: 1024
+  logs:
+    driver: k8s-file
+    max_file_bytes: 10485760
+    closed_retention_seconds: 604800
+    overflow: bounded-loss-visible
+  retention:
+    prior_releases: 1
+    minimum_prior_age_seconds: 604800
+    unused_candidate_grace_seconds: 86400
+    cold_archive: verified-independent-archive
+  automatic_gc: true

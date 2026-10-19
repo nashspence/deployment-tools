@@ -1,0 +1,200 @@
+{
+  "format": "deployment-ops/owner-cli/v1",
+  "tools": [
+    "host-ops",
+    "app-ops"
+  ],
+  "forms": [
+    {
+      "name": "help",
+      "tokens": [
+        "{tool}",
+        "help"
+      ],
+      "use_case": "static-help"
+    },
+    {
+      "name": "info",
+      "tokens": [
+        "{tool}",
+        "info",
+        "--json"
+      ],
+      "use_case": "discover"
+    },
+    {
+      "name": "status",
+      "tokens": [
+        "{tool}",
+        "status",
+        "--json"
+      ],
+      "use_case": "observe"
+    },
+    {
+      "name": "list",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--active",
+        "--json"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "name": "show",
+      "tokens": [
+        "{tool}",
+        "op",
+        "show",
+        "--request-id",
+        "{uuid}",
+        "--json"
+      ],
+      "use_case": "operation.get"
+    },
+    {
+      "name": "apply",
+      "tokens": [
+        "{tool}",
+        "plan",
+        "apply",
+        "{uuid}",
+        "--digest",
+        "{digest}",
+        "--request-id",
+        "{uuid}",
+        "--confirm",
+        "--owner-epoch",
+        "{uuid}",
+        "--json"
+      ],
+      "use_case": "operation.submit"
+    },
+    {
+      "name": "plan-stdin",
+      "tokens": [
+        "{tool}",
+        "plan",
+        "--subject-stdin",
+        "--json"
+      ],
+      "use_case": "plan.prepare"
+    },
+    {
+      "name": "app-check",
+      "tokens": [
+        "app-ops",
+        "app",
+        "check",
+        "{id}",
+        "--json"
+      ],
+      "use_case": "check"
+    },
+    {
+      "name": "app-restart",
+      "tokens": [
+        "app-ops",
+        "app",
+        "restart",
+        "{id}",
+        "--plan",
+        "--json"
+      ],
+      "use_case": "plan.prepare"
+    },
+    {
+      "name": "app-repair",
+      "tokens": [
+        "app-ops",
+        "app",
+        "repair",
+        "{id}",
+        "--plan",
+        "--json"
+      ],
+      "use_case": "plan.prepare"
+    },
+    {
+      "name": "app-backup",
+      "tokens": [
+        "app-ops",
+        "app",
+        "backup",
+        "{id}",
+        "--plan",
+        "--json"
+      ],
+      "use_case": "plan.prepare"
+    },
+    {
+      "name": "cancel",
+      "tokens": [
+        "{tool}",
+        "op",
+        "cancel",
+        "{uuid}",
+        "--request-id",
+        "{uuid}",
+        "--confirm",
+        "--owner-epoch",
+        "{uuid}",
+        "--json"
+      ],
+      "use_case": "operation.cancel"
+    },
+    {
+      "name": "show-epoch",
+      "tokens": [
+        "{tool}",
+        "op",
+        "show",
+        "--request-id",
+        "{uuid}",
+        "--owner-epoch",
+        "{uuid}",
+        "--json"
+      ],
+      "use_case": "operation.get"
+    },
+    {
+      "name": "list-page",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--active",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "name": "resources",
+      "tokens": [
+        "{tool}",
+        "resources",
+        "{id}",
+        "--json"
+      ],
+      "use_case": "resources.observe"
+    },
+    {
+      "name": "cleanup-plan",
+      "tokens": [
+        "app-ops",
+        "cleanup",
+        "{id}",
+        "--plan",
+        "--json"
+      ],
+      "use_case": "plan.prepare"
+    }
+  ],
+  "parser": "bounded tokens; no shell evaluation",
+  "authorization": "actual receiving principal, same protected owner use cases",
+  "rpc_command": "rpc-v1"
+}

@@ -1,0 +1,11 @@
+{
+  "format": "domain-ops-directory/workflow/v2",
+  "intent": "test-domain",
+  "steps": [
+    "Select the exact domain source snapshot and qualified test lock; use a separate test virtual environment. Missing dependencies are preparation blockers, not automatic installs.",
+    "Run domain-ops --domain <domain-path> test --offline --json by default. Explicitly select a worktree to test edited inputs.",
+    "Use live observations only with enrolled SSH authority. Mutating suites require an explicit finite target set and normal owner plans and confirmations.",
+    "Record actual executed/skipped coverage, source/runtime digests and child request identities. A venv or offline label is not malicious-code isolation."
+  ],
+  "executes": false
+}

@@ -1,0 +1,24 @@
+{
+  "format": "deployment-ops/owner/v1",
+  "message_id": "fe65cce1-bc12-56e5-baa1-1124b0a3ca38",
+  "method": "plan.prepare",
+  "params": {
+    "subject": {
+      "action": "app.restart",
+      "resource": {
+        "kind": "app",
+        "id": "demo-app"
+      },
+      "arguments": {
+        "components": [
+          "web"
+        ]
+      }
+    },
+    "expected_owner": {
+      "tool": "app-ops",
+      "id": "ba5b6d5e-b99f-54b0-aa13-313a5a66ce56",
+      "epoch": "3eded73b-a782-5f71-952f-d915b376de10"
+    }
+  }
+}

@@ -1,0 +1,496 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/tracking-records.schema.json",
+  "$defs": {
+    "IssueRef": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "$ref": "common.schema.json#/$defs/Repository"
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "repository",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "OperationRef": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "request_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "plan_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "subject_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "resource": {
+          "$ref": "common.schema.json#/$defs/Resource"
+        },
+        "reported_state": {
+          "enum": [
+            "submission-unknown",
+            "accepted",
+            "running",
+            "waiting",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "quarantined"
+          ]
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "witness_digest": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "request_id",
+        "plan_digest",
+        "subject_digest",
+        "resource",
+        "reported_state",
+        "observed_at",
+        "witness_digest"
+      ],
+      "additionalProperties": false
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/tracking-event/v1"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "workflow_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "reported_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "kind": {
+          "enum": [
+            "intent",
+            "progress",
+            "correction"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\\x00-\\x1f\\x7f]*$"
+        },
+        "coordination_copies": {
+          "enum": [
+            "issue-only",
+            "issue-and-index",
+            "index-only",
+            "unrecorded"
+          ]
+        },
+        "issue": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IssueRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Owner"
+          },
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationRef"
+          },
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "index_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional reported link to an existing index event; not an execution token or proof of current owner state."
+        }
+      },
+      "required": [
+        "format",
+        "id",
+        "domain_id",
+        "workflow_id",
+        "reported_at",
+        "kind",
+        "summary",
+        "coordination_copies",
+        "issue",
+        "participants",
+        "operations",
+        "supersedes"
+      ],
+      "additionalProperties": false
+    },
+    "IndexRef": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "workflow_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "event_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        }
+      },
+      "required": [
+        "service_id",
+        "workflow_id",
+        "event_id"
+      ],
+      "additionalProperties": false
+    },
+    "SinkResult": {
+      "type": "object",
+      "properties": {
+        "sink": {
+          "enum": [
+            "issue",
+            "index"
+          ]
+        },
+        "status": {
+          "enum": [
+            "recorded",
+            "duplicate",
+            "unknown",
+            "failed",
+            "unavailable",
+            "conflict",
+            "not-configured",
+            "invalid"
+          ]
+        },
+        "code": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/IssueRef"
+                },
+                {
+                  "$ref": "#/$defs/IndexRef"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "sink",
+        "status",
+        "code",
+        "reference"
+      ],
+      "additionalProperties": false
+    },
+    "ReportingResult": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/reporting-result/v1"
+        },
+        "event_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workflow_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recorded": {
+          "type": "boolean"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "sinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SinkResult"
+          },
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "execution_affected": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "event_id",
+        "workflow_id",
+        "recorded",
+        "complete",
+        "sinks",
+        "execution_affected"
+      ],
+      "additionalProperties": false
+    },
+    "Envelope": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/index-record/v1"
+        },
+        "service_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "store_epoch": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "received_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "reporter": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "content_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "authority": {
+          "const": "reported"
+        },
+        "event": {
+          "$ref": "#/$defs/Event"
+        }
+      },
+      "required": [
+        "format",
+        "service_id",
+        "store_epoch",
+        "sequence",
+        "received_at",
+        "reporter",
+        "content_digest",
+        "authority",
+        "event"
+      ],
+      "additionalProperties": false
+    },
+    "EventPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/index-page/v1"
+        },
+        "service_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "store_epoch": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "authority": {
+          "const": "reported"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Envelope"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "next_after": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "format",
+        "service_id",
+        "store_epoch",
+        "authority",
+        "items",
+        "next_after"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/workflow-index-page/v1"
+        },
+        "service_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "store_epoch": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "authority": {
+          "const": "reported"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "workflow_id": {
+                "$ref": "common.schema.json#/$defs/UUID"
+              },
+              "first_sequence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "first_received_at": {
+                "$ref": "common.schema.json#/$defs/Time"
+              }
+            },
+            "required": [
+              "workflow_id",
+              "first_sequence",
+              "first_received_at"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "next_after": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "format",
+        "service_id",
+        "store_epoch",
+        "authority",
+        "items",
+        "next_after"
+      ],
+      "additionalProperties": false
+    },
+    "Problem": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/index-error/v1"
+        },
+        "code": {
+          "enum": [
+            "INVALID_INPUT",
+            "UNAUTHORIZED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "CONFLICT",
+            "EPOCH_CHANGED",
+            "BUSY",
+            "UNAVAILABLE",
+            "QUOTA",
+            "INTERNAL"
+          ]
+        },
+        "execution_affected": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "code",
+        "execution_affected"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

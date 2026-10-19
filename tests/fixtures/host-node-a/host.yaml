@@ -1,0 +1,186 @@
+format: deployment-ops/source/v2
+kind: Host
+id: node-a
+platform: linux
+runtime_profile: qualified-linux
+repository_secrets: secrets.yaml
+concerns:
+  base:
+    purpose: Synthetic managed configuration
+    files:
+      motd:
+        source: files/motd
+        destination: /etc/motd
+        mode: '0644'
+        user: root
+        group: root
+        validator: null
+        notify: []
+        reason: Example nonsecret host file
+    secret_files:
+      agent-token:
+        entry: agent-token
+        destination: /etc/example-agent/token
+        mode: '0600'
+        user: root
+        group: root
+        validator: null
+        notify:
+        - service: agent
+          action: restart
+        reason: Example protected host secret
+    packages: {}
+    artifacts: {}
+    groups: {}
+    services:
+      agent:
+        unit: example-agent.service
+        enabled: true
+        activity: running
+        reason: Synthetic service
+app_accounts:
+  demo-app:
+    runtime: podman-quadlet-v1
+    device_groups: []
+    reason: Synthetic app allocation
+    resource_account: app-demo-app
+grants:
+  demo-app-data:
+    app: demo-app
+    type: storage
+    profile: local-data
+    resources:
+    - dataset:demo-app-state
+    reason: Synthetic app dataset
+adapters: {}
+access: []
+receipt_public_keys: {}
+resources:
+  profile: linux-cgroup2-xfs-v1
+  control:
+    filesystem_uuid: 11111111-1111-4111-8111-111111111111
+    root: /var/lib/host-ops
+    reserve_bytes: 2147483648
+    reserve_inodes: 100000
+    emergency_file_bytes: 16777216
+    host_memory_reserve_bytes: 2147483648
+  pools:
+    app-disk:
+      mount: /srv/ops
+      filesystem_uuid: 22222222-2222-4222-8222-222222222222
+      adapter: xfs-project-v1
+      allocation_budget_bytes: 549755813888
+      allocation_budget_inodes: 50000000
+      host_reserve_bytes: 17179869184
+      host_reserve_inodes: 1000000
+      other_writers_max_bytes: 8589934592
+      other_writers_max_inodes: 1000000
+      overcommit: false
+  accounts:
+    app-demo-app:
+      subject_kind: app
+      subject: demo-app
+      login: app-demo-app
+      compute:
+        cpu_millis: 2000
+        cpu_weight: 100
+        memory_high_bytes: 1610612736
+        memory_max_bytes: 2147483648
+        swap_max_bytes: 0
+        tasks_max: 512
+        io_weight: null
+        io_limits: []
+        tmpfs_max_bytes: 67108864
+        tmpfs_max_inodes: 8192
+      storage:
+        runtime:
+          pool: app-disk
+          root: /srv/ops/app-demo-app/runtime
+          max_bytes: 8589934592
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        state:
+          pool: app-disk
+          root: /srv/ops/app-demo-app/state
+          max_bytes: 17179869184
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        scratch:
+          pool: app-disk
+          root: /srv/ops/app-demo-app/scratch
+          max_bytes: 8589934592
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        logs:
+          pool: app-disk
+          root: /srv/ops/app-demo-app/logs
+          max_bytes: 1073741824
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+      automatic_gc: true
+      reason: Synthetic account envelope; qualify workload peaks and native enforcement
+        before use.
+    maintainer:
+      subject_kind: user
+      subject: maintainer
+      login: maintainer
+      compute:
+        cpu_millis: 2000
+        cpu_weight: 100
+        memory_high_bytes: 1610612736
+        memory_max_bytes: 2147483648
+        swap_max_bytes: 536870912
+        tasks_max: 512
+        io_weight: null
+        io_limits: []
+        tmpfs_max_bytes: 134217728
+        tmpfs_max_inodes: 16384
+      storage:
+        runtime:
+          pool: app-disk
+          root: /srv/ops/maintainer/runtime
+          max_bytes: 8589934592
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        state:
+          pool: app-disk
+          root: /srv/ops/maintainer/state
+          max_bytes: 8589934592
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        scratch:
+          pool: app-disk
+          root: /srv/ops/maintainer/scratch
+          max_bytes: 4294967296
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+        logs:
+          pool: app-disk
+          root: /srv/ops/maintainer/logs
+          max_bytes: 1073741824
+          max_inodes: 1000000
+          headroom_bytes: 268435456
+          headroom_inodes: 10000
+      automatic_gc: false
+      reason: Example enrolled development user; preserve all user source and private
+        work.
+  policy:
+    max_snapshot_age_seconds: 30
+    scan_interval_seconds: 60
+    warning_percent: 80
+    critical_percent: 90
+    clear_percent: 75
+    max_growth_operations: 2
+    max_gc_objects: 64
+    max_gc_seconds: 120
+    gc_cpu_millis: 100
+    gc_memory_max_bytes: 134217728
+    gc_interval_seconds: 21600
+    gc_jitter_seconds: 300

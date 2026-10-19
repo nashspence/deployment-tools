@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/cli-output.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/cli/v1"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "state": {
+      "enum": [
+        "observed",
+        "planned",
+        "accepted",
+        "complete",
+        "paused",
+        "rejected",
+        "unknown"
+      ]
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "result": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Info"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Plan"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Operation"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Workflow"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Checkpoint"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Release"
+            },
+            {
+              "$ref": "records.schema.json#/$defs/Observation"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "records.schema.json#/$defs/Observation"
+                  },
+                  "minItems": 0,
+                  "maxItems": 256
+                },
+                "next_cursor": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "items",
+                "next_cursor"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "records.schema.json#/$defs/Event"
+                  },
+                  "minItems": 0,
+                  "maxItems": 256
+                },
+                "next_cursor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "gap": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "events",
+                "next_cursor",
+                "gap"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "$ref": "client-records.schema.json#/$defs/Info"
+            },
+            {
+              "$ref": "client-records.schema.json#/$defs/Closeout"
+            },
+            {
+              "$ref": "client-records.schema.json#/$defs/ReceiptExport"
+            },
+            {
+              "$ref": "client-records.schema.json#/$defs/TestRun"
+            },
+            {
+              "$ref": "client-records.schema.json#/$defs/SourceRecovery"
+            },
+            {
+              "$ref": "tracking-records.schema.json#/$defs/ReportingResult"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "problem": {
+      "anyOf": [
+        {
+          "$ref": "records.schema.json#/$defs/Problem"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "delivery": {
+      "anyOf": [
+        {
+          "$ref": "client-records.schema.json#/$defs/Delivery"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tracking": {
+      "const": "not-attempted"
+    }
+  },
+  "required": [
+    "format",
+    "ok",
+    "state",
+    "complete",
+    "request_id",
+    "location",
+    "result",
+    "problem"
+  ],
+  "additionalProperties": false
+}

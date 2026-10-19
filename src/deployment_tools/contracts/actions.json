@@ -1,0 +1,345 @@
+{
+  "format": "deployment-ops/catalog/v1",
+  "actions": [
+    {
+      "name": "app.deploy",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.deploy"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.upgrade",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.upgrade"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.repair",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.repair"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.undeploy",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.undeploy"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.backup",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.backup"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.backup-check",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.backup-check"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.restart",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.restart"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.maintenance-run",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.maintenance-run"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.secrets-adopt",
+      "owner": "app-ops",
+      "minimum_role": "operator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.secrets-adopt"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.restore",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.restore"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.drill",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.drill"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.recover",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.recover"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.cleanup",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.cleanup"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.retire",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.retire"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "app.relocate",
+      "owner": "app-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "app",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/app.relocate"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.apply",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.apply"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.runtime-install",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.runtime-install"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.reboot",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.reboot"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.sleep",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.sleep"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.wake",
+      "owner": "host-ops",
+      "minimum_role": "operator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.wake"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.harvest",
+      "owner": "host-ops",
+      "minimum_role": "operator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.harvest"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.clone-sync",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.clone-sync"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.secrets-adopt",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.secrets-adopt"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.recover",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.recover"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "host.retire",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "host",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/host.retire"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "source.publish",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "source",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/source.publish"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "dns.reconcile",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "dns",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/dns.reconcile"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "publisher.publish",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "publisher",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/publisher.publish"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "publisher.recover",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "publisher",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/publisher.recover"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "recovery.publish",
+      "owner": "host-ops",
+      "minimum_role": "operator",
+      "resource_kind": "recovery",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/recovery.publish"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "backend.check",
+      "owner": "host-ops",
+      "minimum_role": "operator",
+      "resource_kind": "backend",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/backend.check"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "backend.prune",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "backend",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/backend.prune"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "adapter.execute",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "adapter",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/adapter.execute"
+      },
+      "requires_plan": true
+    },
+    {
+      "name": "backend.enroll",
+      "owner": "host-ops",
+      "minimum_role": "administrator",
+      "resource_kind": "backend",
+      "arguments_schema": {
+        "$ref": "actions.schema.json#/$defs/backend.enroll"
+      },
+      "requires_plan": true
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+{
+  "schemas": [
+    "actions.schema.json",
+    "adapter.schema.json",
+    "bootstrap-catalogue.schema.json",
+    "bootstrap-recovery.schema.json",
+    "bundle-manifest.schema.json",
+    "cli-output.schema.json",
+    "client-records.schema.json",
+    "common.schema.json",
+    "directory-release.schema.json",
+    "directory-result.schema.json",
+    "directory-runtime.schema.json",
+    "directory.schema.json",
+    "dns-changes.schema.json",
+    "dns-intent.schema.json",
+    "hook-request.schema.json",
+    "hook-result.schema.json",
+    "install-bundle.schema.json",
+    "onboarding.schema.json",
+    "publisher-receipt.schema.json",
+    "readiness.schema.json",
+    "records.schema.json",
+    "recovery-set.schema.json",
+    "source.schema.json",
+    "ssh-request.schema.json",
+    "ssh-response.schema.json",
+    "test-suite.schema.json",
+    "tool-release.schema.json",
+    "workspace.schema.json",
+    "tracking-records.schema.json",
+    "tracking-profile.schema.json",
+    "receipts-service.schema.json",
+    "resources.schema.json",
+    "resource-records.schema.json"
+  ],
+  "catalogues": [
+    "actions.json",
+    "ssh-methods.json",
+    "states.json",
+    "client-commands.json",
+    "owner-cli.json",
+    "directory-mcp.json",
+    "receipts-api.openapi.json"
+  ],
+  "fixtures": [
+    {
+      "path": "bundle-manifest.json",
+      "schema": "bundle-manifest.schema.json"
+    },
+    {
+      "path": "cli-accepted.json",
+      "schema": "cli-output.schema.json"
+    },
+    {
+      "path": "cli-unknown.json",
+      "schema": "cli-output.schema.json"
+    },
+    {
+      "path": "domain/domain.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "host-node-a/host.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "host-node-a/secrets.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "demo-app/app.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "demo-app/secrets.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "onboarding.json",
+      "schema": "onboarding.schema.json"
+    },
+    {
+      "path": "operation.json",
+      "schema": "records.schema.json",
+      "definition": "Operation"
+    },
+    {
+      "path": "owner-request.json",
+      "schema": "ssh-request.schema.json"
+    },
+    {
+      "path": "owner-response.json",
+      "schema": "ssh-response.schema.json"
+    },
+    {
+      "path": "plan.json",
+      "schema": "records.schema.json",
+      "definition": "Plan"
+    },
+    {
+      "path": "readiness.json",
+      "schema": "readiness.schema.json"
+    },
+    {
+      "path": "stateless/app.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "domain/domain-tests.yaml",
+      "schema": "test-suite.schema.json"
+    },
+    {
+      "path": "bootstrap/selection.json",
+      "schema": "bootstrap-recovery.schema.json"
+    },
+    {
+      "path": "bootstrap/catalogue.json",
+      "schema": "bootstrap-catalogue.schema.json"
+    },
+    {
+      "path": "session/session.json",
+      "schema": "workspace.schema.json"
+    },
+    {
+      "path": "session/install-bundle.json",
+      "schema": "install-bundle.schema.json"
+    },
+    {
+      "path": "session/receipt-export.json",
+      "schema": "client-records.schema.json",
+      "definition": "ReceiptExport"
+    },
+    {
+      "path": "session/closeout.json",
+      "schema": "client-records.schema.json",
+      "definition": "Closeout"
+    },
+    {
+      "path": "session/test-run.json",
+      "schema": "client-records.schema.json",
+      "definition": "TestRun"
+    },
+    {
+      "path": "session/info.json",
+      "schema": "client-records.schema.json",
+      "definition": "Info"
+    },
+    {
+      "path": "bootstrap/native-recovery-set.json",
+      "schema": "recovery-set.schema.json"
+    },
+    {
+      "path": "bootstrap/source-receipt.json",
+      "schema": "client-records.schema.json",
+      "definition": "SourceRecovery"
+    },
+    {
+      "path": "directory/directory.yaml",
+      "schema": "directory.schema.json"
+    },
+    {
+      "path": "directory/runtime.yaml",
+      "schema": "directory-runtime.schema.json"
+    },
+    {
+      "path": "directory/release-unqualified.json",
+      "schema": "directory-release.schema.json"
+    },
+    {
+      "path": "directory/catalogue.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Catalogue"
+    },
+    {
+      "path": "directory/discovery.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Discovery"
+    },
+    {
+      "path": "directory/workflow-start.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "directory/workflow-test-domain.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "directory/workflow-plan-change.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "directory/workflow-resume.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "directory/workflow-recover.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "directory/workflow-cleanup.json",
+      "schema": "directory-result.schema.json",
+      "definition": "Workflow"
+    },
+    {
+      "path": "tracking/event.json",
+      "schema": "tracking-records.schema.json",
+      "definition": "Event"
+    },
+    {
+      "path": "tracking/intent.json",
+      "schema": "tracking-records.schema.json",
+      "definition": "Event"
+    },
+    {
+      "path": "tracking/profile.json",
+      "schema": "tracking-profile.schema.json"
+    },
+    {
+      "path": "tracking/report-failure.json",
+      "schema": "tracking-records.schema.json",
+      "definition": "ReportingResult"
+    },
+    {
+      "path": "receipts-app/runtime.json",
+      "schema": "receipts-service.schema.json"
+    },
+    {
+      "path": "receipts-app/auth-shape.json",
+      "schema": "receipts-service.schema.json",
+      "definition": "Auth"
+    },
+    {
+      "path": "receipts-app/app.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "receipts-app/secrets.yaml",
+      "schema": "source.schema.json"
+    },
+    {
+      "path": "tracking/index-link.json",
+      "schema": "tracking-records.schema.json",
+      "definition": "Event"
+    },
+    {
+      "path": "resources/capacity-snapshot.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CapacitySnapshot"
+    },
+    {
+      "path": "resources/capacity-request.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CapacityRequest"
+    },
+    {
+      "path": "resources/reservation.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CapacityReservation"
+    },
+    {
+      "path": "resources/cleanup-inventory.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CleanupInventory"
+    },
+    {
+      "path": "resources/cleanup-plan.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CleanupPlan"
+    },
+    {
+      "path": "resources/cleanup-receipt.json",
+      "schema": "resource-records.schema.json",
+      "definition": "CleanupReceipt"
+    },
+    {
+      "path": "resources/report.json",
+      "schema": "resource-records.schema.json",
+      "definition": "ResourceReport"
+    },
+    {
+      "path": "resources/owner-request.json",
+      "schema": "ssh-request.schema.json"
+    },
+    {
+      "path": "resources/owner-response.json",
+      "schema": "ssh-response.schema.json"
+    },
+    {
+      "path": "resources/retention-inventory.json",
+      "schema": "resource-records.schema.json",
+      "definition": "RetentionInventory"
+    }
+  ],
+  "semantic_entrypoints": [
+    "reference.contracts.validate_domain",
+    "reference.contracts.validate_host",
+    "reference.contracts.validate_app",
+    "reference.client.validate_session",
+    "reference.client.validate_bundle",
+    "reference.client.check_closeout",
+    "reference.bootstrap.validate_selection",
+    "reference.directory.load_directory",
+    "reference.tracking.validate_event",
+    "reference.tracking.validate_profile",
+    "reference.tracking.validate_index_auth",
+    "reference.resources.validate_host_resources",
+    "reference.resources.validate_requirements",
+    "reference.resources.check_capacity",
+    "reference.resources.plan_cleanup",
+    "reference.resources.retained_runtime_handles",
+    "reference.resources.revalidate_cleanup"
+  ],
+  "status": "specification-and-offline-models-only",
+  "directory_profile": "directory-mcp.json"
+}

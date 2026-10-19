@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/onboarding.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/onboarding/v2"
+    },
+    "profile": {
+      "$ref": "common.schema.json#/$defs/Id"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "tools_source": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "common.schema.json#/$defs/Repository"
+        },
+        "clone_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^(ssh://|https://)[^\\s]+$"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^refs/(heads|tags)/[^\\s]+$"
+        },
+        "entrypoint": {
+          "$ref": "common.schema.json#/$defs/RelativePath"
+        }
+      },
+      "required": [
+        "identity",
+        "clone_url",
+        "ref",
+        "entrypoint"
+      ],
+      "additionalProperties": false
+    },
+    "domain_source": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "common.schema.json#/$defs/Repository"
+        },
+        "clone_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^(ssh://|https://)[^\\s]+$"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^refs/(heads|tags)/[^\\s]+$"
+        },
+        "entrypoint": {
+          "$ref": "common.schema.json#/$defs/RelativePath"
+        }
+      },
+      "required": [
+        "identity",
+        "clone_url",
+        "ref",
+        "entrypoint"
+      ],
+      "additionalProperties": false
+    },
+    "ssh_config": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "owner_endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "tool": {
+            "enum": [
+              "host-ops",
+              "app-ops"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+          },
+          "network": {
+            "enum": [
+              "lan",
+              "vpn"
+            ]
+          },
+          "ssh_alias": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "trust_profile": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "expected_owner_id": {
+            "$ref": "common.schema.json#/$defs/UUID"
+          },
+          "role_hint": {
+            "$ref": "common.schema.json#/$defs/Role"
+          }
+        },
+        "required": [
+          "id",
+          "tool",
+          "host",
+          "port",
+          "user",
+          "network",
+          "ssh_alias",
+          "trust_profile",
+          "expected_owner_id",
+          "role_hint"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "enrollment_note": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "recovery_record_hint": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    }
+  },
+  "required": [
+    "format",
+    "profile",
+    "domain_id",
+    "tools_source",
+    "domain_source",
+    "ssh_config",
+    "owner_endpoints",
+    "enrollment_note",
+    "recovery_record_hint"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+# SYNTHETIC only; invoked through a bounded app-ops maintenance phase.
+[Container]
+Image=registry.example.invalid/deployment-tools/receipts@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Pull=never
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+Network=none
+User=1000:1000

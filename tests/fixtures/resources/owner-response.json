@@ -1,0 +1,121 @@
+{
+  "format": "deployment-ops/owner/v1",
+  "message_id": "00000000-0000-4000-8000-000000000050",
+  "method": "resources.observe",
+  "ok": true,
+  "result": {
+    "format": "deployment-ops/resources/v1",
+    "kind": "ResourceReport",
+    "owner": {
+      "tool": "app-ops",
+      "id": "33333333-3333-4333-8333-333333333333",
+      "epoch": "44444444-4444-4444-8444-444444444444"
+    },
+    "resource": {
+      "kind": "app",
+      "id": "demo-app"
+    },
+    "observed_at": "2026-10-19T12:00:00Z",
+    "origin": "owner-confirmed",
+    "accounts": [
+      {
+        "account": "app-demo-app",
+        "subject_kind": "app",
+        "coverage": "enforced",
+        "pressure": "normal",
+        "compute": {
+          "configured": {
+            "cpu_millis": 2000,
+            "cpu_weight": 100,
+            "memory_high_bytes": 1610612736,
+            "memory_max_bytes": 2147483648,
+            "swap_max_bytes": 0,
+            "tasks_max": 512,
+            "io_weight": null,
+            "io_limits": [],
+            "tmpfs_max_bytes": 67108864,
+            "tmpfs_max_inodes": 8192
+          },
+          "effective_memory_max_bytes": 2147483648,
+          "current_memory_bytes": 134217728,
+          "current_tasks": 42,
+          "oom_events": 0,
+          "cgroup_path": "/user.slice/user-12345.slice"
+        },
+        "storage": [
+          {
+            "bucket": "runtime",
+            "pool": "app-disk",
+            "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
+            "mount_id": 81,
+            "project_id": 10001,
+            "root": "/srv/ops/app-demo-app/runtime",
+            "max_bytes": 8589934592,
+            "max_inodes": 1000000,
+            "used_bytes": 1073741824,
+            "used_inodes": 8192,
+            "headroom_bytes": 268435456,
+            "headroom_inodes": 10000,
+            "reserved_remaining_bytes": 0,
+            "reserved_remaining_inodes": 0,
+            "enforced": true
+          },
+          {
+            "bucket": "state",
+            "pool": "app-disk",
+            "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
+            "mount_id": 81,
+            "project_id": 10002,
+            "root": "/srv/ops/app-demo-app/state",
+            "max_bytes": 17179869184,
+            "max_inodes": 1000000,
+            "used_bytes": 1073741824,
+            "used_inodes": 8192,
+            "headroom_bytes": 268435456,
+            "headroom_inodes": 10000,
+            "reserved_remaining_bytes": 0,
+            "reserved_remaining_inodes": 0,
+            "enforced": true
+          },
+          {
+            "bucket": "scratch",
+            "pool": "app-disk",
+            "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
+            "mount_id": 81,
+            "project_id": 10003,
+            "root": "/srv/ops/app-demo-app/scratch",
+            "max_bytes": 8589934592,
+            "max_inodes": 1000000,
+            "used_bytes": 67108864,
+            "used_inodes": 8192,
+            "headroom_bytes": 268435456,
+            "headroom_inodes": 10000,
+            "reserved_remaining_bytes": 0,
+            "reserved_remaining_inodes": 0,
+            "enforced": true
+          },
+          {
+            "bucket": "logs",
+            "pool": "app-disk",
+            "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
+            "mount_id": 81,
+            "project_id": 10004,
+            "root": "/srv/ops/app-demo-app/logs",
+            "max_bytes": 1073741824,
+            "max_inodes": 1000000,
+            "used_bytes": 67108864,
+            "used_inodes": 8192,
+            "headroom_bytes": 268435456,
+            "headroom_inodes": 10000,
+            "reserved_remaining_bytes": 0,
+            "reserved_remaining_inodes": 0,
+            "enforced": true
+          }
+        ],
+        "cleanup_eligible_bytes_estimate": 314572800,
+        "blockers": []
+      }
+    ],
+    "next_cursor": null
+  }
+}

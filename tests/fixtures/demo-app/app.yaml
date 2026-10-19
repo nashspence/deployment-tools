@@ -1,0 +1,150 @@
+format: deployment-ops/source/v2
+kind: App
+id: demo-app
+runtime: podman-quadlet-v1
+purpose: Synthetic stateful database-backed app
+repository_secrets: secrets.yaml
+components:
+  web:
+    unit: quadlet/web.container
+    role: primary
+    profile: ordinary-v1
+    purpose: Synthetic web service
+  database:
+    unit: quadlet/database.container
+    role: internal
+    profile: ordinary-v1
+    purpose: Native database
+  maintenance:
+    unit: quadlet/maintenance.container
+    role: maintenance
+    profile: maintenance-v1
+    purpose: Isolated capture/restore
+interfaces:
+  http:
+    component: web
+    protocol: http
+    port: 8080
+    compatibility:
+    - http-v1
+    authentication: public
+    readiness_hook: health
+dependencies: {}
+datasets:
+  state:
+    kind: owned
+    native_format: synthetic-sql-and-files-v1
+    writers:
+    - database
+    readers:
+    - maintenance
+    grant: demo-app-data
+    capture: capture
+    restore: restore
+    verify: verify-restore
+    owner: null
+hooks:
+  health:
+    component: web
+    role: health
+    argv:
+    - /app/health
+    mode: read
+    timeout_seconds: 60
+    datasets: []
+    secrets: []
+    network: none
+  capture:
+    component: maintenance
+    role: capture
+    argv:
+    - /app/capture
+    mode: read
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+  restore:
+    component: maintenance
+    role: restore
+    argv:
+    - /app/restore
+    mode: write
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+  verify-restore:
+    component: maintenance
+    role: verify-restore
+    argv:
+    - /app/verify-restore
+    mode: read
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+lifecycle:
+  health:
+  - health
+  configure: null
+  verify_config: null
+  quiesce: null
+  transition_assess: null
+  transition_apply: null
+  transition_verify: null
+  checkpoint_policy: required-on-change
+  upgrade_mode: replace
+secret_bindings:
+  database-password:
+    entry: db-password
+    component: database
+    delivery: file
+    target: /run/secrets/db-password
+    uid: 999
+    gid: 999
+    mode: '0400'
+maintenance:
+  daily-backup:
+    action: backup
+    hook: null
+    calendar: '*-*-* 03:00:00'
+    timezone: America/Los_Angeles
+    max_delay_seconds: 3600
+    timeout_seconds: 3600
+    active_only: true
+protection:
+  backend: local-backup
+  rpo_seconds: 86400
+  drill_interval_seconds: 2592000
+resources:
+  minimum_memory_bytes: 134217728
+  minimum_cpu_millis: 100
+  minimum_tasks: 32
+  storage_minimum:
+    runtime:
+      bytes: 268435456
+      inodes: 1024
+    state:
+      bytes: 67108864
+      inodes: 1024
+    scratch:
+      bytes: 268435456
+      inodes: 1024
+    logs:
+      bytes: 67108864
+      inodes: 1024
+  logs:
+    driver: k8s-file
+    max_file_bytes: 10485760
+    closed_retention_seconds: 604800
+    overflow: bounded-loss-visible
+  retention:
+    prior_releases: 1
+    minimum_prior_age_seconds: 604800
+    unused_candidate_grace_seconds: 86400
+    cold_archive: verified-independent-archive
+  automatic_gc: true

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/tool-release.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/tool-release/v1"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "source_commit": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 64,
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "artifacts": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 256,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]{0,63}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "tool": {
+            "enum": [
+              "domain-ops",
+              "host-ops",
+              "app-ops"
+            ]
+          },
+          "platform": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^(https://|oci://|file:)"
+          },
+          "wire_versions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          },
+          "source_versions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          },
+          "storage_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "rescue_digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "tool",
+          "platform",
+          "digest",
+          "uri",
+          "wire_versions",
+          "source_versions",
+          "storage_version",
+          "rescue_digest"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tested_pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "client_digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "owner_digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "wire_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "evidence_digest": {
+            "type": "string",
+            "minLength": 71,
+            "maxLength": 71,
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "client_digest",
+          "owner_digest",
+          "wire_version",
+          "evidence_digest"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 256
+    },
+    "qualified": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "source_commit",
+    "artifacts",
+    "tested_pairs",
+    "qualified"
+  ],
+  "additionalProperties": false
+}

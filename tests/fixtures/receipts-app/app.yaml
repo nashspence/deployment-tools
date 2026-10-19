@@ -1,0 +1,137 @@
+format: deployment-ops/source/v2
+kind: App
+id: ops-receipts
+runtime: podman-quadlet-v1
+purpose: Synthetic optional report-only SQLite index; no execution authority
+repository_secrets: secrets.yaml
+components:
+  server:
+    unit: quadlet/server.container
+    role: primary
+    profile: ordinary-v1
+    purpose: Authenticated metadata-only API
+  maintenance:
+    unit: quadlet/maintenance.container
+    role: maintenance
+    profile: maintenance-v1
+    purpose: Stopped index capture and restore only
+interfaces:
+  http:
+    component: server
+    protocol: http
+    port: 8080
+    compatibility:
+    - receipts-http-v1
+    authentication: native
+    readiness_hook: health
+dependencies: {}
+datasets:
+  state:
+    kind: owned
+    native_format: sqlite-receipts-v1
+    writers:
+    - server
+    readers:
+    - maintenance
+    grant: receipts-state
+    capture: capture
+    restore: restore
+    verify: verify-restore
+    owner: null
+hooks:
+  health:
+    component: server
+    role: health
+    argv:
+    - /app/health
+    mode: read
+    timeout_seconds: 60
+    datasets: []
+    secrets: []
+    network: none
+  capture:
+    component: maintenance
+    role: capture
+    argv:
+    - /app/capture-stopped
+    mode: read
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+  restore:
+    component: maintenance
+    role: restore
+    argv:
+    - /app/restore-stopped
+    mode: write
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+  verify-restore:
+    component: maintenance
+    role: verify-restore
+    argv:
+    - /app/verify-index
+    mode: read
+    timeout_seconds: 60
+    datasets:
+    - state
+    secrets: []
+    network: none
+lifecycle:
+  health:
+  - health
+  configure: null
+  verify_config: null
+  quiesce: null
+  transition_assess: null
+  transition_apply: null
+  transition_verify: null
+  checkpoint_policy: required-on-change
+  upgrade_mode: replace
+secret_bindings:
+  index-auth:
+    entry: index-auth
+    component: server
+    delivery: file
+    target: /run/secrets/index-auth.json
+    uid: 1000
+    gid: 1000
+    mode: '0400'
+maintenance: {}
+protection:
+  backend: local-backup
+  rpo_seconds: 86400
+  drill_interval_seconds: 2592000
+resources:
+  minimum_memory_bytes: 134217728
+  minimum_cpu_millis: 100
+  minimum_tasks: 32
+  storage_minimum:
+    runtime:
+      bytes: 268435456
+      inodes: 1024
+    state:
+      bytes: 67108864
+      inodes: 1024
+    scratch:
+      bytes: 268435456
+      inodes: 1024
+    logs:
+      bytes: 67108864
+      inodes: 1024
+  logs:
+    driver: k8s-file
+    max_file_bytes: 10485760
+    closed_retention_seconds: 604800
+    overflow: bounded-loss-visible
+  retention:
+    prior_releases: 1
+    minimum_prior_age_seconds: 604800
+    unused_candidate_grace_seconds: 86400
+    cold_archive: verified-independent-archive
+  automatic_gc: true

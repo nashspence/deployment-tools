@@ -1,0 +1,43 @@
+{
+  "format": "deployment-ops/closeout/v2",
+  "workspace_id": "11111111-1111-4111-8111-111111111111",
+  "root": "/home/example/work/change-001",
+  "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "active_jobs": 0,
+  "foreign_worktrees": 0,
+  "obligations": [
+    {
+      "id": "source",
+      "kind": "source",
+      "disposition": "exported",
+      "evidence_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "unresolved_requests": [
+    {
+      "owner": {
+        "tool": "app-ops",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "epoch": "33333333-3333-4333-8333-333333333333"
+      },
+      "request_id": "44444444-4444-4444-8444-444444444444",
+      "plan_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "subject_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "workflow_id": "11111111-1111-4111-8111-111111111111",
+      "endpoint_alias": "node-a-app",
+      "trust_profile": "example-owner-trust",
+      "state": "acceptance_unknown",
+      "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "action": "app.restart",
+      "resource": {
+        "kind": "app",
+        "id": "demo-app"
+      },
+      "expected_generation": 1
+    }
+  ],
+  "receipt_export_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_outside_workspace": true,
+  "would_delete": false
+}

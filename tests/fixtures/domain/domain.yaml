@@ -1,0 +1,56 @@
+format: deployment-ops/source/v2
+kind: Domain
+id: a6606aee-cb29-5360-a578-3502f7b0a12a
+name: Synthetic home
+sources:
+  host-node-a:
+    repository:
+      instance: 3f781d0c-3e1a-5432-b81d-d1cd214e9958
+      repository_id: 11
+      name: host/node-a
+    url: ssh://git@forgejo.example.invalid/host/node-a.git
+    ref: refs/heads/main
+    entrypoint: host.yaml
+  host-node-b:
+    repository:
+      instance: 3f781d0c-3e1a-5432-b81d-d1cd214e9958
+      repository_id: 12
+      name: host/node-b
+    url: ssh://git@forgejo.example.invalid/host/node-b.git
+    ref: refs/heads/main
+    entrypoint: host.yaml
+  app-demo-app:
+    repository:
+      instance: 3f781d0c-3e1a-5432-b81d-d1cd214e9958
+      repository_id: 21
+      name: app/demo-app
+    url: ssh://git@forgejo.example.invalid/app/demo-app.git
+    ref: refs/heads/main
+    entrypoint: app.yaml
+hosts:
+  node-a:
+    source: host-node-a
+    host_ops_alias: node-a-host
+    app_ops_alias: node-a-app
+    availability: always-on
+    wake_relay: null
+  node-b:
+    source: host-node-b
+    host_ops_alias: node-b-host
+    app_ops_alias: node-b-app
+    availability: on-demand
+    wake_relay: node-a
+apps:
+  demo-app:
+    source: app-demo-app
+    host: node-a
+    placement_generation: 1
+    boundary_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    security_control: false
+providers: {}
+backup_backends:
+  local-backup:
+    custodian_host: node-a
+    adapter: restic-backend
+    repository_id: synthetic-restic
+    purpose: Synthetic protected backend; not an enrolled real repository

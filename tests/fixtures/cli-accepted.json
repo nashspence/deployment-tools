@@ -1,0 +1,62 @@
+{
+  "format": "deployment-ops/cli/v1",
+  "ok": true,
+  "state": "accepted",
+  "complete": false,
+  "request_id": "724aa16e-f2aa-50d0-aee5-e01135f471b0",
+  "location": "caller-session",
+  "result": {
+    "format": "deployment-ops/record/v1",
+    "kind": "Operation",
+    "id": "520e905c-ac5f-5c11-b75f-567c162d6680",
+    "request_id": "724aa16e-f2aa-50d0-aee5-e01135f471b0",
+    "owner": {
+      "tool": "app-ops",
+      "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+      "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+    },
+    "subject": {
+      "action": "app.restart",
+      "resource": {
+        "kind": "app",
+        "id": "demo-app"
+      },
+      "arguments": {
+        "components": [
+          "web"
+        ]
+      }
+    },
+    "plan_digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+    "generation": 0,
+    "state": "accepted",
+    "effect_certainty": "none",
+    "holds": [],
+    "authenticated_principal": "ops-app-operate",
+    "claimed_actor": null,
+    "created_at": "2026-10-17T00:00:00Z",
+    "updated_at": "2026-10-17T00:00:00Z",
+    "last_event": 0,
+    "result_handle": null,
+    "witness": {
+      "format": "deployment-ops/witness/v1",
+      "id": "5018df02-0aaa-5c56-90ff-5afcd81bf3f6",
+      "owner": {
+        "tool": "app-ops",
+        "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+        "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+      },
+      "kind": "acceptance",
+      "subject_digest": "sha256:d34cd7232d370086bada92706547de03ad65ee4fe095bca485ed287df3117ba3",
+      "workflow_id": null,
+      "generation": 0,
+      "state": "accepted",
+      "boot_id": null,
+      "evidence_digests": [],
+      "created_at": "2026-10-17T00:00:00Z",
+      "key_id": "test-owner",
+      "signature": "bko8xzQ9Jn5o0/I2xuj8DClqSNGrp5pc3aR0SpOKRMj3bVX6T+j19IqKFQpcVYQXVUdOqYfHWfcblq76+YhGDg=="
+    }
+  },
+  "problem": null
+}

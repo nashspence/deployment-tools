@@ -1,0 +1,15 @@
+{
+  "format": "domain-ops-directory/release/v1",
+  "version": "0.1.0-candidate",
+  "source_commit": null,
+  "artifact_digest": null,
+  "target": "linux-arm64-native",
+  "go_version": null,
+  "sdk_version": null,
+  "protocol_version": "2026-07-28",
+  "vendor_model": "generic-appliance",
+  "qualified_firmware": null,
+  "measurements": null,
+  "evidence_digests": [],
+  "qualified": false
+}

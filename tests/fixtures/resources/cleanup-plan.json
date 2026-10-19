@@ -1,0 +1,34 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "CleanupPlan",
+  "owner": {
+    "tool": "app-ops",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "epoch": "44444444-4444-4444-8444-444444444444"
+  },
+  "account": "app-demo-app",
+  "store_binding": "sha256:f1651f39f8b68d4ee7e9d1071289b20e36a2ce72893db19ef77fa7da4cd21e69",
+  "inventory_digest": "sha256:34673d5158714cda34e71cffeb31deb8547a296d86fada6d56af293e83f2c786",
+  "protection_digest": "sha256:120fa2eae62c02d6830461278a21e47313f668d55515a7de7097c74e536452d5",
+  "generation": 3,
+  "created_at": "2026-10-19T12:00:00Z",
+  "expires_at": "2026-10-19T12:05:00Z",
+  "candidates": [
+    {
+      "handle": "sha256:f9b4fa935bad938ae659c99dc21313e6eeae24d1b89e6cf17648b7b2b53c08c9",
+      "kind": "container",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000005"
+    },
+    {
+      "handle": "sha256:afd844c5c60075285b342c5066758a2d6580c66f41f03e9358bce1576e8a2854",
+      "kind": "scratch",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000007"
+    },
+    {
+      "handle": "sha256:382dd3eb72f9710a91808e24c772efae56954b74ac825d472aea1578671eca2b",
+      "kind": "image",
+      "native_id": "0000000000000000000000000000000000000000000000000000000000000006"
+    }
+  ],
+  "blocked": []
+}

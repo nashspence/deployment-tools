@@ -1,0 +1,42 @@
+{
+  "format": "deployment-ops/onboarding/v2",
+  "profile": "home",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "tools_source": {
+    "identity": {
+      "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+      "repository_id": 31,
+      "name": "tools/deployment-tools"
+    },
+    "clone_url": "ssh://git@forgejo.example.invalid/tools/deployment-tools.git",
+    "ref": "refs/heads/main",
+    "entrypoint": "README.md"
+  },
+  "domain_source": {
+    "identity": {
+      "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+      "repository_id": 30,
+      "name": "domain/estate-config"
+    },
+    "clone_url": "ssh://git@forgejo.example.invalid/domain/estate-config.git",
+    "ref": "refs/heads/main",
+    "entrypoint": "domain.yaml"
+  },
+  "ssh_config": "/home/example/.ssh/config",
+  "owner_endpoints": [
+    {
+      "id": "node-a-app",
+      "tool": "app-ops",
+      "host": "node-a.example.invalid",
+      "port": 22,
+      "user": "ops-app",
+      "network": "lan",
+      "ssh_alias": "node-a-app",
+      "trust_profile": "example-owner-trust",
+      "expected_owner_id": "22222222-2222-4222-8222-222222222222",
+      "role_hint": "operator"
+    }
+  ],
+  "enrollment_note": "Obtain your own source and owner SSH enrollment through the independent owner.",
+  "recovery_record_hint": "Independent private start card; no credentials in discovery."
+}

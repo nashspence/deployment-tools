@@ -1,0 +1,13 @@
+{
+  "format": "deployment-ops/secrets/v1",
+  "repository": {
+    "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+    "repository_id": 21,
+    "name": "app/demo-app"
+  },
+  "catalogue_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "generation": "d0c78dd0-b376-5824-9647-4d49d0f9da8a",
+  "entries": [
+    "db-password"
+  ]
+}

@@ -1,0 +1,14 @@
+# SYNTHETIC INPUT — not a generated admitted unit or deployable image.
+[Unit]
+Description=Example maintenance
+
+[Container]
+Image=registry.example.invalid/example/maintenance@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Pull=never
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+# The admitted compiler/profile adds only approved handles, names and start guards.
+
+[Service]
+Restart=on-failure

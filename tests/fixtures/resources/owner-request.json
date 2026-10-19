@@ -1,0 +1,13 @@
+{
+  "format": "deployment-ops/owner/v1",
+  "message_id": "00000000-0000-4000-8000-000000000050",
+  "method": "resources.observe",
+  "params": {
+    "resource": {
+      "kind": "app",
+      "id": "demo-app"
+    },
+    "cursor": null,
+    "limit": 1
+  }
+}

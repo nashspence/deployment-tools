@@ -1,0 +1,21 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "CapacityRequest",
+  "operation_id": "00000000-0000-4000-8000-000000000002",
+  "account": "app-demo-app",
+  "resource_generation": 2,
+  "estimate": "verified-upper-bound",
+  "stage": "prepare",
+  "growth": [
+    {
+      "bucket": "runtime",
+      "bytes": 2147483648,
+      "inodes": 32000
+    },
+    {
+      "bucket": "scratch",
+      "bytes": 1073741824,
+      "inodes": 10000
+    }
+  ]
+}

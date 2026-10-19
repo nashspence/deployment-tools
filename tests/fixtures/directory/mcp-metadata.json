@@ -1,0 +1,340 @@
+{
+  "server": {
+    "name": "example_ops",
+    "title": "example.invalid Operations Guide",
+    "version": "specification-10",
+    "instructions": "Read-only source and SSH-owner discovery for example.invalid. Establish independent source/SSH trust and caller authority. Clone or recover sources, install a verified portable toolkit, then inspect/test/plan. This service never executes instructions."
+  },
+  "tools": [
+    {
+      "name": "example_ops_discover_management",
+      "title": "Find domain management source and SSH owners",
+      "description": "Find tools/domain repositories and direct SSH owner hints. It does not grant credentials, install software or connect to hosts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "enum": [
+              "lan",
+              "vpn",
+              "all"
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "const": "domain-ops-directory/discovery/v2"
+          },
+          "catalogue": {
+            "type": "object",
+            "properties": {
+              "format": {
+                "const": "domain-ops-directory/catalogue/v2"
+              },
+              "domain_id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "domain_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 253
+              },
+              "display_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 96
+              },
+              "generation": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "published_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              },
+              "freshness": {
+                "enum": [
+                  "current",
+                  "stale",
+                  "clock-uncertain"
+                ]
+              },
+              "repositories": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "enum": [
+                        "deployment-tools",
+                        "domain"
+                      ]
+                    },
+                    "clone_url": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "pattern": "^(ssh://|https://)[^\\s]+$"
+                    },
+                    "documentation_url": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "pattern": "^https://[^\\s]+$"
+                    },
+                    "ref_hint": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160,
+                      "pattern": "^refs/(heads|tags)/[^\\s]+$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "clone_url",
+                    "documentation_url",
+                    "ref_hint"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "uniqueItems": true
+              },
+              "owner_endpoints": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24,
+                      "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                    },
+                    "tool": {
+                      "enum": [
+                        "host-ops",
+                        "app-ops"
+                      ]
+                    },
+                    "host": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 253
+                    },
+                    "port": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    },
+                    "user": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32,
+                      "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+                    },
+                    "network": {
+                      "enum": [
+                        "lan",
+                        "vpn"
+                      ]
+                    },
+                    "ssh_alias": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                    },
+                    "trust_profile": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24,
+                      "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                    },
+                    "expected_owner_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                    },
+                    "role_hint": {
+                      "enum": [
+                        "observer",
+                        "operator",
+                        "administrator"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tool",
+                    "host",
+                    "port",
+                    "user",
+                    "network",
+                    "ssh_alias",
+                    "trust_profile",
+                    "expected_owner_id",
+                    "role_hint"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 0,
+                "maxItems": 16,
+                "uniqueItems": true
+              },
+              "recovery_hint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "authority": {
+                "const": "discovery-only; independently authenticate source and owner SSH"
+              }
+            },
+            "required": [
+              "format",
+              "domain_id",
+              "domain_name",
+              "display_name",
+              "generation",
+              "published_at",
+              "freshness",
+              "repositories",
+              "owner_endpoints",
+              "recovery_hint",
+              "authority"
+            ],
+            "additionalProperties": false
+          },
+          "workflow": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "format",
+          "catalogue",
+          "workflow"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "example_ops_get_management_workflow",
+      "title": "Explain the local management workflow",
+      "description": "Explain install, tests, planning, recovery or cleanup using caller Git/Python/SSH. Guidance only; it performs no operations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "enum": [
+              "start",
+              "test-domain",
+              "plan-change",
+              "resume",
+              "recover",
+              "cleanup"
+            ]
+          }
+        },
+        "required": [
+          "intent"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "const": "domain-ops-directory/workflow/v2"
+          },
+          "intent": {
+            "enum": [
+              "start",
+              "test-domain",
+              "plan-change",
+              "resume",
+              "recover",
+              "cleanup"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true
+          },
+          "executes": {
+            "const": false
+          }
+        },
+        "required": [
+          "format",
+          "intent",
+          "steps",
+          "executes"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "domain-ops://a6606aee-cb29-5360-a578-3502f7b0a12a/catalogue",
+      "name": "catalogue",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "domain-ops://a6606aee-cb29-5360-a578-3502f7b0a12a/workflow",
+      "name": "workflow",
+      "mimeType": "text/plain"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "example_ops_manage_domain",
+      "description": "Guide local domain operations; no credential enrollment or execution.",
+      "arguments": [
+        {
+          "name": "intent",
+          "description": "start, test-domain, plan-change, resume, recover, cleanup",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

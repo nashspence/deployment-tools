@@ -1,0 +1,29 @@
+{
+  "format": "deployment-ops/receipts-service/v1",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "service_id": "22222222-2222-4222-8222-222222222222",
+  "store_path": "/data/receipts.sqlite",
+  "container_port": 8080,
+  "host_bind": "127.0.0.1",
+  "host_port": 18125,
+  "auth": {
+    "mode": "bearer-file",
+    "config_file": "/run/secrets/index-auth.json"
+  },
+  "limits": {
+    "max_event_bytes": 16384,
+    "max_page": 100,
+    "max_response_bytes": 1048576,
+    "max_requests": 4,
+    "busy_ms": 250,
+    "request_seconds": 2,
+    "max_workflows": 10000,
+    "max_events": 100000,
+    "database_bytes": 1073741824,
+    "free_reserve_bytes": 67108864
+  },
+  "outbound_connections": false,
+  "execution_capability": false,
+  "backup": "stopped",
+  "enabled_by_default": false
+}

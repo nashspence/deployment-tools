@@ -1,0 +1,45 @@
+format: deployment-ops/domain-tests/v2
+default_suite: offline
+runtime_lock_path: tests/requirements.lock
+runtime_lock_digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+suites:
+  offline:
+    class: offline
+    required_role: operator
+    argv:
+    - python
+    - -m
+    - pytest
+    - offline
+    cwd: tests
+    timeout_seconds: 300
+    output_limit_bytes: 262144
+    required_inputs:
+    - recovery-docs
+    targets_required: false
+  observe:
+    class: observe
+    required_role: operator
+    argv:
+    - python
+    - -m
+    - pytest
+    - observe
+    cwd: tests
+    timeout_seconds: 300
+    output_limit_bytes: 262144
+    required_inputs: []
+    targets_required: false
+  mutate:
+    class: mutate
+    required_role: operator
+    argv:
+    - python
+    - -m
+    - pytest
+    - mutate
+    cwd: tests
+    timeout_seconds: 300
+    output_limit_bytes: 262144
+    required_inputs: []
+    targets_required: true

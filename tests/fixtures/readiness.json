@@ -1,0 +1,21 @@
+{
+  "format": "deployment-ops/readiness/v1",
+  "resource": {
+    "kind": "app",
+    "id": "demo-app"
+  },
+  "owner_approval": null,
+  "old_owner": "discovery required",
+  "new_owner": "app-ops",
+  "source_refs": [],
+  "checkpoint": null,
+  "independent_restore_evidence": null,
+  "fence_evidence": [],
+  "max_downtime_seconds": null,
+  "max_data_loss_seconds": null,
+  "retention_disposition": null,
+  "credential_custody_record": null,
+  "required_cases": [],
+  "case_evidence": {},
+  "state": "discovery"
+}

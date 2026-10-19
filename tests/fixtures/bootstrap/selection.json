@@ -1,0 +1,25 @@
+{
+  "format": "deployment-ops/bootstrap-selection/v1",
+  "purpose": "source-only",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "source_identity": {
+    "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+    "repository_id": 30,
+    "name": "domain/estate-config"
+  },
+  "helper_commit": "1111111111111111111111111111111111111111",
+  "helper_blob": "2222222222222222222222222222222222222222",
+  "kit_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "restic_repository_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "snapshot_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "bare_repository_path": "/recovery/bootstrap/repos/domain.git",
+  "branch": "main",
+  "expected_commit": "1111111111111111111111111111111111111111",
+  "recovery_root": "/recovery/staging/run-001",
+  "private_profile_handle": "owner-offline-profile",
+  "verify_only": true,
+  "force_checkout": false,
+  "install_dependencies": false,
+  "download_tools": false,
+  "full_service_restore_separate": true
+}

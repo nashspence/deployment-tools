@@ -1,0 +1,19 @@
+{
+  "format": "deployment-ops/session/v2",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "root": "/home/example/work/change-001",
+  "domain_dir": "/home/example/work/change-001/estate-config",
+  "tools_dir": "/home/example/work/change-001/deployment-tools",
+  "tool_env": "/home/example/work/change-001/.venv-tools",
+  "test_env": "/home/example/work/change-001/.venv-tests",
+  "repository": {
+    "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+    "repository_id": 30,
+    "name": "domain/estate-config"
+  },
+  "baseline": "1111111111111111111111111111111111111111",
+  "install_bundle_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "status": "open",
+  "evidence_dir": null
+}

@@ -1,0 +1,42 @@
+{
+  "format": "deployment-ops/bootstrap-catalogue/v1",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "created_at": "2026-10-17T06:00:00Z",
+  "capture_consistency": "forgejo-stopped",
+  "restic_repository_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "snapshot_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "kit_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "profile_generation": "37124b5e-8866-4df7-9215-5a58f4e17e35",
+  "sources": [
+    {
+      "source_id": "domain",
+      "repository": {
+        "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+        "repository_id": 30,
+        "name": "domain/estate-config"
+      },
+      "bare_repository_path": "/recovery/bootstrap/repos/domain.git",
+      "branch": "main",
+      "commit": "1111111111111111111111111111111111111111",
+      "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "file_count": 18,
+      "total_bytes": 32768
+    },
+    {
+      "source_id": "deployment-tools",
+      "repository": {
+        "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+        "repository_id": 31,
+        "name": "tools/deployment-tools"
+      },
+      "bare_repository_path": "/recovery/bootstrap/repos/deployment-tools.git",
+      "branch": "main",
+      "commit": "2222222222222222222222222222222222222222",
+      "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "file_count": 18,
+      "total_bytes": 32768
+    }
+  ],
+  "full_service_checkpoint_ref": "synthetic-forgejo-checkpoint",
+  "publication_state": "candidate"
+}

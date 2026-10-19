@@ -1,0 +1,24 @@
+{
+  "format": "deployment-ops/tracking-profile/v1",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "issue": {
+    "repository": {
+      "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+      "repository_id": 30,
+      "name": "domain/estate-config"
+    },
+    "api_origin": "https://forgejo.example.invalid",
+    "credential_file": "/private/tracking/forgejo-token",
+    "issue_number": 142
+  },
+  "index": {
+    "service_id": "22222222-2222-4222-8222-222222222222",
+    "base_url": "http://127.0.0.1:18125",
+    "credential_file": "/private/tracking/index-token"
+  },
+  "overall_deadline_seconds": 5,
+  "request_timeout_seconds": 2,
+  "max_pages": 4,
+  "max_body_bytes": 16384,
+  "automatic_execution_hook": false
+}

@@ -1,0 +1,89 @@
+{
+  "format": "deployment-ops/client-cli/v1",
+  "commands": [
+    {
+      "name": "info",
+      "scope": "local-observe"
+    },
+    {
+      "name": "source status",
+      "scope": "local-observe"
+    },
+    {
+      "name": "source sync",
+      "scope": "explicit-fetch"
+    },
+    {
+      "name": "source advance",
+      "scope": "checked-fast-forward"
+    },
+    {
+      "name": "source worktree",
+      "scope": "local-proposal"
+    },
+    {
+      "name": "source publish",
+      "scope": "owner-publisher"
+    },
+    {
+      "name": "source recover",
+      "scope": "explicit-native-recovery"
+    },
+    {
+      "name": "test",
+      "scope": "trusted-code"
+    },
+    {
+      "name": "workspace open",
+      "scope": "local-register"
+    },
+    {
+      "name": "workspace check",
+      "scope": "local-observe"
+    },
+    {
+      "name": "workspace export",
+      "scope": "explicit-private-export"
+    },
+    {
+      "name": "workspace close",
+      "scope": "preservation-check-no-delete"
+    },
+    {
+      "name": "receipts export",
+      "scope": "private-evidence"
+    },
+    {
+      "name": "receipts import",
+      "scope": "untrusted-evidence"
+    },
+    {
+      "name": "workflow resume",
+      "scope": "reauthorized-owner-work"
+    },
+    {
+      "name": "tracking record",
+      "scope": "best-effort-metadata-only"
+    },
+    {
+      "name": "tracking check",
+      "scope": "optional-integration-diagnostic"
+    },
+    {
+      "name": "tracking show",
+      "scope": "reported-data-only"
+    },
+    {
+      "name": "host resources",
+      "scope": "owner-observe"
+    },
+    {
+      "name": "app resources",
+      "scope": "owner-observe"
+    },
+    {
+      "name": "app cleanup",
+      "scope": "owner-exact-plan"
+    }
+  ]
+}

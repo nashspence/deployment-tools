@@ -1,0 +1,11 @@
+# Synthetic example. Review independently before using. Not imported from a repo automatically.
+Host node-a-app
+    HostName node-a.example.invalid
+    User ops-app
+    Port 22
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/home-operator
+    StrictHostKeyChecking yes
+    UserKnownHostsFile ~/.ssh/known_hosts-home
+    ForwardAgent no
+    ClearAllForwardings yes

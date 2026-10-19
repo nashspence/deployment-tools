@@ -1,0 +1,64 @@
+{
+  "format": "deployment-ops/catalog/v1",
+  "methods": [
+    {
+      "name": "discover"
+    },
+    {
+      "name": "observe"
+    },
+    {
+      "name": "check"
+    },
+    {
+      "name": "logs"
+    },
+    {
+      "name": "plan.prepare"
+    },
+    {
+      "name": "plan.get"
+    },
+    {
+      "name": "operation.submit"
+    },
+    {
+      "name": "operation.get"
+    },
+    {
+      "name": "operation.list"
+    },
+    {
+      "name": "operation.cancel"
+    },
+    {
+      "name": "workflow.prepare"
+    },
+    {
+      "name": "workflow.get"
+    },
+    {
+      "name": "workflow.advance"
+    },
+    {
+      "name": "workflow.transfer"
+    },
+    {
+      "name": "content.begin"
+    },
+    {
+      "name": "content.chunk"
+    },
+    {
+      "name": "content.commit"
+    },
+    {
+      "name": "content.get"
+    },
+    {
+      "name": "resources.observe"
+    }
+  ],
+  "max_frame_bytes": 1048576,
+  "max_content_chunk_bytes": 196608
+}

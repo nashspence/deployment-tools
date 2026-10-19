@@ -1,0 +1,82 @@
+{
+  "format": "deployment-ops/record/v1",
+  "kind": "Plan",
+  "id": "2d9eb8fe-ad81-579e-a6fa-bc2840660a56",
+  "owner": {
+    "tool": "app-ops",
+    "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+    "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+  },
+  "subject": {
+    "action": "app.restart",
+    "resource": {
+      "kind": "app",
+      "id": "demo-app"
+    },
+    "arguments": {
+      "components": [
+        "web"
+      ]
+    }
+  },
+  "created_at": "2026-10-17T00:00:00Z",
+  "expires_at": "2026-10-17T01:00:00Z",
+  "input_digests": [
+    "sha256:f60fa8fdf1458e0573e731e274de6789c98a7955a8d39e20b31adb8c3063f9d1"
+  ],
+  "preconditions": [
+    {
+      "owner": {
+        "tool": "app-ops",
+        "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+        "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+      },
+      "resource": {
+        "kind": "app",
+        "id": "demo-app"
+      },
+      "generation": 0,
+      "source_digests": [],
+      "holds_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "effects": [
+    {
+      "step": "restart",
+      "executor": {
+        "tool": "app-ops",
+        "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+        "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+      },
+      "action": "admitted-restart",
+      "input_digest": "sha256:f60fa8fdf1458e0573e731e274de6789c98a7955a8d39e20b31adb8c3063f9d1",
+      "reconciliation": "inspect-runtime"
+    }
+  ],
+  "checkpoint_required": false,
+  "interruption": "One admitted component restart",
+  "recovery": [
+    "native-reconcile"
+  ],
+  "blockers": [],
+  "digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+  "witness": {
+    "format": "deployment-ops/witness/v1",
+    "id": "5018df02-0aaa-5c56-90ff-5afcd81bf3f6",
+    "owner": {
+      "tool": "app-ops",
+      "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
+      "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
+    },
+    "kind": "plan",
+    "subject_digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+    "workflow_id": null,
+    "generation": 0,
+    "state": "planned",
+    "boot_id": null,
+    "evidence_digests": [],
+    "created_at": "2026-10-17T00:00:00Z",
+    "key_id": "test-owner",
+    "signature": "Tux8Ijydvil+KSjRbOEEWHb1i7beeeEhb+ozSFeD0PE45/MvaC9APbnrGWN3KMumH5jF88hfDJZQM0wLgisWAA=="
+  }
+}

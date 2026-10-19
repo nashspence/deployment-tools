@@ -1,0 +1,28 @@
+# Documentation addresses only; must not be installed unmodified.
+format: domain-ops-directory/runtime/v1
+bind_addresses:
+- 192.0.2.1
+- 2001:db8::1
+port: 9443
+allowed_hosts:
+- directory.example.invalid:9443
+allowed_origins:
+- https://directory.example.invalid:9443
+allowed_cidrs:
+- 192.0.2.0/24
+- 2001:db8::/64
+tls:
+  certificate_file: /etc/domain-ops-directory/tls/server.crt
+  private_key_file: /etc/domain-ops-directory/tls/server.key
+limits:
+  connections: 16
+  active_requests: 8
+  request_bytes: 65536
+  header_bytes: 8192
+  response_bytes: 131072
+  requests_per_second: 10
+  burst: 20
+  read_header_seconds: 3
+  tls_handshake_seconds: 5
+  handler_seconds: 5
+  idle_seconds: 15

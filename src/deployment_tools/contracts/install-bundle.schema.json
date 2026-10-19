@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/install-bundle.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/install-bundle/v1"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "tool": {
+      "const": "domain-ops"
+    },
+    "source_commit": {
+      "$ref": "common.schema.json#/$defs/Commit"
+    },
+    "platform": {
+      "enum": [
+        "linux-amd64",
+        "linux-arm64",
+        "macos-arm64",
+        "macos-amd64"
+      ]
+    },
+    "python": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^cpython-3\\.[0-9]+$"
+    },
+    "native_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "lock": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "$ref": "common.schema.json#/$defs/RelativePath"
+        },
+        "sha256": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10737418240
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "additionalProperties": false
+    },
+    "wheels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "$ref": "common.schema.json#/$defs/RelativePath"
+          },
+          "sha256": {
+            "$ref": "common.schema.json#/$defs/Digest"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10737418240
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "bytes"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "build_inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "$ref": "common.schema.json#/$defs/RelativePath"
+          },
+          "sha256": {
+            "$ref": "common.schema.json#/$defs/Digest"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10737418240
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "bytes"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "qualification": {
+      "enum": [
+        "candidate",
+        "qualified"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/Digest"
+      },
+      "minItems": 0,
+      "maxItems": 128,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "format",
+    "id",
+    "tool",
+    "source_commit",
+    "platform",
+    "python",
+    "native_requirements",
+    "lock",
+    "wheels",
+    "build_inputs",
+    "qualification",
+    "evidence"
+  ],
+  "additionalProperties": false
+}

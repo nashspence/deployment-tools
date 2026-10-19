@@ -1,0 +1,25 @@
+{
+  "format": "deployment-ops/client-info/v2",
+  "tool_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "domain_source": {
+    "source_id": "domain",
+    "repository": {
+      "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
+      "repository_id": 30,
+      "name": "domain/estate-config"
+    },
+    "commit": "1111111111111111111111111111111111111111",
+    "entrypoint": "domain.yaml",
+    "closure_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "dirty": false,
+  "ssh_config": "/home/example/.ssh/config",
+  "owner_permissions_checked": false,
+  "tool_version": "0.0.0-synthetic",
+  "owner_wire": "deployment-ops/owner/v1",
+  "source_formats": [
+    "deployment-ops/source/v2"
+  ],
+  "client_storage_required": false
+}

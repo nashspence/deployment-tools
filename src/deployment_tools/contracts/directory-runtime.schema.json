@@ -1,0 +1,156 @@
+{
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "domain-ops-directory/runtime/v1"
+    },
+    "bind_addresses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 4
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 65535
+    },
+    "allowed_hosts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "allowed_origins": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 320
+      },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "allowed_cidrs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "tls": {
+      "type": "object",
+      "properties": {
+        "certificate_file": {
+          "const": "/etc/domain-ops-directory/tls/server.crt"
+        },
+        "private_key_file": {
+          "const": "/etc/domain-ops-directory/tls/server.key"
+        }
+      },
+      "required": [
+        "certificate_file",
+        "private_key_file"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "connections": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        },
+        "active_requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "request_bytes": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 65536
+        },
+        "header_bytes": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 8192
+        },
+        "response_bytes": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 131072
+        },
+        "requests_per_second": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "burst": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "read_header_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "tls_handshake_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "handler_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "idle_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15
+        }
+      },
+      "required": [
+        "connections",
+        "active_requests",
+        "request_bytes",
+        "header_bytes",
+        "response_bytes",
+        "requests_per_second",
+        "burst",
+        "read_header_seconds",
+        "tls_handshake_seconds",
+        "handler_seconds",
+        "idle_seconds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "format",
+    "bind_addresses",
+    "port",
+    "allowed_hosts",
+    "allowed_origins",
+    "allowed_cidrs",
+    "tls",
+    "limits"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/directory-runtime.schema.json"
+}
