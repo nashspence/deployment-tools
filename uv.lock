@@ -20,6 +20,7 @@ members = [
 
 [manifest.dependency-groups]
 dev = [
+    { name = "filelock", specifier = ">=4,<5" },
     { name = "mypy", specifier = ">=2.3,<3" },
     { name = "packaging", specifier = ">=26,<27" },
     { name = "pip", specifier = ">=26,<27" },

@@ -265,6 +265,26 @@ def smoke(bundle: Path) -> None:
     )
 
 
+def build() -> None:
+    from scripts.check_wheel import check_wheels
+
+    for item in components():
+        generated = ROOT / item["path"] / "build"
+        if generated.is_symlink() or not generated.resolve().is_relative_to(ROOT):
+            raise ValueError("unsafe component build directory")
+        if generated.exists():
+            shutil.rmtree(generated)
+    subprocess.run(["uv", "build", "--all-packages", "--wheel", "--clear"], cwd=ROOT, check=True)
+    check_wheels(ROOT / "dist")
+
+
+def smoke_fresh(dist: Path) -> None:
+    with tempfile.TemporaryDirectory(prefix="deployment-tools-bundle-") as temporary:
+        bundle = Path(temporary) / "bundle"
+        prepare(dist, bundle)
+        smoke(bundle)
+
+
 def archive(bundle: Path) -> Path:
     verify(bundle, sha256(bundle / "manifest.json"))
     target = bundle.with_suffix(".zip")
@@ -277,10 +297,20 @@ def archive(bundle: Path) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["prepare", "smoke", "archive"])
+    parser.add_argument("command", choices=["prepare", "smoke", "archive", "smoke-fresh", "build"])
     parser.add_argument("--dist", type=Path, default=ROOT / "dist")
-    parser.add_argument("--bundle", type=Path, required=True)
+    parser.add_argument("--bundle", type=Path)
     args = parser.parse_args()
+    if args.command == "build":
+        build()
+        return
+    if args.command == "smoke-fresh":
+        if args.bundle is not None:
+            parser.error("smoke-fresh manages its own temporary bundle")
+        smoke_fresh(args.dist.resolve())
+        return
+    if args.bundle is None:
+        parser.error("--bundle is required for prepare, smoke and archive")
     if args.command == "prepare":
         path = prepare(args.dist.resolve(), args.bundle.resolve())
         print(json.dumps({"manifest_sha256": sha256(path), "production_qualified": False}))
