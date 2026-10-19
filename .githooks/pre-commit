@@ -4,4 +4,4 @@ cd "$(git rev-parse --show-toplevel)"
 for repo_git_variable in $(git rev-parse --local-env-vars); do
     unset "$repo_git_variable"
 done
-exec mise exec -- uv run --locked --group dev python -m pytest -q
+exec make unit
