@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PIP_NO_INPUT: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  tests:
+    name: Contracts and unit tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: |
+          python -m pip install --only-binary=:all: -r requirements-ci.txt
+      - run: python scripts/check_public.py
+      - run: python scripts/check_contracts.py
+      - run: python -m pytest --junitxml=artifacts/unit-tests.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ always() }}
+        with:
+          name: unit-results-${{ matrix.python }}
+          path: artifacts/unit-tests.xml
+          retention-days: 7
+          if-no-files-found: ignore
+
+  public-safety:
+    name: Public tree and full-history secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - run: python3 scripts/check_public.py --history
+      - run: bash scripts/ci/secret_scan.sh
+
+  package:
+    name: Build and install wheel outside source checkout
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install --only-binary=:all: -r requirements-ci.txt
+      - run: make package
+      - name: Check built package contains no private material or documentation
+        run: python scripts/check_wheel.py dist/*.whl
+      - name: Install and exercise the distribution, without importing the checkout
+        run: |
+          python -m venv "$RUNNER_TEMP/package-smoke"
+          "$RUNNER_TEMP/package-smoke/bin/python" -m pip install --only-binary=:all: dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/package-smoke/bin/domain-ops" info --json
+          "$RUNNER_TEMP/package-smoke/bin/host-ops" info --json
+          "$RUNNER_TEMP/package-smoke/bin/app-ops" info --json
+          if "$RUNNER_TEMP/package-smoke/bin/app-ops" apply; then
+            echo 'Unimplemented mutation unexpectedly succeeded' >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: scaffold-wheel
+          path: dist/*.whl
+          retention-days: 7
+          if-no-files-found: error
+
+  native-prerequisites:
+    name: Native Linux prerequisite smoke (not deployment qualification)
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - run: bash scripts/ci/native_smoke.sh --github-hosted-only
+      - name: Record the qualification boundary
+        if: ${{ always() }}
+        run: |
+          printf '%s\n' 'This job probes disposable-runner systemd/cgroup2, rootless Podman/Quadlet, loopback XFS quotas and SSH. It does not qualify the unfinished owner implementations, reboot recovery, hardware or production migration.' >> "$GITHUB_STEP_SUMMARY"
