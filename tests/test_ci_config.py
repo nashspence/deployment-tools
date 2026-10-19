@@ -139,7 +139,9 @@ class SecurityGates(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             runner = Path(tmp) / "mise"
-            runner.write_text('#!/bin/sh\ntest "${GIT_INDEX_FILE+x}" != x || exit 18\nexit 17\n')
+            runner.write_text(
+                '#!/bin/sh\ntest "${GIT_INDEX_FILE+x}" != x || exit 18\ncase "$*" in *SYNTHETIC_REPORT_FILTER*) exit 19;; esac\nexit 17\n'
+            )
             runner.chmod(0o755)
             result = subprocess.run(
                 [str(ROOT / ".githooks/pre-commit")],
@@ -147,6 +149,7 @@ class SecurityGates(unittest.TestCase):
                 env={
                     **os.environ,
                     "GIT_INDEX_FILE": ".git/index",
+                    "UNIT_REPORT_ARGS": "-k SYNTHETIC_REPORT_FILTER",
                     "PATH": tmp + os.pathsep + os.environ["PATH"],
                 },
                 capture_output=True,
