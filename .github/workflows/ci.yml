@@ -43,10 +43,10 @@ jobs:
       - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
         with:
           version: '0.11.24'
-      - run: uv sync --locked --group dev
-      - run: uv run --locked --group dev python scripts/check_public.py
-      - run: uv run --locked --group dev python scripts/check_contracts.py
-      - run: uv run --locked --group dev python -m pytest --junitxml=artifacts/unit-tests.xml
+      - run: uv sync --locked --group dev --python "${{ matrix.python }}"
+      - run: uv run --locked --group dev --python "${{ matrix.python }}" python scripts/check_public.py
+      - run: uv run --locked --group dev --python "${{ matrix.python }}" python -m scripts.check_contracts
+      - run: uv run --locked --group dev --python "${{ matrix.python }}" python -m pytest --junitxml=artifacts/unit-tests.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ always() }}
         with:
@@ -54,6 +54,41 @@ jobs:
           path: artifacts/unit-tests.xml
           retention-days: 7
           if-no-files-found: ignore
+
+  mypy:
+    name: Strict mypy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.11.24'
+      - run: uv sync --locked --group dev --python 3.12
+      - run: uv run --locked --group dev --python 3.12 mypy
+
+  ruff:
+    name: Ruff
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.11.24'
+      - run: uv sync --locked --group dev --python 3.12
+      - run: uv run --locked --group dev --python 3.12 ruff check src scripts tests
+      - run: uv run --locked --group dev --python 3.12 ruff format --check src scripts tests
 
   public-safety:
     name: Public tree and full-history secret scan
@@ -81,10 +116,10 @@ jobs:
       - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
         with:
           version: '0.11.24'
-      - run: uv sync --locked --group dev
-      - run: uv build --wheel
+      - run: uv sync --locked --group dev --python 3.12
+      - run: uv build --wheel --python 3.12
       - name: Check built package contains no private material or documentation
-        run: uv run --locked --group dev python scripts/check_wheel.py dist/*.whl
+        run: uv run --locked --group dev --python 3.12 python scripts/check_wheel.py dist/*.whl
       - name: Install and exercise the distribution, without importing the checkout
         run: |
           python -m venv "$RUNNER_TEMP/package-smoke"
@@ -131,10 +166,10 @@ jobs:
       - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
         with:
           version: '0.11.24'
-      - run: uv sync --locked --group dev
+      - run: uv sync --locked --group dev --python 3.12
       - run: |
           uv export --quiet --locked --all-groups --no-emit-project --no-hashes --format requirements-txt --output-file "$RUNNER_TEMP/audit-requirements.txt"
-          uv run --locked --group dev pip-audit --strict --no-deps --disable-pip -r "$RUNNER_TEMP/audit-requirements.txt"
+          uv run --locked --group dev --python 3.12 pip-audit --strict --no-deps --disable-pip -r "$RUNNER_TEMP/audit-requirements.txt"
 
   native-prerequisites:
     name: Native Linux prerequisite smoke (not deployment qualification)

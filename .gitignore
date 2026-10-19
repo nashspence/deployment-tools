@@ -16,3 +16,5 @@ coverage.xml
 *.pem
 *.key
 *.bundle
+.mypy_cache/
+.ruff_cache/
