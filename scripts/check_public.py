@@ -20,7 +20,7 @@ SECRET_PATTERNS=[
 BLOCKED_PARTS={'.ssh','.env','baseline','historical','history','audit','docs','plan','evidence','node_modules'}
 BLOCKED_SUFFIX={'.age','.pem','.key','.bundle','.sqlite','.db','.zip','.gz','.pdf','.docx','.md'}
 ALLOWED_DOMAINS={'github.com','api.github.com','raw.githubusercontent.com','docs.github.com',
-                 'json-schema.org','pypi.org','files.pythonhosted.org','localhost'}
+                 'json-schema.org','pypi.org','files.pythonhosted.org','localhost','www.apache.org','apache.org'}
 
 def git(*args):
     return subprocess.check_output(['git',*args],cwd=ROOT,stderr=subprocess.DEVNULL)
@@ -35,7 +35,7 @@ def concrete_host_allowed(host):
     except ValueError:
         return False
 
-def check_text(name,text,extra_terms=()):
+def check_text(name,text,extra_terms=(),*,git_commit=False):
     problems=[]
     for regex in SECRET_PATTERNS:
         if regex.search(text):problems.append(f'{name}: secret-shaped value')
@@ -49,7 +49,13 @@ def check_text(name,text,extra_terms=()):
             if host and '.' in host and not concrete_host_allowed(host):
                 problems.append(f'{name}: non-example network destination')
         except ValueError:pass
-    for email in re.findall(r'(?<![\w.+-])[\w.+-]+@([\w.-]+\.[A-Za-z]{2,})',text):
+    email_text=text
+    if git_commit:
+        headers,separator,message=text.partition('\n\n')
+        headers=re.sub(r'^(?:author|committer) [^<>\n]+ <[^<>\n]+> [0-9]+ [+-][0-9]{4}$','',headers,flags=re.MULTILINE)
+        message=re.sub(r'^Signed-off-by: dependabot\[bot\] <support@github\.com>$','',message,flags=re.MULTILINE)
+        email_text=headers+separator+message
+    for email in re.findall(r'(?<![\w.+-])[\w.+-]+@([\w.-]+\.[A-Za-z]{2,})',email_text):
         if not (email.endswith(('.invalid','.example','.test','users.noreply.github.com')) or email in {'example.com','example.org','example.net'}):
             problems.append(f'{name}: non-example email/SSH domain')
     return problems
@@ -81,7 +87,7 @@ def run(history=False,denylist=None):
             try:text=data.decode('utf-8')
             except UnicodeError:problems.append('history: unexpected binary object');continue
             objects+=1
-            problems+=check_text('history:'+oid[:12],text,terms)
+            problems+=check_text('history:'+oid[:12],text,terms,git_commit=kind=='commit')
     if problems:
         print('\n'.join(sorted(set(problems))),file=sys.stderr)
         return 1

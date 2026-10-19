@@ -25,7 +25,7 @@ class WorkflowSafety(unittest.TestCase):
         import re
         for job in self.workflow['jobs'].values():
             for step in job['steps']:
-                if 'uses' in step:self.assertRegex(step['uses'],r'^[\w-]+/[\w-]+@[0-9a-f]{40}$')
+                if 'uses' in step:self.assertRegex(step['uses'],r'^[\w-]+/[\w-]+(?:/[\w-]+)?@[0-9a-f]{40}$')
     def test_git_credentials_not_persisted(self):
         for job in self.workflow['jobs'].values():
             for step in job['steps']:
@@ -42,5 +42,39 @@ class WorkflowSafety(unittest.TestCase):
     def test_native_shell_syntax(self):
         for name in ('native_smoke.sh','secret_scan.sh'):
             subprocess.run(['bash','-n',str(ROOT/'scripts/ci'/name)],check=True)
+
+class SecurityGates(unittest.TestCase):
+    def test_codeql_covers_python_and_workflows_with_extended_queries(self):
+        workflow=yaml.load((ROOT/'.github/workflows/codeql.yml').read_text(),Loader=yaml.BaseLoader)
+        self.assertEqual(workflow['on']['pull_request']['branches'],['main'])
+        job=workflow['jobs']['analyze']
+        self.assertEqual(set(job['strategy']['matrix']['language']),{'python','actions'})
+        self.assertEqual(job['permissions'],{'contents':'read','security-events':'write','packages':'read'})
+        init=next(step for step in job['steps'] if 'codeql-action/init@' in step.get('uses',''))
+        self.assertEqual(init['with']['queries'],'security-extended')
+        for step in job['steps']:
+            if 'uses' in step:self.assertRegex(step['uses'],r'^[\w-]+/[\w-]+(?:/[\w-]+)?@[0-9a-f]{40}$')
+
+    def test_dependency_review_rejects_even_low_severity(self):
+        workflow=yaml.load((ROOT/'.github/workflows/ci.yml').read_text(),Loader=yaml.BaseLoader)
+        review=workflow['jobs']['dependency-review']
+        step=next(step for step in review['steps'] if 'dependency-review-action@' in step.get('uses',''))
+        self.assertEqual(step['with']['fail-on-severity'],'low')
+        audit=workflow['jobs']['dependency-audit']
+        command='\n'.join(step.get('run','') for step in audit['steps'])
+        self.assertIn('--all-groups',command)
+        self.assertIn('pip-audit --strict',command)
+
+    def test_commit_hook_propagates_unit_failure(self):
+        import os
+        from pathlib import Path
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            runner=Path(tmp)/'mise'
+            runner.write_text('#!/bin/sh\ntest "${GIT_INDEX_FILE+x}" != x || exit 18\nexit 17\n')
+            runner.chmod(0o755)
+            result=subprocess.run([str(ROOT/'.githooks/pre-commit')],cwd=ROOT,
+                env={**os.environ,'GIT_INDEX_FILE':'.git/index','PATH':tmp+os.pathsep+os.environ['PATH']},capture_output=True)
+        self.assertEqual(result.returncode,17)
 
 if __name__=='__main__':unittest.main()
