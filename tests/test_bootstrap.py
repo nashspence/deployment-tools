@@ -3,12 +3,13 @@ import json
 import unittest
 from pathlib import Path
 
-from deployment_tools.models.bootstrap import (
+from deployment_tools_client.bootstrap import (
     prepare_invocation,
     validate_catalogue,
     validate_selection,
 )
-from deployment_tools.models.contracts import ContractError
+from deployment_tools_contracts.validation import ContractError
+
 from tests.support import fixture_path
 
 R = Path(__file__).resolve().parents[1]

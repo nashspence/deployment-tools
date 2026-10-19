@@ -4,8 +4,7 @@ import json
 import unittest
 from copy import deepcopy
 
-from deployment_tools.models.contracts import ContractError, strict_yaml, validate_host
-from deployment_tools.models.resources import (
+from deployment_tools_contracts.resources import (
     ReservationModel,
     check_capacity,
     plan_cleanup,
@@ -17,6 +16,8 @@ from deployment_tools.models.resources import (
     validate_host_resources,
     validate_requirements,
 )
+from deployment_tools_contracts.validation import ContractError, strict_yaml, validate_host
+
 from tests.support import fixture_path
 
 

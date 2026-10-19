@@ -1,0 +1,65 @@
+format = "deployment-tools-components/v1"
+
+[[components]]
+id = "app"
+distribution = "deployment-tools-app"
+path = "packages/app"
+module = "deployment_tools_app"
+role = "app-owner-scaffold"
+internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-owner-support"]
+
+[[components]]
+id = "cli-support"
+distribution = "deployment-tools-cli-support"
+path = "packages/cli-support"
+module = "deployment_tools_cli"
+role = "shared-cli"
+internal_dependencies = ["deployment-tools-contracts"]
+
+[[components]]
+id = "client"
+distribution = "deployment-tools-client"
+path = "packages/client"
+module = "deployment_tools_client"
+role = "portable-client"
+internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-contracts"]
+
+[[components]]
+id = "contracts"
+distribution = "deployment-tools-contracts"
+path = "packages/contracts"
+module = "deployment_tools_contracts"
+role = "shared-contracts"
+internal_dependencies = []
+
+[[components]]
+id = "directory"
+distribution = "deployment-tools-directory"
+path = "packages/directory"
+module = "deployment_tools_directory"
+role = "optional-discovery"
+internal_dependencies = ["deployment-tools-contracts"]
+
+[[components]]
+id = "host"
+distribution = "deployment-tools-host"
+path = "packages/host"
+module = "deployment_tools_host"
+role = "host-owner-scaffold"
+internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-owner-support"]
+
+[[components]]
+id = "owner-support"
+distribution = "deployment-tools-owner-support"
+path = "packages/owner-support"
+module = "deployment_tools_owner"
+role = "owner-state"
+internal_dependencies = ["deployment-tools-contracts"]
+
+[[components]]
+id = "reporting"
+distribution = "deployment-tools-reporting"
+path = "packages/reporting"
+module = "deployment_tools_reporting"
+role = "optional-reporting"
+internal_dependencies = ["deployment-tools-contracts"]

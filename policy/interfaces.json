@@ -1,0 +1,298 @@
+{
+  "cli": {
+    "commands": {
+      "info": [
+        {
+          "choices": null,
+          "destination": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false
+        },
+        {
+          "choices": null,
+          "destination": "json",
+          "nargs": 0,
+          "options": [
+            "--json"
+          ],
+          "required": false
+        }
+      ],
+      "validate": [
+        {
+          "choices": null,
+          "destination": "help",
+          "nargs": 0,
+          "options": [
+            "-h",
+            "--help"
+          ],
+          "required": false
+        },
+        {
+          "choices": null,
+          "destination": "path",
+          "nargs": null,
+          "options": [],
+          "required": true
+        },
+        {
+          "choices": [
+            "actions.schema.json",
+            "adapter.schema.json",
+            "bootstrap-catalogue.schema.json",
+            "bootstrap-recovery.schema.json",
+            "bundle-manifest.schema.json",
+            "cli-output.schema.json",
+            "client-records.schema.json",
+            "common.schema.json",
+            "directory-release.schema.json",
+            "directory-result.schema.json",
+            "directory-runtime.schema.json",
+            "directory.schema.json",
+            "dns-changes.schema.json",
+            "dns-intent.schema.json",
+            "hook-request.schema.json",
+            "hook-result.schema.json",
+            "install-bundle.schema.json",
+            "onboarding.schema.json",
+            "publisher-receipt.schema.json",
+            "readiness.schema.json",
+            "receipts-service.schema.json",
+            "records.schema.json",
+            "recovery-set.schema.json",
+            "resource-records.schema.json",
+            "resources.schema.json",
+            "source.schema.json",
+            "ssh-request.schema.json",
+            "ssh-response.schema.json",
+            "test-suite.schema.json",
+            "tool-release.schema.json",
+            "tracking-profile.schema.json",
+            "tracking-records.schema.json",
+            "workspace.schema.json"
+          ],
+          "destination": "schema",
+          "nargs": null,
+          "options": [
+            "--schema"
+          ],
+          "required": false
+        },
+        {
+          "choices": null,
+          "destination": "definition",
+          "nargs": null,
+          "options": [
+            "--definition"
+          ],
+          "required": false
+        },
+        {
+          "choices": null,
+          "destination": "catalogue",
+          "nargs": null,
+          "options": [
+            "--catalogue"
+          ],
+          "required": false
+        },
+        {
+          "choices": null,
+          "destination": "json",
+          "nargs": 0,
+          "options": [
+            "--json"
+          ],
+          "required": false
+        }
+      ]
+    },
+    "exit_status": {
+      "rejected": 2,
+      "success": 0
+    },
+    "info_keys": [
+      "capabilities",
+      "implementation",
+      "native_mutations",
+      "production_qualified",
+      "tool",
+      "version"
+    ],
+    "tools": [
+      "domain-ops",
+      "host-ops",
+      "app-ops"
+    ]
+  },
+  "format": "deployment-tools-interface-snapshot/v1",
+  "python": {
+    "deployment_tools_contracts": {
+      "ContractError": {
+        "bases": [
+          "builtins.ValueError"
+        ],
+        "kind": "class"
+      },
+      "canonical": {
+        "kind": "function",
+        "signature": "(value: 'Any') -> 'bytes'"
+      },
+      "digest": {
+        "kind": "function",
+        "signature": "(value: 'Any') -> 'str'"
+      },
+      "strict_json": {
+        "kind": "function",
+        "signature": "(data: 'bytes | str', max_bytes: 'int' = 1048576) -> 'Any'"
+      },
+      "strict_yaml": {
+        "kind": "function",
+        "signature": "(data: 'str') -> 'Any'"
+      },
+      "validate": {
+        "kind": "function",
+        "signature": "(schema: 'str', value: 'Any', definition: 'str | None' = None) -> 'None'"
+      }
+    }
+  },
+  "schemas": {
+    "actions.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/actions.schema.json",
+      "sha256": "7e292d2cef6b08df2e468a86e32b509941e9ac461bb7d5eb29476c109a1246d9"
+    },
+    "adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/adapter.schema.json",
+      "sha256": "17f38f721be2de992e55340b587c19fcf6d8e88ff10e7980644c02158090e9fe"
+    },
+    "bootstrap-catalogue.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/bootstrap-catalogue.schema.json",
+      "sha256": "0924a13f591462d41a0a28b77a45000bc023209d51811a7273ca1b4870771d94"
+    },
+    "bootstrap-recovery.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/bootstrap-recovery.schema.json",
+      "sha256": "672b1f45ee53659b3c6ea6f0be24485684f91e7679e862f85d894ef06f58e9ac"
+    },
+    "bundle-manifest.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/bundle-manifest.schema.json",
+      "sha256": "8e97aeb9a8150f1243615d5e82a27fcaebfc5f17323d1b8f52dc63a1b78d2a03"
+    },
+    "cli-output.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/cli-output.schema.json",
+      "sha256": "30b2a1c354e7e64c6d3c8ff20a0eb3c1de4ae3fac41b471e518e9975894f0ace"
+    },
+    "client-records.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/client-records.schema.json",
+      "sha256": "daf29bd306474d87eb842b05db3358f339a520e8199d29be6ee3e015f545001d"
+    },
+    "common.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/common.schema.json",
+      "sha256": "95f1b3c1f81cafa8a472f9c26734628731da2080c396f183e453308c7d10819e"
+    },
+    "directory-release.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/directory-release.schema.json",
+      "sha256": "5f8a7216ddcf5bd62cd9b1c03c95ddcf7446be2c6a7017329d429f492ec90cfd"
+    },
+    "directory-result.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/directory-result.schema.json",
+      "sha256": "dcaa575fef58ec6e53238f6398aa504058c3ac2ad535ac2effd37c0bd16131e7"
+    },
+    "directory-runtime.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/directory-runtime.schema.json",
+      "sha256": "3f3a2ec6e9c25c171e24bb92b8b0ac30dce7f2c09b735a1c2f3e31984e3df3f6"
+    },
+    "directory.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/directory.schema.json",
+      "sha256": "747f1d4fa1fe61d6cdf5c29a6eb5d6b63945d7590739e919e2968b8d485b674c"
+    },
+    "dns-changes.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/dns-changes.schema.json",
+      "sha256": "ccd444f24b7818ca72e01b7b7bdb820fdd5f060c16d2138ee7ee9a796425180d"
+    },
+    "dns-intent.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/dns-intent.schema.json",
+      "sha256": "a996613780f767b54b9f3565359cb5a7d969de411ecf2309740464acab3e1c8d"
+    },
+    "hook-request.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/hook-request.schema.json",
+      "sha256": "f941a3d21be854ba7e26f938599006399313a551a014c23ad19f7b324bfbfc8a"
+    },
+    "hook-result.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/hook-result.schema.json",
+      "sha256": "c9d4d8d894e04e1fa31752e90ef6a09acd1f5a7e936aa16a7ea794a641c05874"
+    },
+    "install-bundle.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/install-bundle.schema.json",
+      "sha256": "223ccef9277fb375bdcf1c38d5762d5b9c606053e9c86fcd2ca38c358680d498"
+    },
+    "onboarding.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/onboarding.schema.json",
+      "sha256": "6732795b9c4c7ebea54dce9277a0ad230637393d9a135d7bb1dae4e3270bee24"
+    },
+    "publisher-receipt.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/publisher-receipt.schema.json",
+      "sha256": "1b95dff15a8331c67d0a919a3e17047a60602bbb0eeb0feec11fb1a8c9b012dd"
+    },
+    "readiness.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/readiness.schema.json",
+      "sha256": "20c6e7aaa908914dfacbdb121a7215740265238e5582899fb96f7c8daf1047ef"
+    },
+    "receipts-service.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/receipts-service.schema.json",
+      "sha256": "b7df8817a0358ebedccb34f76d88b44ad64b7a108f743e4fa3c42ed7890458e6"
+    },
+    "records.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/records.schema.json",
+      "sha256": "f78abf9ed652e73b77cdf9b1f26a5b151f1a9d481f1d300378e19f124d07d5aa"
+    },
+    "recovery-set.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/recovery-set.schema.json",
+      "sha256": "b9e3552c023e2684a6ef22a7a9ec003f777a35e4baab95310408df88ea3047ef"
+    },
+    "resource-records.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/resource-records.schema.json",
+      "sha256": "6cbbc58510c7fbb5a67783ed0201637c2be245e99cae28645c0905eb7b6df4a0"
+    },
+    "resources.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/resources.schema.json",
+      "sha256": "a1d16d63acc44286e3ca97316fe780c59bdc2aefb2a09f70bb2905cbdad7ac6a"
+    },
+    "source.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/source.schema.json",
+      "sha256": "3af0f0321956c092a9c6f5b7071bdf676c1a26ff1b5e6234716778814e9f01b0"
+    },
+    "ssh-request.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/ssh-request.schema.json",
+      "sha256": "8e9b8c987aea41f2c7da7b0f05cc06c1fdd534bc78c22d3da9034c8feea98a74"
+    },
+    "ssh-response.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/ssh-response.schema.json",
+      "sha256": "0291bb7bd7f9d527c24e19d816df0bd086d485b93af0e8e52c710341155cee4b"
+    },
+    "test-suite.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/test-suite.schema.json",
+      "sha256": "7ac9ca2df8c2fba92df4bbba71aa053234103172b769c02b9279cbbf92bcea21"
+    },
+    "tool-release.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/tool-release.schema.json",
+      "sha256": "faa99864e20bbb8440d78a3322035e87157d45dbe97fe055912cc89670cb22ba"
+    },
+    "tracking-profile.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/tracking-profile.schema.json",
+      "sha256": "db6c31de55e1d71824f584eb4b7900960c23f6b441908b8e2452d8af04f3a7ee"
+    },
+    "tracking-records.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/tracking-records.schema.json",
+      "sha256": "2d67dadeffc75c782ae61b214303a0fc8c73390dba5ae509b51edc4ab8ee4e6f"
+    },
+    "workspace.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/workspace.schema.json",
+      "sha256": "bbbdefccfc361bd7d1eb3e6a97060d8d97596d3b023e4c76a93a30608d7582b4"
+    }
+  }
+}

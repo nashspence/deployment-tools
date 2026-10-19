@@ -10,8 +10,9 @@ import uuid
 from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-
-from deployment_tools.models.contracts import (
+from deployment_tools_client.wire import frame, read_frame, select_target, ssh_command
+from deployment_tools_contracts.secrets import MAX_ENTRY, build_tar, inspect_tar, select_asset
+from deployment_tools_contracts.validation import (
     ContractError,
     canonical,
     digest,
@@ -25,10 +26,9 @@ from deployment_tools.models.contracts import (
     validate_host,
     validate_plan,
 )
-from deployment_tools.models.journal import Journal
-from deployment_tools.models.secrets import MAX_ENTRY, build_tar, inspect_tar, select_asset
-from deployment_tools.models.wire import frame, read_frame, select_target, ssh_command
-from deployment_tools.models.witness import sign, verify
+from deployment_tools_contracts.witness import sign, verify
+from deployment_tools_owner.journal import Journal
+
 from tests.support import fixture_path
 
 

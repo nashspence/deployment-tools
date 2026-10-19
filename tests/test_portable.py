@@ -14,7 +14,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from deployment_tools.models.client import (
+from deployment_tools_client.workspace import (
     check_closeout,
     clean_path,
     merge_exports,
@@ -26,8 +26,9 @@ from deployment_tools.models.client import (
     validate_session,
     validate_suite,
 )
-from deployment_tools.models.contracts import ContractError, strict_yaml, validate
-from deployment_tools.models.owner_cli import FORMS, parse_command
+from deployment_tools_contracts.validation import ContractError, strict_yaml, validate
+from deployment_tools_owner.commands import FORMS, parse_command
+
 from tests.support import fixture_path
 
 

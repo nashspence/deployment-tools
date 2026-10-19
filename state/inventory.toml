@@ -1,0 +1,25 @@
+format = "deployment-tools-state-inventory/v1"
+
+[[owners]]
+id = "owner-journal"
+module = "deployment_tools_owner.journal"
+source = "packages/owner-support/src/deployment_tools_owner/journal.py"
+format_version = 1
+version_authority = "pragma-user-version"
+transition = "explicit-forward-only"
+classification = "durable-reference-state"
+qualification = "reference-model"
+fixture = "state/fixtures/v1/owner.sql"
+sha256 = "587842b991e43d179e62c49a60f3a123d9496257587e12690091164914f5c7c4"
+
+[[owners]]
+id = "reported-events"
+module = "deployment_tools_reporting.store"
+source = "packages/reporting/src/deployment_tools_reporting/store.py"
+format_version = 1
+version_authority = "meta-schema"
+transition = "explicit-forward-only"
+classification = "durable-reference-state"
+qualification = "reference-model"
+fixture = "state/fixtures/v1/reporting.sql"
+sha256 = "d7e2cacf755a357fe8b359e701c940dc54496e6d48a13825a07eea41a47cb80e"

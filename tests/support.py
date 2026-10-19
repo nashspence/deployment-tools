@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
-PACKAGE = ROOT / "src" / "deployment_tools"
+PACKAGE = ROOT / "packages/contracts/src/deployment_tools_contracts"
 
 
 def fixture_path(name):
