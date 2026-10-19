@@ -181,10 +181,9 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
     return sorted(set(errors))
 
 
-def state_errors(root: Path = ROOT, history: bool = False) -> list[str]:
+def fixture_history_errors(root: Path) -> list[str]:
     if (
-        history
-        and subprocess.run(
+        subprocess.run(
             ["git", "rev-parse", "--is-shallow-repository"],
             cwd=root,
             capture_output=True,
@@ -194,8 +193,36 @@ def state_errors(root: Path = ROOT, history: bool = False) -> list[str]:
         != "false"
     ):
         return ["full history required to check immutable state fixtures"]
-    inventory = read_toml(root / "state/inventory.toml")
+    paths = set(
+        subprocess.run(
+            ["git", "log", "--diff-filter=A", "--name-only", "--format=", "--", "state/fixtures"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.splitlines()
+    ) - {""}
     errors = []
+    for name in sorted(paths):
+        introduced = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--format=%H", "--", name],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.splitlines()[-1]
+        original = subprocess.run(
+            ["git", "show", introduced + ":" + name], cwd=root, capture_output=True, check=True
+        ).stdout
+        path = root / name
+        if not path.is_file() or path.is_symlink() or path.read_bytes() != original:
+            errors.append("immutable state fixture changed or removed: " + name)
+    return errors
+
+
+def state_errors(root: Path = ROOT, history: bool = False) -> list[str]:
+    inventory = read_toml(root / "state/inventory.toml")
+    errors = fixture_history_errors(root) if history else []
     owners = inventory["owners"]
     modules = [owner["module"] for owner in owners]
     if len(set(modules)) != len(modules):
@@ -211,23 +238,6 @@ def state_errors(root: Path = ROOT, history: bool = False) -> list[str]:
         fixture = root / owner["fixture"]
         if fingerprint(fixture) != owner["sha256"]:
             errors.append("state fixture digest changed")
-        if history:
-            added = subprocess.run(
-                ["git", "log", "--diff-filter=A", "--format=%H", "--", owner["fixture"]],
-                cwd=root,
-                capture_output=True,
-                text=True,
-                check=True,
-            ).stdout.splitlines()
-            if added:
-                baseline = subprocess.run(
-                    ["git", "show", added[-1] + ":" + owner["fixture"]],
-                    cwd=root,
-                    capture_output=True,
-                    check=True,
-                ).stdout
-                if baseline != fixture.read_bytes():
-                    errors.append("immutable state fixture changed")
     for item in components(root):
         for path in (root / item["path"] / "src").rglob("*.py"):
             tree = ast.parse(path.read_text())

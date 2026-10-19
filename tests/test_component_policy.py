@@ -120,3 +120,33 @@ def test_all_persistence_is_owned_and_baseline_fixtures_match():
     assert {owner["id"] for owner in inventory["owners"]} == {"owner-journal", "reported-events"}
     assert all(owner["qualification"] == "reference-model" for owner in inventory["owners"])
     assert len(components()) == 8
+
+
+def test_retired_state_fixtures_remain_immutable_even_after_inventory_moves_on(tmp_path):
+    import subprocess
+
+    from scripts.project_policy import fixture_history_errors
+
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=tmp_path, capture_output=True, check=True)
+
+    git("init", "--quiet")
+    fixture = tmp_path / "state/fixtures/v1/example.sql"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("PRAGMA user_version=1;\n")
+    git("add", ".")
+    git(
+        "-c",
+        "user.name=Fixture Maintainer",
+        "-c",
+        "user.email=maintainer@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "Introduce state fixture",
+    )
+    assert not fixture_history_errors(tmp_path)
+    fixture.write_text("PRAGMA user_version=2;\n")
+    assert fixture_history_errors(tmp_path)
+    fixture.unlink()
+    assert fixture_history_errors(tmp_path)
