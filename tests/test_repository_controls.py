@@ -59,7 +59,15 @@ def test_governance_drift_blocks_verification(controls, change):
 
 def test_public_ci_audit_does_not_require_admin_credentials(controls):
     public = {key: controls[key] for key in ("repository", "creation", "rulesets")}
-    public["repository"].pop("security_and_analysis")
+    for key in (
+        "security_and_analysis",
+        "allow_auto_merge",
+        "allow_merge_commit",
+        "allow_rebase_merge",
+        "allow_squash_merge",
+        "delete_branch_on_merge",
+    ):
+        public["repository"].pop(key)
     assert validate_controls(read_toml(ROOT / "release.toml"), public, "public") == []
     assert validate_controls(read_toml(ROOT / "release.toml"), public, "full")
 

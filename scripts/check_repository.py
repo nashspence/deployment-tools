@@ -21,7 +21,16 @@ def validate_controls(policy: dict[str, Any], observed: dict[str, Any], scope: s
     expected = policy["governance"]
     errors = []
     repo = observed["repository"]
+    admin_settings = {
+        "allow_auto_merge",
+        "allow_merge_commit",
+        "allow_rebase_merge",
+        "allow_squash_merge",
+        "delete_branch_on_merge",
+    }
     for key, value in expected["repository"].items():
+        if scope == "public" and key in admin_settings:
+            continue
         if repo.get(key) != value:
             errors.append("repository setting: " + key)
     if observed["creation"] != {
