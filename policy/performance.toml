@@ -1,0 +1,19 @@
+format = "deployment-tools-performance-targets/v1"
+report_only = true
+# Initial developer information targets, not measured baselines or release promises.
+# Metrics describe one pytest process; descendants and dependency installation are excluded.
+[targets.unit]
+paths = ["tests"]
+elapsed_seconds = 30.0
+cpu_seconds = 20.0
+rss_high_water_bytes = 536870912
+[targets.database-qualification]
+paths = ["tests/test_migrations.py"]
+elapsed_seconds = 5.0
+cpu_seconds = 4.0
+rss_high_water_bytes = 268435456
+[targets.engineering-tests]
+paths = ["tests/test_engineering.py"]
+elapsed_seconds = 5.0
+cpu_seconds = 4.0
+rss_high_water_bytes = 268435456

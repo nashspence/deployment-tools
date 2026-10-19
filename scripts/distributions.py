@@ -229,6 +229,9 @@ def smoke(bundle: Path) -> None:
                 str(ROOT / "tests/fixtures"),
             ]
             subprocess.run(command, cwd=scratch, check=True, timeout=90)
+            # Keep only the environment needed by the final external typing check.
+            if item["id"] != "contracts":
+                shutil.rmtree(env)
         consumer = scratch / "consumer.py"
         consumer.write_text(
             'from typing import assert_type\nfrom deployment_tools_contracts import canonical, digest\nassert_type(canonical({"key": "value"}), bytes)\nassert_type(digest({"key": "value"}), str)\n'

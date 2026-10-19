@@ -20,6 +20,9 @@ def checkout(tmp_path, monkeypatch):
     shutil.copyfile(
         ROOT / "scripts/validation_pytest.py", tmp_path / "scripts/validation_pytest.py"
     )
+    shutil.copyfile(ROOT / "scripts/run_stats.py", tmp_path / "scripts/run_stats.py")
+    (tmp_path / "policy").mkdir()
+    shutil.copyfile(ROOT / "policy/performance.toml", tmp_path / "policy/performance.toml")
     (tmp_path / "tests").mkdir()
     (tmp_path / "tests/test_example.py").write_text("def test_pass():\n    assert True\n")
     subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)

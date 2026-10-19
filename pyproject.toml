@@ -4,6 +4,10 @@ members = ["packages/*"]
 [dependency-groups]
 dev = [
   "pytest==9.1.1",
+  "psutil>=7,<8",
+  "types-psutil>=7,<8",
+  "alembic>=1.18,<2",
+  "SQLAlchemy>=2.0,<3",
   "setuptools==84.0.0",
   "pip-audit>=2.10,<3",
   "reuse>=6,<7",
@@ -19,17 +23,20 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -p scripts.validation_pytest"
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 exclude = ["(^|/)build/"]
-files = ["packages", "scripts/project_policy.py", "scripts/check_repository.py", "scripts/check_wheel.py", "scripts/bundle_install.py", "scripts/distributions.py", "scripts/smoke_installed.py", "scripts/validation.py", "scripts/validation_pytest.py", "scripts/operation_qualification.py"]
+files = ["packages", "scripts/project_policy.py", "scripts/check_repository.py", "scripts/check_wheel.py", "scripts/bundle_install.py", "scripts/distributions.py", "scripts/smoke_installed.py", "scripts/validation.py", "scripts/validation_pytest.py", "scripts/operation_qualification.py", "scripts/run_stats.py", "scripts/profile.py", "scripts/engineering.py"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "B", "UP", "RUF"]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP", "RUF", "C901"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20

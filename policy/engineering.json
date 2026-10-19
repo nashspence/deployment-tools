@@ -1,0 +1,177 @@
+{
+  "format": "deployment-tools-engineering-map/v1",
+  "metrics": {
+    "collection": "required",
+    "non_contractual": true,
+    "thresholds": "none"
+  },
+  "operations": {
+    "directory.load": {
+      "capacity": [],
+      "extent": "complete-document-or-rejection",
+      "id": "directory.load",
+      "limits": [
+        [
+          "input_bytes",
+          65536
+        ],
+        [
+          "nesting",
+          16
+        ]
+      ],
+      "proofs": [
+        "tests/test_engineering.py::test_directory_capacity_is_rejection_not_silent_truncation"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/directory/src/deployment_tools_directory/projection.py": "fd094609fb45989a9218b6a058d140338514dd3c0ed380c1c2c9d072d6bd45b5",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_directory.projection:load_directory",
+      "work": "O(input_bytes)-bounded-parser-depth"
+    },
+    "journal.submit": {
+      "capacity": [],
+      "extent": "one-durable-request-identity",
+      "id": "journal.submit",
+      "limits": [],
+      "proofs": [
+        "tests/test_engineering.py::test_journal_reference_scan_and_replay_identity",
+        "tests/test_engineering.py::test_owner_crash_replay_preserves_state"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/owner-support/src/deployment_tools_owner/journal.py": "ed4d6a77cb2e46117c9cf53472cf5936fbd9c95ef81d5166602804fa829ccd07",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_owner.journal:Journal.submit",
+      "work": "O(retained_requests)-reference-scan"
+    },
+    "reporting.events": {
+      "capacity": [],
+      "extent": "complete-page-with-resume-cursor",
+      "id": "reporting.events",
+      "limits": [
+        [
+          "page_items",
+          100
+        ],
+        [
+          "page_items_bytes",
+          1000000
+        ]
+      ],
+      "proofs": [
+        "tests/test_engineering.py::test_event_pages_use_bounded_indexed_work_and_preserve_full_extent",
+        "tests/test_engineering.py::test_event_byte_capacity_continues_or_rejects_explicitly"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_reporting.store:EventStore.events",
+      "work": "O(log(retained_events)+page_items^2*event_bytes)"
+    },
+    "reporting.put": {
+      "capacity": [
+        "max_events",
+        "max_workflows"
+      ],
+      "extent": "one-immutable-event",
+      "id": "reporting.put",
+      "limits": [],
+      "proofs": [
+        "tests/test_engineering.py::test_reporting_capacity_rejects_new_identity_but_allows_replay",
+        "tests/test_engineering.py::test_reporting_crash_replay_preserves_committed_event"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_reporting.store:EventStore.put",
+      "work": "O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan"
+    },
+    "reporting.workflows": {
+      "capacity": [],
+      "extent": "complete-page-with-resume-cursor",
+      "id": "reporting.workflows",
+      "limits": [
+        [
+          "page_items",
+          100
+        ]
+      ],
+      "proofs": [
+        "tests/test_engineering.py::test_workflow_pagination_preserves_logical_extent"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_reporting.store:EventStore.workflows",
+      "work": "O(retained_events*log(retained_events))-reference-grouping"
+    },
+    "wire.read-frame": {
+      "capacity": [],
+      "extent": "one-complete-frame",
+      "id": "wire.read-frame",
+      "limits": [
+        [
+          "frame_bytes",
+          1048576
+        ]
+      ],
+      "proofs": [
+        "tests/test_engineering.py::test_frame_work_tracks_current_frame_not_stream_extent"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/client/src/deployment_tools_client/wire.py": "e5f48312cdd600196b65c16d98fbd431328b8694d430946a529cc095daaf4a80",
+        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+      },
+      "symbol": "deployment_tools_client.wire:read_frame",
+      "work": "O(frame_bytes)"
+    }
+  },
+  "production_qualified": false,
+  "state_owners": [
+    {
+      "head": "v1_0001",
+      "owner": "owner-journal",
+      "proofs": [
+        "tests/test_migrations.py::test_preserved_v1_adoption_is_idempotent",
+        "tests/test_migrations.py::test_alembic_baseline_matches_preserved_schema_and_refuses_downgrade",
+        "tests/test_migrations.py::test_unknown_or_corrupted_schema_is_not_adopted",
+        "tests/test_migrations.py::test_store_open_rejects_unknown_alembic_revision_without_changing_state",
+        "tests/test_migrations.py::test_alembic_requires_a_real_sqlite_transaction_before_ddl",
+        "tests/test_migrations.py::test_migration_failure_and_process_death_roll_back_then_retry"
+      ],
+      "qualification": "reference-model",
+      "revisions": {
+        "packages/owner-support/src/deployment_tools_owner/migrations/versions/v1_0001.py": "ce9e88af5d0c0501974c16f50b7dd093d1bf422035ef9828e8663f93cc444f1d"
+      },
+      "source": "deployment_tools_owner.migrations"
+    },
+    {
+      "head": "v1_0001",
+      "owner": "reported-events",
+      "proofs": [
+        "tests/test_migrations.py::test_preserved_v1_adoption_is_idempotent",
+        "tests/test_migrations.py::test_alembic_baseline_matches_preserved_schema_and_refuses_downgrade",
+        "tests/test_migrations.py::test_unknown_or_corrupted_schema_is_not_adopted",
+        "tests/test_migrations.py::test_store_open_rejects_unknown_alembic_revision_without_changing_state",
+        "tests/test_migrations.py::test_alembic_requires_a_real_sqlite_transaction_before_ddl",
+        "tests/test_migrations.py::test_migration_failure_and_process_death_roll_back_then_retry"
+      ],
+      "qualification": "reference-model",
+      "revisions": {
+        "packages/reporting/src/deployment_tools_reporting/migrations/versions/v1_0001.py": "6b4f94c9383dcdded4f8c36be8a99ecaf061e49d66d270e4bcae0947489601fa"
+      },
+      "source": "deployment_tools_reporting.migrations"
+    }
+  ]
+}

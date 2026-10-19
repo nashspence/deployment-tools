@@ -11,7 +11,10 @@ import sqlite3
 from pathlib import Path
 from typing import Any, cast
 
+from deployment_tools_contracts.bounds import Bounds, bounds
 from deployment_tools_contracts.validation import ROOT, ContractError, digest
+
+from deployment_tools_owner.migrations import check_revision
 
 STATES = json.loads((ROOT / "contracts/states.json").read_text())["owner"]
 
@@ -26,6 +29,11 @@ class Journal:
         if version != 1 and not (new and initialize and version == 0):
             self.db.close()
             raise ContractError("unsupported journal schema")
+        try:
+            check_revision(self.db)
+        except Exception:
+            self.db.close()
+            raise
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=FULL")
         self.db.execute("PRAGMA foreign_keys=ON")
@@ -54,6 +62,19 @@ class Journal:
     def generation(self) -> int:
         return cast(int, self.db.execute("SELECT generation FROM meta").fetchone()[0])
 
+    @bounds(
+        Bounds(
+            id="journal.submit",
+            work="O(retained_requests)-reference-scan",
+            extent="one-durable-request-identity",
+            limits=(),
+            capacity=(),
+            proofs=(
+                "tests/test_engineering.py::test_journal_reference_scan_and_replay_identity",
+                "tests/test_engineering.py::test_owner_crash_replay_preserves_state",
+            ),
+        )
+    )
     def submit(
         self,
         request_id: str,

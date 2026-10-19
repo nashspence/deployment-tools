@@ -122,7 +122,15 @@ def test_all_persistence_is_owned_and_baseline_fixtures_match():
     assert len(components()) == 8
 
 
-def test_retired_state_fixtures_remain_immutable_even_after_inventory_moves_on(tmp_path):
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "state/fixtures/v1/example.sql",
+        "packages/example/src/example/migrations/versions/v1_0001.py",
+    ],
+    ids=["state-fixture", "state-migration"],
+)
+def test_retired_state_fixtures_and_migrations_remain_immutable(tmp_path, relative):
     import subprocess
 
     from scripts.project_policy import fixture_history_errors
@@ -131,7 +139,7 @@ def test_retired_state_fixtures_remain_immutable_even_after_inventory_moves_on(t
         return subprocess.run(["git", *args], cwd=tmp_path, capture_output=True, check=True)
 
     git("init", "--quiet")
-    fixture = tmp_path / "state/fixtures/v1/example.sql"
+    fixture = tmp_path / relative
     fixture.parent.mkdir(parents=True)
     fixture.write_text("PRAGMA user_version=1;\n")
     git("add", ".")
