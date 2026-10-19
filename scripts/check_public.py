@@ -35,7 +35,7 @@ def concrete_host_allowed(host):
     except ValueError:
         return False
 
-def check_text(name,text,extra_terms=()):
+def check_text(name,text,extra_terms=(),*,git_commit=False):
     problems=[]
     for regex in SECRET_PATTERNS:
         if regex.search(text):problems.append(f'{name}: secret-shaped value')
@@ -49,7 +49,10 @@ def check_text(name,text,extra_terms=()):
             if host and '.' in host and not concrete_host_allowed(host):
                 problems.append(f'{name}: non-example network destination')
         except ValueError:pass
-    for email in re.findall(r'(?<![\w.+-])[\w.+-]+@([\w.-]+\.[A-Za-z]{2,})',text):
+    email_text=text
+    if git_commit:
+        email_text=re.sub(r'^(?:author|committer) GitHub <noreply@github\.com> [0-9]+ [+-][0-9]{4}$','',text,flags=re.MULTILINE)
+    for email in re.findall(r'(?<![\w.+-])[\w.+-]+@([\w.-]+\.[A-Za-z]{2,})',email_text):
         if not (email.endswith(('.invalid','.example','.test','users.noreply.github.com')) or email in {'example.com','example.org','example.net'}):
             problems.append(f'{name}: non-example email/SSH domain')
     return problems
@@ -81,7 +84,7 @@ def run(history=False,denylist=None):
             try:text=data.decode('utf-8')
             except UnicodeError:problems.append('history: unexpected binary object');continue
             objects+=1
-            problems+=check_text('history:'+oid[:12],text,terms)
+            problems+=check_text('history:'+oid[:12],text,terms,git_commit=kind=='commit')
     if problems:
         print('\n'.join(sorted(set(problems))),file=sys.stderr)
         return 1
