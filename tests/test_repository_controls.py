@@ -9,6 +9,15 @@ import yaml
 from scripts.check_repository import validate_controls
 from scripts.project_policy import ROOT, read_toml
 
+CHECK_PURPOSE = {
+    "purpose": "repository-policy",
+    "authority": ["release.toml#/governance"],
+    "scope": "GitHub governance policy",
+    "relationship": "no-product-claim",
+    "reason": "Synthetic API receipts and workflow checks protect collaborator-only submissions, required gates and publication controls.",
+    "claims": [],
+}
+
 
 @pytest.fixture
 def controls():

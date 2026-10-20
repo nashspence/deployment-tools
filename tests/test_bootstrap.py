@@ -12,6 +12,18 @@ from deployment_tools_contracts.validation import ContractError
 
 from tests.support import fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/bootstrap-recovery.schema.json"
+    ],
+    "scope": "offline bootstrap input/reference helpers",
+    "relationship": "candidate",
+    "reason": "Schema and fixed synthetic recovery inputs exercise selection/rejection; no backend restore or independently installed bootstrap is executed.",
+    "claims": [],
+}
+
+
 R = Path(__file__).resolve().parents[1]
 
 

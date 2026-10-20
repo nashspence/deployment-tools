@@ -11,6 +11,15 @@ from deployment_tools_cli.validation import main
 
 from tests.support import FIXTURES, ROOT
 
+CHECK_PURPOSE = {
+    "purpose": "public-contract",
+    "authority": ["policy/interfaces.json#/cli"],
+    "scope": "in-process read-only CLI candidates",
+    "relationship": "candidate",
+    "reason": "Literal exit/rejection and redaction checks exercise scaffold paths; imported core helpers alone do not qualify installed entrypoints.",
+    "claims": [],
+}
+
 
 class Scaffold(unittest.TestCase):
     def test_info_does_not_claim_native_readiness(self):

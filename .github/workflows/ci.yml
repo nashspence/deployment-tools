@@ -25,6 +25,10 @@ env:
 
 jobs:
   tests:
+    env:
+      CHECK_PURPOSES: implementation,public-contract,repository-policy,validation-tooling
+      CHECK_SCOPE: pytest groups retain separate authority and exact local scopes
+      CHECK_AUTHORITY: release.toml
     name: Contracts and unit tests (Python ${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -48,7 +52,7 @@ jobs:
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.check_contracts
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.validation run --target unit -- python -m pytest -q tests --durations=30 --durations-min=0.25 --junitxml=artifacts/unit-tests.xml
       - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.operation_qualification report --require-current-proofs
-      - run: uv run --locked --all-packages --group dev python -m scripts.engineering report --require-current-proofs
+      - run: uv run --locked --all-packages --group dev --python "${{ matrix.python }}" python -m scripts.engineering report --require-current-proofs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ always() }}
         with:
@@ -63,6 +67,10 @@ jobs:
           if-no-files-found: ignore
 
   mypy:
+    env:
+      CHECK_PURPOSES: validation-tooling
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Strict mypy
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -80,6 +88,10 @@ jobs:
       - run: uv run --locked --all-packages --group dev --python 3.12 mypy
 
   ruff:
+    env:
+      CHECK_PURPOSES: validation-tooling
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Ruff
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -98,6 +110,10 @@ jobs:
       - run: uv run --locked --all-packages --group dev --python 3.12 ruff format --check packages scripts tests
 
   public-safety:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Public tree and full-history secret scan
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -110,6 +126,10 @@ jobs:
       - run: bash scripts/ci/secret_scan.sh
 
   package:
+    env:
+      CHECK_PURPOSES: implementation
+      CHECK_SCOPE: built/installed scaffold packages only; no native activation
+      CHECK_AUTHORITY: release.toml
     name: Build and install wheel outside source checkout
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -134,6 +154,10 @@ jobs:
           if-no-files-found: error
 
   policy:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Component and compatibility policy
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -157,6 +181,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   licensing:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Licensing provenance
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -175,6 +203,10 @@ jobs:
       - run: uv run --locked --all-packages --group dev python -m reuse lint
 
   installed:
+    env:
+      CHECK_PURPOSES: implementation
+      CHECK_SCOPE: built/installed scaffold packages only; no native activation
+      CHECK_AUTHORITY: release.toml
     name: Installed distributions (${{ matrix.os }})
     needs: package
     runs-on: ${{ matrix.os }}
@@ -210,6 +242,10 @@ jobs:
           if-no-files-found: error
 
   dependency-review:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Dependency review
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-24.04
@@ -223,6 +259,10 @@ jobs:
           fail-on-severity: low
 
   dependency-audit:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: Dependency audit
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -242,6 +282,10 @@ jobs:
           uv run --locked --all-packages --group dev --python 3.12 pip-audit --strict --no-deps --disable-pip -r "$RUNNER_TEMP/audit-requirements.txt"
 
   native-prerequisites:
+    env:
+      CHECK_PURPOSES: implementation
+      CHECK_SCOPE: disposable-runner prerequisites only; not deployment qualification
+      CHECK_AUTHORITY: release.toml
     name: Native Linux prerequisite smoke (not deployment qualification)
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-24.04

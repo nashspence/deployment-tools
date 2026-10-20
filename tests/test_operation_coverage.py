@@ -11,9 +11,20 @@ from unittest.mock import patch
 
 import pytest
 
+from scripts.check_evidence import evidence_group
 from scripts.operation_qualification import REGISTRY, build_map, check, report
 from scripts.project_policy import ROOT
 from tests.support import FIXTURES
+
+CHECK_PURPOSE = {
+    "purpose": "validation-tooling",
+    "authority": ["scripts/operation_qualification.py"],
+    "scope": "coverage accounting",
+    "relationship": "no-product-claim",
+    "reason": "Coverage discovery, drift rejection and receipt interpretation protect validation, not the operations named in the map.",
+    "claims": [],
+}
+
 
 TOOLS = {
     entry.name: entry.load()
@@ -29,14 +40,22 @@ def invoke(main, arguments):
 
 
 def test_info_success_for_every_tool():
-    for tool, main in TOOLS.items():
-        output = io.StringIO()
-        with contextlib.redirect_stdout(output):
-            assert invoke(main, ["info", "--json"]) == 0
-        value = json.loads(output.getvalue())
-        assert value["tool"] == tool
-        assert value["capabilities"] == ["local-contract-validation"]
-        assert value["native_mutations"] is False and value["production_qualified"] is False
+    interface = json.loads((ROOT / "policy/interfaces.json").read_text())["cli"]
+    values = []
+    with evidence_group("interface"):
+        for tool, main in TOOLS.items():
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                assert invoke(main, ["info", "--json"]) == interface["exit_status"]["success"]
+            value = json.loads(output.getvalue())
+            assert set(value) == set(interface["info_keys"])
+            assert value["tool"] == tool
+            assert value["production_qualified"] is False
+            values.append(value)
+    with evidence_group("scaffold"):
+        for value in values:
+            assert value["capabilities"] == ["local-contract-validation"]
+            assert value["native_mutations"] is False
 
 
 def test_info_failure_for_every_tool():
@@ -132,38 +151,20 @@ def test_unknown_implementation_binding_fails(tmp_path):
 
 def test_report_requires_current_complete_executed_proofs(monkeypatch, tmp_path):
     import scripts.operation_qualification as operations
-    from scripts.run_stats import RunStats
-    from scripts.validation import CANONICAL, FORMAT, digest
+    from tests.evidence_support import sample_run
 
     coverage = build_map()
     source = {"commit": "a" * 40, "clean": True, "fingerprint": "b" * 64}
     monkeypatch.setattr(operations, "check", lambda root: coverage)
     monkeypatch.setattr(operations, "source_identity", lambda root: source)
+    for name in ("policy", ".github"):
+        shutil.copytree(ROOT / name, tmp_path / name)
+    shutil.copyfile(ROOT / "Makefile", tmp_path / "Makefile")
+    shutil.copyfile(ROOT / "release.toml", tmp_path / "release.toml")
     folder = tmp_path / "artifacts/validation"
     folder.mkdir(parents=True)
-    nodes = {
-        node
-        for row in coverage["operations"]
-        for values in row["tests"].values()
-        for node in values
-    }
-    receipt = {
-        "format": FORMAT,
-        "id": "c" * 32,
-        "target": "unit",
-        "state": "completed",
-        "exit_status": 0,
-        "source_before": source,
-        "source_after": source,
-        "selection": {"canonical": True, "invocation_sha256": digest(CANONICAL["unit"])},
-        "tests": {
-            "exit_status": 0,
-            "outcomes": dict.fromkeys(nodes, "passed"),
-            "stats": RunStats().finish(),
-        },
-        "full_check_passed": True,
-        "production_qualified": False,
-    }
+    receipt = sample_run(tmp_path, source)
+    nodes = receipt["tests"]["outcomes"]
     path = folder / (receipt["id"] + ".json")
     path.write_text(json.dumps(receipt))
     result = report(tmp_path)
@@ -180,3 +181,54 @@ def test_report_requires_current_complete_executed_proofs(monkeypatch, tmp_path)
     receipt["tests"]["outcomes"] = dict.fromkeys(nodes, "skipped")
     path.write_text(json.dumps(receipt))
     assert not any(row["required_proofs_passed"] for row in report(tmp_path)["operations"])
+
+
+CHECK_OVERRIDES = {
+    "test_info_success_for_every_tool": {
+        "interface": {
+            "purpose": "public-contract",
+            "authority": ["policy/interfaces.json#/cli", "release.toml#/production_qualified"],
+            "scope": "installed entrypoints in-process; local read-only scaffold",
+            "relationship": "scoped-witness",
+            "reason": "Independent interface exit status and fixed synthetic info success expectations; no native effects or recovery.",
+            "claims": [
+                "cli:domain-ops:info",
+                "cli:host-ops:info",
+                "cli:app-ops:info",
+                "client:info",
+            ],
+        },
+        "scaffold": {
+            "purpose": "implementation",
+            "authority": ["release.toml#/stage"],
+            "scope": "in-process scaffold capability details",
+            "relationship": "no-product-claim",
+            "reason": "Literal capability and native-mutation flags protect scaffold implementation details without extending the frozen public interface.",
+            "claims": [],
+        },
+    },
+    "test_info_failure_for_every_tool": {
+        "purpose": "public-contract",
+        "authority": ["policy/interfaces.json#/cli"],
+        "scope": "installed entrypoints in-process; local read-only scaffold",
+        "relationship": "scoped-witness",
+        "reason": "Independent interface exit status and fixed synthetic info failure expectations; no native effects or recovery.",
+        "claims": ["cli:domain-ops:info", "cli:host-ops:info", "cli:app-ops:info", "client:info"],
+    },
+    "test_validate_success_for_every_tool": {
+        "purpose": "public-contract",
+        "authority": ["policy/interfaces.json#/cli"],
+        "scope": "installed entrypoints in-process; local read-only scaffold",
+        "relationship": "scoped-witness",
+        "reason": "Independent interface exit status and fixed synthetic validate success expectations; no native effects or recovery.",
+        "claims": ["cli:domain-ops:validate", "cli:host-ops:validate", "cli:app-ops:validate"],
+    },
+    "test_validate_failure_for_every_tool": {
+        "purpose": "public-contract",
+        "authority": ["policy/interfaces.json#/cli"],
+        "scope": "installed entrypoints in-process; local read-only scaffold",
+        "relationship": "scoped-witness",
+        "reason": "Independent interface exit status and fixed synthetic validate failure expectations; no native effects or recovery.",
+        "claims": ["cli:domain-ops:validate", "cli:host-ops:validate", "cli:app-ops:validate"],
+    },
+}

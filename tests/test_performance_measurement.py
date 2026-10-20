@@ -12,6 +12,15 @@ from scripts.project_policy import ROOT
 from scripts.validation_pytest import safe_node, write_stats
 from tests.test_validation import checkout, latest  # noqa: F401
 
+CHECK_PURPOSE = {
+    "purpose": "validation-tooling",
+    "authority": ["scripts/run_stats.py"],
+    "scope": "observational instrumentation",
+    "relationship": "no-product-claim",
+    "reason": "Required statistics integrity and advisory comparisons; no machine-dependent numerical result is a correctness promise.",
+    "claims": [],
+}
+
 
 def test_measurements_include_required_units_and_scopes():
     observed = run_stats.RunStats().finish()

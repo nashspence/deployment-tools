@@ -1,5 +1,14 @@
 from scripts.check_public import check_text
 
+CHECK_PURPOSE = {
+    "purpose": "repository-policy",
+    "authority": ["scripts/check_public.py"],
+    "scope": "public-content guard",
+    "relationship": "no-product-claim",
+    "reason": "Public Markdown, path, identity and secret-pattern policy, not product behavior.",
+    "claims": [],
+}
+
 
 def test_git_identity_headers_are_allowed_only_as_commit_metadata():
     metadata = "committer GitHub <noreply@" + "github.com> 1720000000 +0000"
