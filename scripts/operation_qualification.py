@@ -7,8 +7,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+from scripts.check_evidence import current_run, proof, summary
 from scripts.project_policy import ROOT, components, read_toml
-from scripts.validation import FORMAT, MAX_BYTES, full_check_passed, source_identity
+from scripts.validation import source_identity
 
 MAP_PATH = "policy/operations.json"
 REGISTRY = "policy/operation-coverage.toml"
@@ -134,6 +135,12 @@ def build_map(root: Path = ROOT) -> dict[str, Any]:
     registry = read_toml(root / REGISTRY)
     if registry["format"] != "deployment-tools-operation-bindings/v1":
         raise ValueError("unsupported operation binding format")
+    interface_tests = registry["interfaces"]["tests"]
+    sources.add(read_toml(root / "release.toml")["interfaces"]["snapshot"])
+    if not interface_tests or len(set(interface_tests)) != len(interface_tests):
+        raise ValueError("public interface consistency requires reviewed test bindings")
+    for reference in interface_tests:
+        sources.add(test_path(reference, root))
     entries = registry["implementations"]
     by_id = {entry["id"]: entry for entry in entries}
     if len(by_id) != len(entries) or set(by_id) - set(rows):
@@ -184,6 +191,12 @@ def build_map(root: Path = ROOT) -> dict[str, Any]:
             name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sorted(sources)
         },
         "operations": [rows[name] for name in sorted(rows)],
+        "interfaces": {
+            "expectation": "release.toml#/interfaces",
+            "snapshot": read_toml(root / "release.toml")["interfaces"]["snapshot"],
+            "tests": interface_tests,
+            "scope": "frozen signature, option and schema-byte consistency; no runtime or native qualification",
+        },
     }
 
 
@@ -197,36 +210,27 @@ def check(root: Path = ROOT) -> dict[str, Any]:
 def report(root: Path = ROOT) -> dict[str, Any]:
     coverage = check(root)
     source = source_identity(root)
-    passed: dict[str, set[str]] = {}
-    for path in (root / "artifacts/validation").glob("*.json"):
-        if path.is_symlink() or path.stat().st_size > MAX_BYTES:
-            continue
-        try:
-            receipt = json.loads(path.read_text(encoding="utf-8"))
-            if (
-                receipt.get("format") != FORMAT
-                or receipt.get("production_qualified") is not False
-                or receipt.get("target") != "unit"
-                or not receipt.get("full_check_passed")
-                or not full_check_passed(receipt)
-                or receipt["source_after"] != source
-            ):
-                continue
-            for node, outcome in receipt["tests"]["outcomes"].items():
-                if outcome == "passed":
-                    passed.setdefault(node, set()).add(receipt["id"])
-        except (ValueError, KeyError, TypeError):
-            continue
+    selected = current_run(root, source)
+    interface_proofs = {
+        node: proof(node, "interface:public-snapshot", selected, purpose="public-contract")
+        for node in coverage["interfaces"]["tests"]
+    }
     rows = []
     for operation in coverage["operations"]:
         tests = [node for nodes in operation["tests"].values() for node in nodes]
+        proofs = {
+            node: proof(node, operation["id"], selected, purpose="public-contract")
+            for node in tests
+        }
         rows.append(
             {
                 "id": operation["id"],
                 "implementation_status": operation["status"],
-                "proofs": {node: sorted(passed.get(node, set())) for node in tests},
+                "proofs": proofs,
                 "required_proofs_passed": bool(
-                    operation["implementation"] and tests and all(node in passed for node in tests)
+                    operation["implementation"]
+                    and tests
+                    and all(p["passed"] for p in proofs.values())
                 ),
                 "native_qualified": False,
             }
@@ -236,6 +240,24 @@ def report(root: Path = ROOT) -> dict[str, Any]:
         "source": source,
         "production_qualified": False,
         "operations": rows,
+        "interfaces": {
+            **coverage["interfaces"],
+            "proofs": interface_proofs,
+            "required_proofs_passed": all(p["passed"] for p in interface_proofs.values()),
+        },
+        "selected_origin": selected["id"] if selected else None,
+        "check_accounting": summary(selected["tests"]["evidence"]["groups"]) if selected else None,
+        "unique_supported_obligations": len(
+            {
+                row.get("alias_of", row["id"])
+                for row, result in zip(coverage["operations"], rows, strict=True)
+                if result["required_proofs_passed"]
+            }
+        ),
+        "unestablished_operations": [
+            row["id"] for row in rows if not row["required_proofs_passed"]
+        ],
+        "scope": "read-only installed entrypoints exercised in-process; native effects and recovery unestablished",
     }
     destination = root / "artifacts/operation-qualification.json"
     if not destination.resolve().is_relative_to(root.resolve()):
@@ -270,6 +292,10 @@ def main() -> None:
                 parser.error(
                     "current complete proof receipts are required for implemented operations"
                 )
+            if args.require_current_proofs and not results["interfaces"]["required_proofs_passed"]:
+                parser.error(
+                    "current complete receipts are required for public interface consistency"
+                )
             print(
                 json.dumps(
                     {
@@ -278,6 +304,13 @@ def main() -> None:
                             row["required_proofs_passed"] for row in results["operations"]
                         ),
                         "production_qualified": False,
+                        "unique_supported_obligations": results["unique_supported_obligations"],
+                        "unestablished_operations": len(results["unestablished_operations"]),
+                        "scope": results["scope"],
+                        "check_accounting": results["check_accounting"],
+                        "public_interface_structure_proved": results["interfaces"][
+                            "required_proofs_passed"
+                        ],
                     }
                 )
             )

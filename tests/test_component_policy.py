@@ -12,13 +12,25 @@ from deployment_tools_contracts import ContractError
 from deployment_tools_owner.journal import Journal
 from deployment_tools_reporting.store import EventStore
 
+from scripts.check_evidence import evidence_group
 from scripts.project_policy import ROOT, boundary_errors, components, snapshot, state_errors
 from tests.support import FIXTURES
 
+CHECK_PURPOSE = {
+    "purpose": "repository-policy",
+    "authority": ["release.toml#/interfaces"],
+    "scope": "component/interface/state policy",
+    "relationship": "no-product-claim",
+    "reason": "Structural ownership, snapshot and immutable-history checks remain required; model executions have separate dispositions.",
+    "claims": [],
+}
+
 
 def test_components_and_public_contracts_are_current():
-    assert not boundary_errors()
-    assert snapshot() == json.loads((ROOT / "policy/interfaces.json").read_text())
+    with evidence_group("policy"):
+        assert not boundary_errors()
+    with evidence_group("interface"):
+        assert snapshot() == json.loads((ROOT / "policy/interfaces.json").read_text())
 
 
 def test_component_import_violation_is_detected(tmp_path):
@@ -158,3 +170,49 @@ def test_retired_state_fixtures_and_migrations_remain_immutable(tmp_path, relati
     assert fixture_history_errors(tmp_path)
     fixture.unlink()
     assert fixture_history_errors(tmp_path)
+
+
+CHECK_OVERRIDES = {
+    "test_preserved_owner_journal_replays_and_retains_epoch": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local preserved SQLite fixtures",
+        "relationship": "candidate",
+        "reason": "Fixed data identities, epochs and explicit schema/refusal expectations; not a native recovery proof.",
+        "claims": [],
+    },
+    "test_unknown_journal_version_refuses_reinitialization": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local preserved SQLite fixtures",
+        "relationship": "candidate",
+        "reason": "Fixed data identities, epochs and explicit schema/refusal expectations; not a native recovery proof.",
+        "claims": [],
+    },
+    "test_preserved_reporting_store_retains_immutable_events": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local preserved SQLite fixtures",
+        "relationship": "candidate",
+        "reason": "Fixed data identities, epochs and explicit schema/refusal expectations; not a native recovery proof.",
+        "claims": [],
+    },
+    "test_components_and_public_contracts_are_current": {
+        "policy": {
+            "purpose": "repository-policy",
+            "authority": ["release.toml#/interfaces"],
+            "scope": "component/interface/state policy",
+            "relationship": "no-product-claim",
+            "reason": "Structural ownership, snapshot and immutable-history checks remain required; model executions have separate dispositions.",
+            "claims": [],
+        },
+        "interface": {
+            "purpose": "public-contract",
+            "authority": ["release.toml#/interfaces"],
+            "scope": "structural agreement with frozen signatures, CLI options and schema bytes only",
+            "relationship": "scoped-witness",
+            "reason": "The existing reviewed interface snapshot owns the expected structure. Equality establishes promised interface agreement, not runtime semantics or native behavior.",
+            "claims": ["interface:public-snapshot"],
+        },
+    },
+}

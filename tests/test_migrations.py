@@ -14,6 +14,16 @@ from sqlalchemy import URL, create_engine, event
 from scripts.project_policy import ROOT, read_toml
 from tests.test_component_policy import restore_fixture
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": ["state/inventory.toml"],
+    "scope": "local SQLite/Alembic reference stores",
+    "relationship": "candidate",
+    "reason": "Preserved SQL fixtures, fixed data identities and subprocess transaction deaths exercise forward migration invariants, not native first-write recovery.",
+    "claims": [],
+}
+
+
 OWNERS = read_toml(ROOT / "state/inventory.toml")["owners"]
 
 
@@ -198,3 +208,55 @@ def test_alembic_requires_a_real_sqlite_transaction_before_ddl(tmp_path):
             )
     finally:
         engine.dispose()
+
+
+CHECK_OVERRIDES = {
+    "test_preserved_v1_adoption_is_idempotent": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+    "test_alembic_baseline_matches_preserved_schema_and_refuses_downgrade": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+    "test_unknown_or_corrupted_schema_is_not_adopted": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+    "test_store_open_rejects_unknown_alembic_revision_without_changing_state": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+    "test_alembic_requires_a_real_sqlite_transaction_before_ddl": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+    "test_migration_failure_and_process_death_roll_back_then_retry": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "local SQLite migration history; not native first-write recovery",
+        "relationship": "scoped-witness",
+        "reason": "Immutable fixture data, literal revision/schema assertions, controlled failing DDL and process-death rollback/retry.",
+        "claims": ["migration:owner-journal", "migration:reported-events"],
+    },
+}

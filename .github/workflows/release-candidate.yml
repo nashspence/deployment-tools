@@ -16,6 +16,10 @@ defaults:
 
 jobs:
   candidate:
+    env:
+      CHECK_PURPOSES: implementation
+      CHECK_SCOPE: built/installed scaffold packages only; no native activation
+      CHECK_AUTHORITY: release.toml
     if: ${{ github.ref == 'refs/heads/main' }}
     name: Attested scaffold (${{ matrix.os }})
     environment: release-publication

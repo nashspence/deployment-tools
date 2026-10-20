@@ -17,6 +17,17 @@ from typing import Any
 import pytest
 from filelock import FileLock
 
+from scripts.check_evidence import (
+    ACTIVE,
+    group_results,
+    item_groups,
+    reconcile,
+    summary,
+    validate_overrides,
+)
+from scripts.check_evidence import (
+    FORMAT as EVIDENCE_FORMAT,
+)
 from scripts.run_stats import RunStats, comparison
 
 REPORT_VARIABLE = "DEPLOYMENT_TOOLS_TEST_REPORT"
@@ -71,9 +82,46 @@ class TestResults:
         self.fixtures: dict[str, dict[str, int | float]] = {}
         self.output: Path | None = None
         self.target: dict[str, Any] = {}
+        self.declarations: dict[str, Any] = {}
+        self.observed: dict[str, set[str]] = {}
+        self.inventory_hash = ""
+        self.evidence: dict[str, Any] = {}
+        self.subtests: dict[str, list[dict[str, Any]]] = {}
 
     def pytest_collection_finish(self, session: pytest.Session) -> None:
         self.collected = [safe_node(item.nodeid) for item in session.items]
+        try:
+            if len(set(self.collected)) != len(self.collected):
+                raise ValueError("duplicate collected checks")
+            self.declarations = {
+                safe_node(i.nodeid): item_groups(i, self.root) for i in session.items
+            }
+            complete = list(session.config.args) == ["tests"] and not (
+                session.config.option.keyword
+                or session.config.option.markexpr
+                or session.config.option.deselect
+                or session.config.option.lf
+            )
+            generate = session.config.getoption("evidence_generate")
+            if complete:
+                validate_overrides(session.items)
+            if generate and not session.config.option.collectonly:
+                raise ValueError("inventory generation requires --collect-only")
+            self.inventory_hash = reconcile(
+                self.declarations, self.root, complete=complete, generate=generate
+            )
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            raise pytest.UsageError(str(error)) from error
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_runtest_call(self, item: pytest.Item) -> Generator[None, Any, Any]:
+        observed: set[str] = set()
+        token = ACTIVE.set(observed)
+        try:
+            return (yield)
+        finally:
+            ACTIVE.reset(token)
+            self.observed[safe_node(item.nodeid)] = observed
 
     @pytest.hookimpl(wrapper=True)
     def pytest_fixture_setup(
@@ -89,12 +137,20 @@ class TestResults:
 
     def pytest_runtest_logreport(self, report: pytest.TestReport) -> None:
         node = safe_node(report.nodeid)
+        if hasattr(report, "context"):
+            self.subtests.setdefault(node, []).append(
+                {
+                    "case_sha256": hashlib.sha256(repr(report.context).encode()).hexdigest(),
+                    "outcome": report.outcome,
+                    "expected_failure": hasattr(report, "wasxfail"),
+                }
+            )
         self.phases.setdefault(node, {})[report.when] = {
             "seconds": report.duration,
             "outcome": report.outcome,
             "rss_sample_bytes": self.stats.sample(),
             "rss_scope": "process-snapshot-not-test-allocation",
-            "expected_failure": bool(getattr(report, "wasxfail", False)),
+            "expected_failure": hasattr(report, "wasxfail"),
         }
         previous = self.outcomes.get(node)
         if report.failed:
@@ -105,6 +161,9 @@ class TestResults:
             self.outcomes[node] = "passed"
 
     def pytest_sessionfinish(self, session: pytest.Session, exitstatus: int) -> None:
+        for node in self.collected:
+            self.outcomes.setdefault(node, "not-executed")
+            self.phases.setdefault(node, {})
         stats = self.stats.finish()
         filtered = any(
             (
@@ -124,6 +183,12 @@ class TestResults:
             filtered=filtered,
         )
         self.target = target
+        self.evidence = {
+            "format": EVIDENCE_FORMAT,
+            "origin": os.environ.get("DEPLOYMENT_TOOLS_TEST_ORIGIN"),
+            "inventory_sha256": self.inventory_hash,
+            "groups": group_results(self.declarations, self.phases, self.observed, self.outcomes),
+        }
         value = {
             "profile": {
                 "platform": sys.platform,
@@ -139,6 +204,8 @@ class TestResults:
             "stats": stats,
             "phases": self.phases,
             "fixtures": self.fixtures,
+            "evidence": self.evidence,
+            "subtests": self.subtests,
         }
         self.output = write_stats(self.root, value)
         if self.destination:
@@ -156,6 +223,18 @@ class TestResults:
                     for key, m in metrics.items()
                 )
                 terminalreporter.write_line("Profiling targets (report only): " + details)
+            terminalreporter.write_line(
+                "Check purposes/scopes (not native qualification): "
+                + json.dumps(summary(self.evidence["groups"]), sort_keys=True)
+            )
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--evidence-generate",
+        action="store_true",
+        help="Snapshot reviewed full collection and maintained entrypoints; no execution proof",
+    )
 
 
 def pytest_configure(config: pytest.Config) -> None:

@@ -1,5 +1,13 @@
 {
   "format": "deployment-tools-operation-coverage/v1",
+  "interfaces": {
+    "expectation": "release.toml#/interfaces",
+    "scope": "frozen signature, option and schema-byte consistency; no runtime or native qualification",
+    "snapshot": "policy/interfaces.json",
+    "tests": [
+      "tests/test_component_policy.py::test_components_and_public_contracts_are_current"
+    ]
+  },
   "operations": [
     {
       "id": "action:adapter.execute",
@@ -1599,8 +1607,10 @@
     "packages/host/pyproject.toml": "a588edfb2767b962c446bd891d48eee0a63097294e66b223ba8e8e73f879ccf9",
     "packages/host/src/deployment_tools_host/cli.py": "a77d656566dcb71e58086425c6eedc9fb3b21c74383aa93c1080b37894d7cec2",
     "policy/components.toml": "18395cc12684f77950fc2082b2c5cec507ca290508406abf3a4895afb792a562",
-    "policy/operation-coverage.toml": "b34a6edec2e1bff0ca076281ee12f2957fc38e5b5fcce7f459e5f479185e2604",
+    "policy/interfaces.json": "2688ab982bf91f5dd508a712a161ceef7856b64f2d0379544f119c3e4ed80ffe",
+    "policy/operation-coverage.toml": "93ce47c4fcfdea5cefa253dddbd2e25b3d6b71450d742e6f307a405e814b5475",
     "release.toml": "b260e98dce653a8ffc0a96febd0e5521ee1ce0dfb406acd7941c4712d3fdbdde",
-    "tests/test_operation_coverage.py": "fdef6dc7e9693d2c9b7878d640651bc3e5955e0feaa4c719b98b484d1ce5bc12"
+    "tests/test_component_policy.py": "7493b130c60ac832a7d472aaf3465f70a208c0f5bfcb0c82af52c9e66d08a8eb",
+    "tests/test_operation_coverage.py": "9fc6dd1fec825cf52f37ee806872673f48cf2f3966d18b30b8df0bd6bdc96e93"
   }
 }

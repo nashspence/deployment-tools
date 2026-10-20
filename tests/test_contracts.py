@@ -31,6 +31,15 @@ from deployment_tools_owner.journal import Journal
 
 from tests.support import fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "public-contract",
+    "authority": ["policy/interfaces.json#/python/deployment_tools_contracts"],
+    "scope": "offline contract library candidates",
+    "relationship": "candidate",
+    "reason": "Reviewed parsing, schema, wire, secret and witness cases exercise local helpers. Public API shape is authoritative here; behavior beyond the exact fixtures lacks an independently bound sufficient oracle.",
+    "claims": [],
+}
+
 
 def load(path):
     p = fixture_path(path)
@@ -623,3 +632,54 @@ class Durable(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+CHECK_CLASS_PURPOSE = {
+    "Durable": {
+        "purpose": "implementation",
+        "authority": ["state/inventory.toml"],
+        "scope": "offline reference helper",
+        "relationship": "candidate",
+        "reason": "Local journal reference transitions and SQLite restart only; no native owner or effect reconciliation.",
+        "claims": [],
+    },
+    "Transport": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/contracts/src/deployment_tools_contracts/contracts/ssh-methods.json"
+        ],
+        "scope": "offline reference helper",
+        "relationship": "candidate",
+        "reason": "Local wire framing and SSH argv preparation only; no authenticated remote dispatch.",
+        "claims": [],
+    },
+    "Secrets": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/contracts/src/deployment_tools_contracts/contracts/bundle-manifest.schema.json"
+        ],
+        "scope": "offline reference helper",
+        "relationship": "candidate",
+        "reason": "Synthetic in-memory tar and asset selection only; no encrypted publication custodian.",
+        "claims": [],
+    },
+    "Evidence": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/contracts/src/deployment_tools_contracts/contracts/records.schema.json"
+        ],
+        "scope": "offline reference helper",
+        "relationship": "candidate",
+        "reason": "Synthetic digest/signature consistency and rejection only; no native plan or accepted effect.",
+        "claims": [],
+    },
+    "Sources": {
+        "purpose": "public-contract",
+        "authority": [
+            "packages/contracts/src/deployment_tools_contracts/contracts/source.schema.json"
+        ],
+        "scope": "offline source-schema and cross-reference candidates",
+        "relationship": "candidate",
+        "reason": "Source schema structure is exercised through local validators; cross-reference helper expectations need independently reviewed rule-level bindings before sufficient public-contract proof.",
+        "claims": [],
+    },
+}

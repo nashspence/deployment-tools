@@ -7,6 +7,15 @@ import yaml
 
 from tests.support import ROOT
 
+CHECK_PURPOSE = {
+    "purpose": "repository-policy",
+    "authority": [".github/workflows/ci.yml"],
+    "scope": "workflow and hook policy",
+    "relationship": "no-product-claim",
+    "reason": "Required workflow configuration and refusal guards, not execution of the selected native services.",
+    "claims": [],
+}
+
 
 class WorkflowSafety(unittest.TestCase):
     @classmethod

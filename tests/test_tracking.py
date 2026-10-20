@@ -26,6 +26,17 @@ from deployment_tools_reporting.store import EventStore
 
 from tests.support import ROOT, fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/tracking-records.schema.json"
+    ],
+    "scope": "offline reporting/store reference models",
+    "relationship": "candidate",
+    "reason": "Synthetic adapters and local SQLite state test optional reporting isolation, immutable records and pagination; no running report API or forge publication is qualified.",
+    "claims": [],
+}
+
 
 def load(p):
     return json.loads(fixture_path(p).read_text())

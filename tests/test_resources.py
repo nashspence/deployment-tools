@@ -20,6 +20,17 @@ from deployment_tools_contracts.validation import ContractError, strict_yaml, va
 
 from tests.support import fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/resources.schema.json"
+    ],
+    "scope": "offline resource decision models",
+    "relationship": "candidate",
+    "reason": "Fixed synthetic cgroup, capacity, cleanup, pressure and retention inputs; no kernel enforcement, runtime reclamation or native restore.",
+    "claims": [],
+}
+
 
 def load(name):
     p = fixture_path(name)

@@ -31,6 +31,17 @@ from deployment_tools_owner.commands import FORMS, parse_command
 
 from tests.support import fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/workspace.schema.json"
+    ],
+    "scope": "offline portable/client helpers",
+    "relationship": "candidate",
+    "reason": "Synthetic sessions, closeout, merge, owner grammar and wheel experiments exercise reference helpers, not end-to-end execution of declared CLI forms.",
+    "claims": [],
+}
+
 
 def load(p):
     x = fixture_path(p)

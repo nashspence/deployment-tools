@@ -13,9 +13,10 @@ from typing import Any
 
 from alembic.script import ScriptDirectory
 
+from scripts.check_evidence import current_run, proof, summary
 from scripts.operation_qualification import symbol_path, test_path
 from scripts.project_policy import ROOT, components, fingerprint, read_toml
-from scripts.validation import FORMAT, full_check_passed, source_identity
+from scripts.validation import source_identity
 
 MAP = "policy/engineering.json"
 
@@ -132,25 +133,26 @@ def proof_passed(reference: str, outcomes: dict[str, str]) -> bool:
 def report() -> dict[str, Any]:
     data = projection()
     source = source_identity()
-    outcomes: dict[str, str] = {}
-    for path in (ROOT / "artifacts/validation").glob("*.json"):
-        if path.is_symlink() or path.stat().st_size > 4_000_000:
-            continue
-        value = json.loads(path.read_text())
-        if (
-            value.get("format") == FORMAT
-            and value.get("target") == "unit"
-            and value.get("source_after") == source
-            and full_check_passed(value)
-        ):
-            outcomes.update(value["tests"]["outcomes"])
-    subjects = [*data["operations"].values(), *data["state_owners"]]
-    for subject in subjects:
+    selected = current_run(ROOT, source)
+    subjects = [("engineering:" + name, s) for name, s in data["operations"].items()]
+    subjects.extend(("migration:" + s["owner"], s) for s in data["state_owners"])
+    for identity, subject in subjects:
+        subject["executed_proofs"] = {
+            node: proof(node, identity, selected, purpose="implementation")
+            for node in subject["proofs"]
+        }
         subject["current_proofs_passed"] = all(
-            proof_passed(node, outcomes) for node in subject["proofs"]
+            p["passed"] for p in subject["executed_proofs"].values()
         )
-    data["all_current_proofs_passed"] = all(s["current_proofs_passed"] for s in subjects)
+    data["all_current_proofs_passed"] = all(s["current_proofs_passed"] for _, s in subjects)
     data["source"] = source
+    data["selected_origin"] = selected["id"] if selected else None
+    data["check_accounting"] = (
+        summary(selected["tests"]["evidence"]["groups"]) if selected else None
+    )
+    data["scope"] = (
+        "local reference-model growth, extent, crash and migration assertions; no native deployment or recovery"
+    )
     return data
 
 
@@ -185,6 +187,8 @@ def main() -> None:
                 "operations": len(value["operations"]),
                 "state_owners": len(value["state_owners"]),
                 "production_qualified": False,
+                "scope": value.get("scope", "source declarations only; no execution proof"),
+                "check_accounting": value.get("check_accounting"),
             }
         )
     )
