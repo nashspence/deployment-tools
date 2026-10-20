@@ -1,0 +1,44 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.restic",
+  "roles": [
+    "backup"
+  ],
+  "entrypoint": "bin/a-deployment-tools-restic-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "repository_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "credential_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "repository_handle",
+      "credential_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

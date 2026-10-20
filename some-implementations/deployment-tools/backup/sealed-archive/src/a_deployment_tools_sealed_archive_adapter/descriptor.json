@@ -1,0 +1,44 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.sealed-archive",
+  "roles": [
+    "backup"
+  ],
+  "entrypoint": "bin/a-deployment-tools-sealed-archive-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "directory_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "recipient_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "directory_handle",
+      "recipient_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

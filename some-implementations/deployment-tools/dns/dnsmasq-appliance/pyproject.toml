@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-deployment-tools-dnsmasq-appliance-adapter"
+version = "0.1.0.dev0"
+description = "dnsmasq-appliance adapter: closed configuration scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["deployment-tools-contracts==0.1.0.dev0", "deployment-tools-adapter-protocol==0.1.0.dev0", "deployment-tools-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-deployment-tools-dnsmasq-appliance-adapter = "a_deployment_tools_dnsmasq_appliance_adapter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_deployment_tools_dnsmasq_appliance_adapter = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+deployment-tools-contracts = { workspace = true }
+deployment-tools-adapter-protocol = { workspace = true }
+deployment-tools-adapter-support = { workspace = true }
+
+[tool.deployment-tools.component]
+id = "dnsmasq-appliance-adapter"
+module = "a_deployment_tools_dnsmasq_appliance_adapter"
+role = "adapter-implementation"

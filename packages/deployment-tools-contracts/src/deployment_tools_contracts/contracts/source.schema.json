@@ -1,0 +1,1914 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/source.schema.json",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Domain"
+    },
+    {
+      "$ref": "#/$defs/Host"
+    },
+    {
+      "$ref": "#/$defs/App"
+    },
+    {
+      "$ref": "#/$defs/RepoSecrets"
+    }
+  ],
+  "$defs": {
+    "Domain": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/source/v2"
+        },
+        "kind": {
+          "const": "Domain"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "repository": {
+                "type": "object",
+                "properties": {
+                  "instance": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  },
+                  "repository_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 160,
+                    "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+                  }
+                },
+                "required": [
+                  "instance",
+                  "repository_id",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "url": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "^(https://|ssh://|[A-Za-z0-9_.-]+@)"
+              },
+              "ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240,
+                "pattern": "^refs/(heads|tags)/[^\\s]+$"
+              },
+              "entrypoint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+              }
+            },
+            "required": [
+              "repository",
+              "url",
+              "ref",
+              "entrypoint"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "hosts": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "host_ops_alias": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "app_ops_alias": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "availability": {
+                "enum": [
+                  "always-on",
+                  "on-demand",
+                  "temporarily-offline"
+                ]
+              },
+              "wake_relay": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "source",
+              "host_ops_alias",
+              "app_ops_alias",
+              "availability",
+              "wake_relay"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "apps": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "host": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "placement_generation": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "boundary_digest": {
+                "type": "string",
+                "minLength": 71,
+                "maxLength": 71,
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "security_control": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "source",
+              "host",
+              "placement_generation",
+              "boundary_digest",
+              "security_control"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "providers": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "custodian_host": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "adapter": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "scope": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "configuration": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+              },
+              "schema_digest": {
+                "type": "string",
+                "minLength": 71,
+                "maxLength": 71,
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "custodian_host",
+              "adapter",
+              "scope",
+              "purpose",
+              "configuration",
+              "schema_digest"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "backup_backends": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "custodian_host": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "adapter": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "repository_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "required": [
+              "custodian_host",
+              "adapter",
+              "repository_id",
+              "purpose"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "id",
+        "name",
+        "sources",
+        "hosts",
+        "apps",
+        "providers",
+        "backup_backends"
+      ],
+      "additionalProperties": false
+    },
+    "Host": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/source/v2"
+        },
+        "kind": {
+          "const": "Host"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24,
+          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+        },
+        "platform": {
+          "enum": [
+            "linux",
+            "macos",
+            "appliance"
+          ]
+        },
+        "repository_secrets": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "concerns": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "purpose": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "files": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240,
+                      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+                    },
+                    "destination": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 512,
+                      "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "minLength": 4,
+                      "maxLength": 4,
+                      "pattern": "^0[0-7]{3}$"
+                    },
+                    "user": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "group": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "validator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 24,
+                          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "notify": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "service": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 24,
+                            "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                          },
+                          "action": {
+                            "enum": [
+                              "reload",
+                              "restart"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "action"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 0,
+                      "maxItems": 256
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "destination",
+                    "mode",
+                    "user",
+                    "group",
+                    "validator",
+                    "notify",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "secret_files": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "entry": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                    },
+                    "destination": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 512,
+                      "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
+                    },
+                    "mode": {
+                      "enum": [
+                        "0400",
+                        "0440",
+                        "0600",
+                        "0640"
+                      ]
+                    },
+                    "user": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "group": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "validator": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 24,
+                          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "notify": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "service": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 24,
+                            "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                          },
+                          "action": {
+                            "enum": [
+                              "reload",
+                              "restart"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "action"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 0,
+                      "maxItems": 256
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "entry",
+                    "destination",
+                    "mode",
+                    "user",
+                    "group",
+                    "validator",
+                    "notify",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "packages": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "manager": {
+                      "enum": [
+                        "apt",
+                        "brew"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "version": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "state": {
+                      "enum": [
+                        "present",
+                        "retired"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "manager",
+                    "name",
+                    "version",
+                    "held",
+                    "state",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "artifacts": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024,
+                      "pattern": "^https://"
+                    },
+                    "digest": {
+                      "type": "string",
+                      "minLength": 71,
+                      "maxLength": 71,
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "destination": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 512,
+                      "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "minLength": 4,
+                      "maxLength": 4,
+                      "pattern": "^0[0-7]{3}$"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "digest",
+                    "platform",
+                    "destination",
+                    "mode",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "groups": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "memberships": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "minItems": 0,
+                      "maxItems": 256,
+                      "uniqueItems": true
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "memberships",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "services": {
+                "type": "object",
+                "minProperties": 0,
+                "maxProperties": 256,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9_.@-]+\\.(service|timer)$"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "activity": {
+                      "enum": [
+                        "running",
+                        "stopped",
+                        "oneshot-complete"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "required": [
+                    "unit",
+                    "enabled",
+                    "activity",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "purpose",
+              "files",
+              "secret_files",
+              "packages",
+              "artifacts",
+              "groups",
+              "services"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "app_accounts": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "device_groups": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 0,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "resource_account": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "runtime_instance": {
+                "$ref": "common.schema.json#/$defs/Id"
+              }
+            },
+            "required": [
+              "runtime_instance",
+              "device_groups",
+              "reason",
+              "resource_account"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "grants": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "app": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "type": {
+                "enum": [
+                  "storage",
+                  "device",
+                  "network",
+                  "port",
+                  "profile"
+                ]
+              },
+              "profile": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "required": [
+              "app",
+              "type",
+              "profile",
+              "resources",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ssh_user": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32,
+                "pattern": "^[a-z][a-z0-9_-]{0,31}$"
+              },
+              "principal": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "role": {
+                "enum": [
+                  "observer",
+                  "operator",
+                  "administrator"
+                ]
+              },
+              "key_fingerprints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^SHA256:[A-Za-z0-9+/]+$"
+                },
+                "minItems": 1,
+                "maxItems": 32,
+                "uniqueItems": true
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 96
+                },
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "domain",
+                        "host",
+                        "app",
+                        "source",
+                        "dns",
+                        "recovery",
+                        "publisher",
+                        "backend",
+                        "adapter",
+                        "interface",
+                        "dataset",
+                        "component"
+                      ]
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "ssh_user",
+              "principal",
+              "role",
+              "key_fingerprints",
+              "actions",
+              "resources"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "receipt_public_keys": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+          }
+        },
+        "resources": {
+          "anyOf": [
+            {
+              "$ref": "resources.schema.json#/$defs/HostResources"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "platform_profile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24,
+          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+        },
+        "adapter_instances": {
+          "type": "object",
+          "maxProperties": 256,
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "additionalProperties": {
+            "$ref": "adapter.schema.json#/$defs/Instance"
+          }
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "id",
+        "platform",
+        "platform_profile",
+        "repository_secrets",
+        "concerns",
+        "app_accounts",
+        "grants",
+        "adapter_instances",
+        "access",
+        "receipt_public_keys",
+        "resources"
+      ],
+      "additionalProperties": false
+    },
+    "App": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/source/v2"
+        },
+        "kind": {
+          "const": "App"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24,
+          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+        },
+        "runtime": {
+          "$ref": "adapter.schema.json#/$defs/Selection"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "repository_secrets": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "components": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "enum": [
+                  "primary",
+                  "internal",
+                  "maintenance"
+                ]
+              },
+              "profile": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "native": {
+                "type": "object",
+                "maxProperties": 32
+              }
+            },
+            "required": [
+              "native",
+              "role",
+              "profile",
+              "purpose"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "interfaces": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "component": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "protocol": {
+                "enum": [
+                  "http",
+                  "https",
+                  "tcp",
+                  "tls",
+                  "unix",
+                  "ssh"
+                ]
+              },
+              "port": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "compatibility": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 1,
+                "maxItems": 64,
+                "uniqueItems": true
+              },
+              "authentication": {
+                "enum": [
+                  "native",
+                  "public",
+                  "socket-permissions"
+                ]
+              },
+              "readiness_hook": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              }
+            },
+            "required": [
+              "component",
+              "protocol",
+              "port",
+              "compatibility",
+              "authentication",
+              "readiness_hook"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "provider_kind": {
+                "enum": [
+                  "app",
+                  "platform",
+                  "external"
+                ]
+              },
+              "provider": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "interface": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "consumers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 1,
+                "maxItems": 64,
+                "uniqueItems": true
+              },
+              "compatibility": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 1,
+                "maxItems": 64,
+                "uniqueItems": true
+              },
+              "phases": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "prepare",
+                    "start",
+                    "verify",
+                    "capture",
+                    "restore",
+                    "runtime"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 6,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "provider_kind",
+              "provider",
+              "interface",
+              "consumers",
+              "compatibility",
+              "phases"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "datasets": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "owned",
+                  "reference",
+                  "rebuildable"
+                ]
+              },
+              "native_format": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "writers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 0,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "readers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 0,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "grant": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "capture": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "restore": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "verify": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "owner": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "domain",
+                          "host",
+                          "app",
+                          "source",
+                          "dns",
+                          "recovery",
+                          "publisher",
+                          "backend",
+                          "adapter",
+                          "interface",
+                          "dataset",
+                          "component"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "native_format",
+              "writers",
+              "readers",
+              "grant",
+              "capture",
+              "restore",
+              "verify",
+              "owner"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "hooks": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "component": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "role": {
+                "enum": [
+                  "health",
+                  "configure",
+                  "verify-config",
+                  "dependency-check",
+                  "busy",
+                  "quiesce",
+                  "transition-assess",
+                  "transition-apply",
+                  "transition-verify",
+                  "capture",
+                  "restore",
+                  "verify-restore"
+                ]
+              },
+              "argv": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "minItems": 1,
+                "maxItems": 128
+              },
+              "mode": {
+                "enum": [
+                  "read",
+                  "write"
+                ]
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 86400
+              },
+              "datasets": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "minItems": 0,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "secrets": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "network": {
+                "enum": [
+                  "none",
+                  "declared"
+                ]
+              }
+            },
+            "required": [
+              "component",
+              "role",
+              "argv",
+              "mode",
+              "timeout_seconds",
+              "datasets",
+              "secrets",
+              "network"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "properties": {
+            "health": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true
+            },
+            "configure": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "verify_config": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quiesce": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transition_assess": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transition_apply": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transition_verify": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "checkpoint_policy": {
+              "enum": [
+                "stateless",
+                "required-on-change",
+                "native-assessed"
+              ]
+            },
+            "upgrade_mode": {
+              "enum": [
+                "replace",
+                "native-transition"
+              ]
+            }
+          },
+          "required": [
+            "health",
+            "configure",
+            "verify_config",
+            "quiesce",
+            "transition_assess",
+            "transition_apply",
+            "transition_verify",
+            "checkpoint_policy",
+            "upgrade_mode"
+          ],
+          "additionalProperties": false
+        },
+        "secret_bindings": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "entry": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "component": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "delivery": {
+                "enum": [
+                  "file",
+                  "environment-file"
+                ]
+              },
+              "target": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 512,
+                "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
+              },
+              "uid": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "gid": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "mode": {
+                "enum": [
+                  "0400",
+                  "0440",
+                  "0600",
+                  "0640"
+                ]
+              }
+            },
+            "required": [
+              "entry",
+              "component",
+              "delivery",
+              "target",
+              "uid",
+              "gid",
+              "mode"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "maintenance": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "enum": [
+                  "backup",
+                  "backup-check",
+                  "drill",
+                  "native-maintenance"
+                ]
+              },
+              "hook": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "calendar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "timezone": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "max_delay_seconds": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 604800
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 86400
+              },
+              "active_only": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "action",
+              "hook",
+              "calendar",
+              "timezone",
+              "max_delay_seconds",
+              "timeout_seconds",
+              "active_only"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "protection": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "backend": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24,
+                  "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                },
+                "rpo_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "drill_interval_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "backend",
+                "rpo_seconds",
+                "drill_interval_seconds"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resources": {
+          "$ref": "resources.schema.json#/$defs/AppRequirements"
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "id",
+        "runtime",
+        "purpose",
+        "repository_secrets",
+        "components",
+        "interfaces",
+        "dependencies",
+        "datasets",
+        "hooks",
+        "lifecycle",
+        "secret_bindings",
+        "maintenance",
+        "protection",
+        "resources"
+      ],
+      "additionalProperties": false
+    },
+    "RepoSecrets": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/source/v2"
+        },
+        "kind": {
+          "const": "RepoSecrets"
+        },
+        "locator": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "object",
+              "properties": {
+                "instance": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "repository_id": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 160,
+                  "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+                }
+              },
+              "required": [
+                "instance",
+                "repository_id",
+                "name"
+              ],
+              "additionalProperties": false
+            },
+            "tag": {
+              "const": "secrets-bundle"
+            },
+            "asset": {
+              "const": "secrets.tar.age"
+            }
+          },
+          "required": [
+            "repository",
+            "tag",
+            "asset"
+          ],
+          "additionalProperties": false
+        },
+        "entries": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 256,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "value_policy": {
+                "enum": [
+                  "fixed",
+                  "replaceable"
+                ]
+              }
+            },
+            "required": [
+              "value_policy"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "locator",
+        "entries"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

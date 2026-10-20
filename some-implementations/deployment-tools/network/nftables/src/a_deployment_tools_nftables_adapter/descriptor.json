@@ -1,0 +1,45 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.nftables",
+  "roles": [
+    "network"
+  ],
+  "entrypoint": "bin/a-deployment-tools-nftables-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "table_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "family": {
+        "enum": [
+          "inet",
+          "ip",
+          "ip6"
+        ]
+      }
+    },
+    "required": [
+      "table_handle",
+      "family"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

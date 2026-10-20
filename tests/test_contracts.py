@@ -645,7 +645,7 @@ CHECK_CLASS_PURPOSE = {
     "Transport": {
         "purpose": "implementation",
         "authority": [
-            "packages/contracts/src/deployment_tools_contracts/contracts/ssh-methods.json"
+            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/ssh-methods.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -655,7 +655,7 @@ CHECK_CLASS_PURPOSE = {
     "Secrets": {
         "purpose": "implementation",
         "authority": [
-            "packages/contracts/src/deployment_tools_contracts/contracts/bundle-manifest.schema.json"
+            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/bundle-manifest.schema.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -665,7 +665,7 @@ CHECK_CLASS_PURPOSE = {
     "Evidence": {
         "purpose": "implementation",
         "authority": [
-            "packages/contracts/src/deployment_tools_contracts/contracts/records.schema.json"
+            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/records.schema.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -675,7 +675,7 @@ CHECK_CLASS_PURPOSE = {
     "Sources": {
         "purpose": "public-contract",
         "authority": [
-            "packages/contracts/src/deployment_tools_contracts/contracts/source.schema.json"
+            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/source.schema.json"
         ],
         "scope": "offline source-schema and cross-reference candidates",
         "relationship": "candidate",

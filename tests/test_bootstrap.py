@@ -15,7 +15,7 @@ from tests.support import fixture_path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/contracts/src/deployment_tools_contracts/contracts/bootstrap-recovery.schema.json"
+        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/bootstrap-recovery.schema.json"
     ],
     "scope": "offline bootstrap input/reference helpers",
     "relationship": "candidate",

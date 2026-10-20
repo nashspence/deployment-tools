@@ -4,15 +4,15 @@ import json
 import unittest
 from copy import deepcopy
 
+from a_deployment_tools_podman_quadlet_runtime.commands import podman_delete_argv
+from a_deployment_tools_systemd_cgroup_adapter.commands import systemd_compute_settings
 from deployment_tools_contracts.resources import (
     ReservationModel,
     check_capacity,
     plan_cleanup,
-    podman_delete_argv,
     pressure,
     retained_runtime_handles,
     revalidate_cleanup,
-    systemd_compute_settings,
     validate_host_resources,
     validate_requirements,
 )
@@ -23,7 +23,7 @@ from tests.support import fixture_path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/contracts/src/deployment_tools_contracts/contracts/resources.schema.json"
+        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/resources.schema.json"
     ],
     "scope": "offline resource decision models",
     "relationship": "candidate",

@@ -105,14 +105,20 @@ def prepare(dist: Path, output: Path) -> Path:
     )
     runtime.unlink()
     units = components()
-    expected = {item["distribution"] for item in units}
+    expected_versions = {
+        item["distribution"]: read_toml(ROOT / item["path"] / "pyproject.toml")["project"][
+            "version"
+        ]
+        for item in units
+    }
+    expected = set(expected_versions)
     found = set()
     for wheel in dist.glob("*.whl"):
         metadata = wheel_metadata(wheel)
         if (
             metadata["name"] not in expected
             or metadata["name"] in found
-            or metadata["version"] != policy["version"]
+            or metadata["version"] != expected_versions[metadata["name"]]
         ):
             raise ValueError("unexpected, duplicated or mismatched workspace wheel")
         found.add(metadata["name"])

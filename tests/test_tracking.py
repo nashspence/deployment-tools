@@ -29,7 +29,7 @@ from tests.support import ROOT, fixture_path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/contracts/src/deployment_tools_contracts/contracts/tracking-records.schema.json"
+        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/tracking-records.schema.json"
     ],
     "scope": "offline reporting/store reference models",
     "relationship": "candidate",
@@ -512,7 +512,9 @@ class Noninterference(unittest.TestCase):
 
     def test_no_tracking_import_dependency(self):
         tree = ast.parse(
-            (ROOT / "packages/client/src/deployment_tools_client/submission.py").read_text()
+            (
+                ROOT / "packages/deployment-tools-client/src/deployment_tools_client/submission.py"
+            ).read_text()
         )
         imports = [
             ast.unparse(n) for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))

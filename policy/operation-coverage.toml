@@ -6,7 +6,7 @@ tests = ["tests/test_component_policy.py::test_components_and_public_contracts_a
 [[implementations]]
 id = "cli:domain-ops:info"
 stage = "scaffold"
-symbol = "deployment_tools_client.cli:main"
+symbol = "deployment_tools_domain.cli:main"
 read_only = true
 [implementations.tests]
 success = ["tests/test_operation_coverage.py::test_info_success_for_every_tool"]
@@ -16,7 +16,7 @@ recovery = []
 [[implementations]]
 id = "cli:domain-ops:validate"
 stage = "scaffold"
-symbol = "deployment_tools_client.cli:main"
+symbol = "deployment_tools_domain.cli:main"
 read_only = true
 [implementations.tests]
 success = ["tests/test_operation_coverage.py::test_validate_success_for_every_tool"]

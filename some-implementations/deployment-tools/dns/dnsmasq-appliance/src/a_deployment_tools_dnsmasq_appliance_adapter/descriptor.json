@@ -1,0 +1,57 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.dnsmasq-appliance",
+  "roles": [
+    "dns"
+  ],
+  "entrypoint": "bin/a-deployment-tools-dnsmasq-appliance-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "receiver_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "hosts_directory_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "resolver_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "local_ttl": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2147483647
+      }
+    },
+    "required": [
+      "receiver_handle",
+      "hosts_directory_handle",
+      "resolver_handle",
+      "local_ttl"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}
