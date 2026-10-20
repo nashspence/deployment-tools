@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deployment-tools-app"
+version = "0.1.0.dev0"
+description = "Deployment tools app-owner-scaffold reference scaffold"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["deployment-tools-owner-support==0.1.0.dev0", "deployment-tools-cli-support==0.1.0.dev0"]
+
+[project.scripts]
+app-ops = "deployment_tools_app.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+deployment_tools_app = ["py.typed"]
+
+[tool.uv.sources]
+deployment-tools-owner-support = { workspace = true }
+deployment-tools-cli-support = { workspace = true }
+
+[tool.deployment-tools.component]
+id = "app"
+module = "deployment_tools_app"
+role = "app-owner-scaffold"

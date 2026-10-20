@@ -88,7 +88,7 @@ def test_validate_failure_for_every_tool(tmp_path):
 
 
 def copy_sources(tmp_path):
-    for name in ("packages", "policy", "tests"):
+    for name in ("packages", "deployment-tools", "some-implementations", "policy", "tests"):
         shutil.copytree(
             ROOT / name,
             tmp_path / name,
@@ -117,7 +117,10 @@ def test_map_exhaustively_tracks_current_surfaces_and_native_gaps():
 
 def test_new_catalogue_operation_requires_map_review(tmp_path):
     root = copy_sources(tmp_path)
-    path = root / "packages/contracts/src/deployment_tools_contracts/contracts/actions.json"
+    path = (
+        root
+        / "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/actions.json"
+    )
     catalogue = json.loads(path.read_text())
     item = copy.deepcopy(catalogue["actions"][0])
     item["name"] = "app.future"

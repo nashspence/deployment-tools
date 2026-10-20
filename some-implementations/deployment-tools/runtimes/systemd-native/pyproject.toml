@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-deployment-tools-systemd-native-runtime"
+version = "0.1.0.dev0"
+description = "systemd-native adapter: closed configuration scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["deployment-tools-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-deployment-tools-systemd-native-runtime = "a_deployment_tools_systemd_native_runtime.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_deployment_tools_systemd_native_runtime = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+deployment-tools-adapter-support = { workspace = true }
+
+[tool.deployment-tools.component]
+id = "systemd-native-runtime"
+module = "a_deployment_tools_systemd_native_runtime"
+role = "adapter-implementation"

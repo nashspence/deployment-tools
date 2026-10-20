@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deployment-tools.invalid/contracts/dns-adapter.schema.json",
+  "$defs": {
+    "plan": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "change": {
+          "$ref": "dns-changes.schema.json"
+        }
+      },
+      "required": [
+        "scope",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "publish": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "change": {
+          "$ref": "dns-changes.schema.json"
+        }
+      },
+      "required": [
+        "scope",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "observe": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        }
+      },
+      "required": [
+        "scope",
+        "cursor",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "reconcile": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "attempt": {
+          "$ref": "adapter.schema.json#/$defs/EffectAttempt"
+        }
+      },
+      "required": [
+        "scope",
+        "attempt"
+      ],
+      "additionalProperties": false
+    },
+    "Output": {
+      "type": "object",
+      "properties": {
+        "rrsets": {
+          "type": "array",
+          "items": {
+            "$ref": "dns-intent.schema.json#/$defs/RRset"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "served_generation": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "rrsets",
+        "served_generation"
+      ],
+      "additionalProperties": false
+    },
+    "Response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "deployment-tools.dns"
+            },
+            "method": {
+              "const": "plan"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "adapter.schema.json#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "deployment-tools.dns"
+            },
+            "method": {
+              "const": "publish"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "adapter.schema.json#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            },
+            "effect": {
+              "$ref": "adapter.schema.json#/$defs/EffectResult"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output",
+            "effect"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "deployment-tools.dns"
+            },
+            "method": {
+              "const": "observe"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "adapter.schema.json#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "deployment-tools.dns"
+            },
+            "method": {
+              "const": "reconcile"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "adapter.schema.json#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            },
+            "effect": {
+              "$ref": "adapter.schema.json#/$defs/EffectResult"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output",
+            "effect"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "deployment-tools.dns"
+        },
+        "method": {
+          "const": "plan"
+        },
+        "input": {
+          "$ref": "#/$defs/plan"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "deployment-tools.dns"
+        },
+        "method": {
+          "const": "publish"
+        },
+        "input": {
+          "$ref": "#/$defs/publish"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "deployment-tools.dns"
+        },
+        "method": {
+          "const": "observe"
+        },
+        "input": {
+          "$ref": "#/$defs/observe"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "deployment-tools.dns"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "input": {
+          "$ref": "#/$defs/reconcile"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

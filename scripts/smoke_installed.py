@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import importlib.metadata
 import importlib.util
 import io
 import json
@@ -38,8 +39,8 @@ def main() -> None:
     validate("source.schema.json", data)
     assert strict_json(canonical(data)) == data
     assert digest(data).startswith("sha256:")
-    if args.component in {"client", "host", "app"}:
-        tool = {"client": "domain-ops", "host": "host-ops", "app": "app-ops"}[args.component]
+    if args.component in {"domain", "host", "app"}:
+        tool = {"domain": "domain-ops", "host": "host-ops", "app": "app-ops"}[args.component]
         executable = Path(sys.executable).parent / (
             tool + ".exe" if sys.platform == "win32" else tool
         )
@@ -63,6 +64,30 @@ def main() -> None:
             timeout=15,
         )
         rejected = subprocess.run([str(executable), "apply"], capture_output=True, timeout=15)
+        assert rejected.returncode == 2
+    if selected["distribution"].startswith("a-deployment-tools-"):
+        distribution = importlib.metadata.distribution(selected["distribution"])
+        entrypoints = [
+            entry for entry in distribution.entry_points if entry.group == "console_scripts"
+        ]
+        assert len(entrypoints) == 1
+        executable = Path(sys.executable).parent / (
+            entrypoints[0].name + ".exe" if sys.platform == "win32" else entrypoints[0].name
+        )
+        result = subprocess.run(
+            [str(executable), "info", "--json"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=15,
+        )
+        info = json.loads(result.stdout)
+        assert info["native_qualified"] is False
+        rejected = subprocess.run(
+            [str(executable), "qualify", "--json"],
+            capture_output=True,
+            timeout=15,
+        )
         assert rejected.returncode == 2
     if args.component == "client":
         from deployment_tools_client.wire import frame, read_frame

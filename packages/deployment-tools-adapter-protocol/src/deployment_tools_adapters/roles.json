@@ -1,0 +1,382 @@
+{
+  "runtime": {
+    "resolve": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "materialize": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "activate": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "open"
+    },
+    "deactivate": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "closed"
+    },
+    "remove": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "closed"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "inventory": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    }
+  },
+  "compute": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "set-limits": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "storage": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "allocate": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "retire": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "capture": {
+    "assess": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "capture": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "restore": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "verify": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "backup": {
+    "store": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "retrieve": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "verify": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "delete": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "secret-source": {
+    "resolve": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "retrieve": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "publish": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "credential-issuer": {
+    "issue": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "renew": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "revoke": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "dns": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "publish": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "ingress": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "publish": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "network": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "publish": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "software": {
+    "resolve": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "install": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "retire": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "service": {
+    "plan": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "set-activity": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "repository": {
+    "resolve": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "fetch": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "publish": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "build": {
+    "build": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  },
+  "report": {
+    "append": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "observe": {
+      "effect": false,
+      "repeat": "read-only",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
+  }
+}

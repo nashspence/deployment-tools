@@ -12,7 +12,7 @@ from pathlib import Path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/contracts/src/deployment_tools_contracts/contracts/workspace.schema.json"
+        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/workspace.schema.json"
     ],
     "scope": "temporary local Git repositories",
     "relationship": "candidate",

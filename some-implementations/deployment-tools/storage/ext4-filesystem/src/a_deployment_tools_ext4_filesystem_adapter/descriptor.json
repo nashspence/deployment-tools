@@ -1,0 +1,50 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.ext4-filesystem",
+  "roles": [
+    "storage"
+  ],
+  "entrypoint": "bin/a-deployment-tools-ext4-filesystem-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "device_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "mount_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "capacity_bytes": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2147483647
+      }
+    },
+    "required": [
+      "device_handle",
+      "mount_handle",
+      "capacity_bytes"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

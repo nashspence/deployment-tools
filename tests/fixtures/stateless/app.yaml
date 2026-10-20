@@ -1,15 +1,21 @@
 format: deployment-ops/source/v2
 kind: App
 id: hello
-runtime: podman-quadlet-v1
+runtime:
+  instance: quadlet
+  source_schema_digest: sha256:01fc859dca880d33b3e32abf2175f78ab5826410ad78835e2103a33c1124caa1
+  source:
+    files:
+    - quadlet/web.container
 purpose: Synthetic stateless app
 repository_secrets: null
 components:
   web:
-    unit: quadlet/web.container
     role: primary
     profile: ordinary-v1
     purpose: Synthetic web service
+    native:
+      unit: quadlet/web.container
 interfaces:
   http:
     component: web
@@ -64,7 +70,6 @@ resources:
       bytes: 67108864
       inodes: 1024
   logs:
-    driver: k8s-file
     max_file_bytes: 10485760
     closed_retention_seconds: 604800
     overflow: bounded-loss-visible

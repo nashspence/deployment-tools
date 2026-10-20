@@ -1,0 +1,44 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.apt",
+  "roles": [
+    "software"
+  ],
+  "entrypoint": "bin/a-deployment-tools-apt-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "repository_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "package_scope": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "repository_handle",
+      "package_scope"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

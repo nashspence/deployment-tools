@@ -1,0 +1,44 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.archive-slots",
+  "roles": [
+    "software"
+  ],
+  "entrypoint": "bin/a-deployment-tools-archive-slots-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "slots_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "active_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "slots_handle",
+      "active_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

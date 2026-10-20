@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deployment-tools-adapter-protocol"
+version = "0.1.0.dev0"
+description = "Implementation-neutral closed adapter contracts and semantic validation"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["deployment-tools-contracts==0.1.0.dev0", "jsonschema==4.26.0", "referencing==0.37.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+deployment_tools_adapters = ["py.typed", "roles.json"]
+
+[tool.uv.sources]
+deployment-tools-contracts = { workspace = true }
+
+[tool.deployment-tools.component]
+id = "adapter-protocol"
+module = "deployment_tools_adapters"
+role = "adapter-protocol"

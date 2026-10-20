@@ -25,8 +25,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/directory/src/deployment_tools_directory/projection.py": "fd094609fb45989a9218b6a058d140338514dd3c0ed380c1c2c9d072d6bd45b5",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "some-implementations/deployment-tools/applications/directory/src/deployment_tools_directory/projection.py": "fd094609fb45989a9218b6a058d140338514dd3c0ed380c1c2c9d072d6bd45b5",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_directory.projection:load_directory",
       "work": "O(input_bytes)-bounded-parser-depth"
@@ -42,8 +42,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/owner-support/src/deployment_tools_owner/journal.py": "ed4d6a77cb2e46117c9cf53472cf5936fbd9c95ef81d5166602804fa829ccd07",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "deployment-tools/owner-support/src/deployment_tools_owner/journal.py": "ed4d6a77cb2e46117c9cf53472cf5936fbd9c95ef81d5166602804fa829ccd07",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_owner.journal:Journal.submit",
       "work": "O(retained_requests)-reference-scan"
@@ -68,8 +68,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.events",
       "work": "O(log(retained_events)+page_items^2*event_bytes)"
@@ -88,8 +88,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.put",
       "work": "O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan"
@@ -109,8 +109,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.workflows",
       "work": "O(retained_events*log(retained_events))-reference-grouping"
@@ -130,8 +130,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/client/src/deployment_tools_client/wire.py": "e5f48312cdd600196b65c16d98fbd431328b8694d430946a529cc095daaf4a80",
-        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
+        "packages/deployment-tools-client/src/deployment_tools_client/wire.py": "e5f48312cdd600196b65c16d98fbd431328b8694d430946a529cc095daaf4a80",
+        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
       },
       "symbol": "deployment_tools_client.wire:read_frame",
       "work": "O(frame_bytes)"
@@ -152,7 +152,7 @@
       ],
       "qualification": "reference-model",
       "revisions": {
-        "packages/owner-support/src/deployment_tools_owner/migrations/versions/v1_0001.py": "ce9e88af5d0c0501974c16f50b7dd093d1bf422035ef9828e8663f93cc444f1d"
+        "deployment-tools/owner-support/src/deployment_tools_owner/migrations/versions/v1_0001.py": "ce9e88af5d0c0501974c16f50b7dd093d1bf422035ef9828e8663f93cc444f1d"
       },
       "source": "deployment_tools_owner.migrations"
     },
@@ -169,7 +169,7 @@
       ],
       "qualification": "reference-model",
       "revisions": {
-        "packages/reporting/src/deployment_tools_reporting/migrations/versions/v1_0001.py": "6b4f94c9383dcdded4f8c36be8a99ecaf061e49d66d270e4bcae0947489601fa"
+        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/migrations/versions/v1_0001.py": "6b4f94c9383dcdded4f8c36be8a99ecaf061e49d66d270e4bcae0947489601fa"
       },
       "source": "deployment_tools_reporting.migrations"
     }

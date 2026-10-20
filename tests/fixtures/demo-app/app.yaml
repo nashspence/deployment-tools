@@ -1,25 +1,35 @@
 format: deployment-ops/source/v2
 kind: App
 id: demo-app
-runtime: podman-quadlet-v1
+runtime:
+  instance: quadlet
+  source_schema_digest: sha256:01fc859dca880d33b3e32abf2175f78ab5826410ad78835e2103a33c1124caa1
+  source:
+    files:
+    - quadlet/web.container
+    - quadlet/database.container
+    - quadlet/maintenance.container
 purpose: Synthetic stateful database-backed app
 repository_secrets: secrets.yaml
 components:
   web:
-    unit: quadlet/web.container
     role: primary
     profile: ordinary-v1
     purpose: Synthetic web service
+    native:
+      unit: quadlet/web.container
   database:
-    unit: quadlet/database.container
     role: internal
     profile: ordinary-v1
     purpose: Native database
+    native:
+      unit: quadlet/database.container
   maintenance:
-    unit: quadlet/maintenance.container
     role: maintenance
     profile: maintenance-v1
     purpose: Isolated capture/restore
+    native:
+      unit: quadlet/maintenance.container
 interfaces:
   http:
     component: web
@@ -138,7 +148,6 @@ resources:
       bytes: 67108864
       inodes: 1024
   logs:
-    driver: k8s-file
     max_file_bytes: 10485760
     closed_retention_seconds: 604800
     overflow: bounded-loss-visible

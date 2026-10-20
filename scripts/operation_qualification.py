@@ -13,7 +13,7 @@ from scripts.validation import source_identity
 
 MAP_PATH = "policy/operations.json"
 REGISTRY = "policy/operation-coverage.toml"
-CONTRACTS = "packages/contracts/src/deployment_tools_contracts/contracts/"
+CONTRACTS = "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/"
 
 
 def runtime_commands(tool: str) -> list[str]:
@@ -66,6 +66,8 @@ def inventory(root: Path = ROOT) -> tuple[dict[str, dict[str, Any]], set[str]]:
         if scripts:
             sources.add(path)
         for tool, symbol in scripts.items():
+            if component["role"] == "adapter-implementation":
+                continue
             if tool in entrypoints:
                 raise ValueError("ambiguous public entrypoint")
             entrypoints[tool] = symbol
@@ -129,7 +131,7 @@ def build_map(root: Path = ROOT) -> dict[str, Any]:
             REGISTRY,
             "release.toml",
             "policy/components.toml",
-            "packages/cli-support/src/deployment_tools_cli/validation.py",
+            "deployment-tools/cli-support/src/deployment_tools_cli/validation.py",
         }
     )
     registry = read_toml(root / REGISTRY)

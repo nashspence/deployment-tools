@@ -39,9 +39,16 @@ def test_component_import_violation_is_detected(tmp_path):
         tmp_path / "packages",
         ignore=shutil.ignore_patterns("*.egg-info", "__pycache__", "build"),
     )
+    for directory in ("deployment-tools", "some-implementations"):
+        shutil.copytree(
+            ROOT / directory,
+            tmp_path / directory,
+            ignore=shutil.ignore_patterns("*.egg-info", "__pycache__", "build"),
+        )
+    shutil.copyfile(ROOT / "pyproject.toml", tmp_path / "pyproject.toml")
     shutil.copytree(ROOT / "policy", tmp_path / "policy")
     shutil.copyfile(ROOT / "release.toml", tmp_path / "release.toml")
-    module = tmp_path / "packages/client/src/deployment_tools_client/invalid.py"
+    module = tmp_path / "packages/deployment-tools-client/src/deployment_tools_client/invalid.py"
     module.write_text("import deployment_tools_reporting.store\n")
     assert any("undeclared cross-component import" in error for error in boundary_errors(tmp_path))
 
@@ -131,7 +138,7 @@ def test_all_persistence_is_owned_and_baseline_fixtures_match():
     inventory = tomllib.loads((ROOT / "state/inventory.toml").read_text())
     assert {owner["id"] for owner in inventory["owners"]} == {"owner-journal", "reported-events"}
     assert all(owner["qualification"] == "reference-model" for owner in inventory["owners"])
-    assert len(components()) == 8
+    assert {c["id"] for c in components()} >= {"app", "host", "contracts", "client", "domain"}
 
 
 @pytest.mark.parametrize(

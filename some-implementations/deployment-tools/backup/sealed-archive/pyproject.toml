@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-deployment-tools-sealed-archive-adapter"
+version = "0.1.0.dev0"
+description = "sealed-archive adapter: closed configuration scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["deployment-tools-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-deployment-tools-sealed-archive-adapter = "a_deployment_tools_sealed_archive_adapter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_deployment_tools_sealed_archive_adapter = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+deployment-tools-adapter-support = { workspace = true }
+
+[tool.deployment-tools.component]
+id = "sealed-archive-adapter"
+module = "a_deployment_tools_sealed_archive_adapter"
+role = "adapter-implementation"

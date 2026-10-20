@@ -25,7 +25,7 @@ from tests.support import fixture_path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/contracts/src/deployment_tools_contracts/contracts/directory.schema.json"
+        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/directory.schema.json"
     ],
     "scope": "local directory projection/reference helpers",
     "relationship": "candidate",

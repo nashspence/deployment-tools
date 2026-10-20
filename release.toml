@@ -9,7 +9,7 @@ scaffold_install_tests = ["ubuntu-24.04", "macos-15", "windows-2025"]
 native_qualified_profiles = []
 
 [interfaces]
-python_modules = ["deployment_tools_contracts"]
+python_modules = ["deployment_tools_contracts", "deployment_tools_adapters"]
 cli_tools = ["domain-ops", "host-ops", "app-ops"]
 snapshot = "policy/interfaces.json"
 pre_v1_changes = "explicit-reviewed-snapshot-update"

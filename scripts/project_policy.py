@@ -18,6 +18,19 @@ def read_toml(path: Path) -> dict[str, Any]:
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
+def workspace_projects(root: Path = ROOT) -> list[Path]:
+    config = read_toml(root / "pyproject.toml")
+    patterns = config["tool"]["uv"]["workspace"]["members"]
+    return sorted(
+        {
+            p / "pyproject.toml"
+            for pattern in patterns
+            for p in root.glob(pattern)
+            if (p / "pyproject.toml").is_file()
+        }
+    )
+
+
 def components(root: Path = ROOT) -> list[dict[str, Any]]:
     return cast(list[dict[str, Any]], read_toml(root / "policy/components.toml")["components"])
 
@@ -46,6 +59,18 @@ def snapshot() -> dict[str, Any]:
                 public[module_name][name] = {
                     "kind": "class",
                     "bases": [base.__module__ + "." + base.__name__ for base in value.__bases__],
+                    "methods": {
+                        key: str(inspect.signature(method))
+                        for key, method in inspect.getmembers(value, inspect.isfunction)
+                        if not key.startswith("_") or key == "__init__"
+                    },
+                }
+            elif isinstance(value, dict):
+                public[module_name][name] = {
+                    "kind": "data",
+                    "sha256": hashlib.sha256(
+                        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+                    ).hexdigest(),
                 }
             else:
                 raise ValueError("public export needs a declared snapshot rule")
@@ -97,9 +122,7 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
     by_module = {item["module"]: item for item in units}
     by_name = {item["distribution"]: item for item in units}
     errors = []
-    actual = {
-        str(path.parent.relative_to(root)) for path in (root / "packages").glob("*/pyproject.toml")
-    }
+    actual = {str(path.parent.relative_to(root)) for path in workspace_projects(root)}
     if (
         actual != {item["path"] for item in units}
         or len(by_module) != len(units)
@@ -113,7 +136,7 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
         declared = {
             value.split("==")[0]
             for value in project["dependencies"]
-            if value.startswith("deployment-tools-")
+            if value.startswith(("deployment-tools-", "a-deployment-tools-"))
         }
         graph[item["distribution"]] = declared
         if (
@@ -121,7 +144,10 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
             or project["name"] != item["distribution"]
         ):
             errors.append(item["id"] + ": dependency metadata mismatch")
-        if project["version"] != read_toml(root / "release.toml")["version"]:
+        if (
+            item["role"] != "adapter-implementation"
+            and project["version"] != read_toml(root / "release.toml")["version"]
+        ):
             errors.append(item["id"] + ": coordinated version mismatch")
         source = root / item["path"] / "src" / item["module"]
         if not (source / "py.typed").is_file():
@@ -143,7 +169,7 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
                         and by_module[module_root]["distribution"] not in declared
                     ):
                         errors.append(item["id"] + ": undeclared cross-component import")
-                    if item["role"] == "shared-contracts" and module_root in {
+                    if item["role"] in {"shared-contracts", "adapter-protocol"} and module_root in {
                         "sqlite3",
                         "subprocess",
                         "socket",
@@ -170,10 +196,26 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
                 "host-owner-scaffold",
                 "app-owner-scaffold",
                 "owner-state",
+                "adapter-implementation",
             }
             if item["role"] == "portable-client"
-            else {"optional-reporting", "optional-discovery", "portable-client"}
+            else {"optional-reporting", "optional-discovery", "adapter-implementation"}
             if item["role"] in {"host-owner-scaffold", "app-owner-scaffold", "owner-state"}
+            else {
+                "app-owner-scaffold",
+                "host-owner-scaffold",
+                "owner-state",
+                "adapter-implementation",
+            }
+            if item["role"] in {"shared-contracts", "adapter-protocol", "adapter-support"}
+            else {
+                "app-owner-scaffold",
+                "host-owner-scaffold",
+                "owner-state",
+                "portable-client",
+                "adapter-implementation",
+            }
+            if item["role"] == "adapter-implementation"
             else set()
         )
         if any(by_name[name]["role"] in forbidden for name in seen if name in by_name):
@@ -204,6 +246,8 @@ def fixture_history_errors(root: Path) -> list[str]:
                 "--",
                 "state/fixtures",
                 "packages/*/src/*/migrations/versions/v*.py",
+                "deployment-tools/*/src/*/migrations/versions/v*.py",
+                "some-implementations/**/src/*/migrations/versions/v*.py",
             ],
             cwd=root,
             capture_output=True,
@@ -224,6 +268,12 @@ def fixture_history_errors(root: Path) -> list[str]:
             ["git", "show", introduced + ":" + name], cwd=root, capture_output=True, check=True
         ).stdout
         path = root / name
+        if not path.is_file() and "/src/" in name and (root / "pyproject.toml").exists():
+            suffix = name.split("/src/", 1)[1]
+            candidates = [p.parent / "src" / suffix for p in workspace_projects(root)]
+            candidates = [p for p in candidates if p.is_file()]
+            if len(candidates) == 1:
+                path = candidates[0]
         if not path.is_file() or path.is_symlink() or path.read_bytes() != original:
             errors.append("immutable state fixture/migration changed or removed: " + name)
     return errors

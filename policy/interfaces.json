@@ -44,32 +44,47 @@
           "choices": [
             "actions.schema.json",
             "adapter.schema.json",
+            "backup-adapter.schema.json",
             "bootstrap-catalogue.schema.json",
             "bootstrap-recovery.schema.json",
+            "build-adapter.schema.json",
             "bundle-manifest.schema.json",
+            "capture-adapter.schema.json",
             "cli-output.schema.json",
             "client-records.schema.json",
             "common.schema.json",
+            "compute-adapter.schema.json",
+            "credential-issuer-adapter.schema.json",
             "directory-release.schema.json",
             "directory-result.schema.json",
             "directory-runtime.schema.json",
             "directory.schema.json",
+            "dns-adapter.schema.json",
             "dns-changes.schema.json",
             "dns-intent.schema.json",
             "hook-request.schema.json",
             "hook-result.schema.json",
+            "ingress-adapter.schema.json",
             "install-bundle.schema.json",
+            "network-adapter.schema.json",
             "onboarding.schema.json",
             "publisher-receipt.schema.json",
             "readiness.schema.json",
             "receipts-service.schema.json",
             "records.schema.json",
             "recovery-set.schema.json",
+            "report-adapter.schema.json",
+            "repository-adapter.schema.json",
             "resource-records.schema.json",
             "resources.schema.json",
+            "runtime-adapter.schema.json",
+            "secret-source-adapter.schema.json",
+            "service-adapter.schema.json",
+            "software-adapter.schema.json",
             "source.schema.json",
             "ssh-request.schema.json",
             "ssh-response.schema.json",
+            "storage-adapter.schema.json",
             "test-suite.schema.json",
             "tool-release.schema.json",
             "tracking-profile.schema.json",
@@ -132,12 +147,61 @@
   },
   "format": "deployment-tools-interface-snapshot/v1",
   "python": {
+    "deployment_tools_adapters": {
+      "ROLES": {
+        "kind": "data",
+        "sha256": "aec16a3b4c13f9081e5faf966a3f6ed8421a020a7c39d637236bc0b63a27b7bf"
+      },
+      "Registry": {
+        "bases": [
+          "builtins.object"
+        ],
+        "kind": "class",
+        "methods": {
+          "__init__": "(self) -> 'None'",
+          "authorize": "(self, instance_id: 'str', role: 'str', method: 'str', scope: 'dict[str, Any]', *, owner_approved: 'bool') -> 'dict[str, Any]'",
+          "enroll": "(self, instance: 'dict[str, Any]', *, owner_approved: 'bool') -> 'None'",
+          "inspect_instance": "(self, instance_id: 'str') -> 'dict[str, Any]'",
+          "install": "(self, installation: 'dict[str, Any]', descriptor: 'dict[str, Any]', *, owner_approved: 'bool') -> 'None'",
+          "resolve": "(self, selection: 'dict[str, Any]', components: 'dict[str, Any]') -> 'dict[str, Any]'"
+        }
+      },
+      "check_configuration": {
+        "kind": "function",
+        "signature": "(schema: 'dict[str, Any]', value: 'Any', expected_digest: 'str') -> 'None'"
+      },
+      "check_descriptor": {
+        "kind": "function",
+        "signature": "(value: 'dict[str, Any]') -> 'None'"
+      },
+      "check_request": {
+        "kind": "function",
+        "signature": "(role: 'str', value: 'dict[str, Any]') -> 'None'"
+      },
+      "check_response": {
+        "kind": "function",
+        "signature": "(role: 'str', request: 'dict[str, Any]', response: 'dict[str, Any]', *, attempt: 'dict[str, Any] | None' = None) -> 'None'"
+      },
+      "check_result": {
+        "kind": "function",
+        "signature": "(attempt: 'dict[str, Any]', result: 'dict[str, Any]') -> 'None'"
+      },
+      "check_schema": {
+        "kind": "function",
+        "signature": "(schema: 'dict[str, Any]') -> 'None'"
+      },
+      "require_qualification": {
+        "kind": "function",
+        "signature": "(value: 'dict[str, Any]', *, expected: 'dict[str, str]', required_cases: 'set[str]', trusted_runner: 'str') -> 'None'"
+      }
+    },
     "deployment_tools_contracts": {
       "ContractError": {
         "bases": [
           "builtins.ValueError"
         ],
-        "kind": "class"
+        "kind": "class",
+        "methods": {}
       },
       "canonical": {
         "kind": "function",
@@ -168,7 +232,11 @@
     },
     "adapter.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/adapter.schema.json",
-      "sha256": "17f38f721be2de992e55340b587c19fcf6d8e88ff10e7980644c02158090e9fe"
+      "sha256": "508b07f6711c2e853725d52b9743eb2a351082de81b42526208b810f3ca86526"
+    },
+    "backup-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/backup-adapter.schema.json",
+      "sha256": "1f47e2453a04743cae424d9224d55d2e46f030cec082a6eedac30b99a634b9ce"
     },
     "bootstrap-catalogue.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/bootstrap-catalogue.schema.json",
@@ -178,9 +246,17 @@
       "id": "https://deployment-tools.invalid/contracts/bootstrap-recovery.schema.json",
       "sha256": "672b1f45ee53659b3c6ea6f0be24485684f91e7679e862f85d894ef06f58e9ac"
     },
+    "build-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/build-adapter.schema.json",
+      "sha256": "efb65dda7105ac6476ef748ee97e0a276201cd2a7cf481c5f515b291a3a4ef50"
+    },
     "bundle-manifest.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/bundle-manifest.schema.json",
       "sha256": "8e97aeb9a8150f1243615d5e82a27fcaebfc5f17323d1b8f52dc63a1b78d2a03"
+    },
+    "capture-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/capture-adapter.schema.json",
+      "sha256": "29627a278966944440716f7f5bf1184be7b6b8f003e9e272589e4a84fad2e022"
     },
     "cli-output.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/cli-output.schema.json",
@@ -193,6 +269,14 @@
     "common.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/common.schema.json",
       "sha256": "95f1b3c1f81cafa8a472f9c26734628731da2080c396f183e453308c7d10819e"
+    },
+    "compute-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/compute-adapter.schema.json",
+      "sha256": "c34f170912198fdabb92268a5eb77ace0910b33d37c9bff2394003e6674764a8"
+    },
+    "credential-issuer-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/credential-issuer-adapter.schema.json",
+      "sha256": "ac7c1cd8a0f73ab81b0e51706db6cead0b92d2b55c416b6cd03d869860b4c1d9"
     },
     "directory-release.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/directory-release.schema.json",
@@ -210,13 +294,17 @@
       "id": "https://deployment-tools.invalid/contracts/directory.schema.json",
       "sha256": "747f1d4fa1fe61d6cdf5c29a6eb5d6b63945d7590739e919e2968b8d485b674c"
     },
+    "dns-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/dns-adapter.schema.json",
+      "sha256": "60b239ec558dcc42955374c4d20941e65def15a446ad1a08c800ff4e8bd63e52"
+    },
     "dns-changes.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/dns-changes.schema.json",
-      "sha256": "ccd444f24b7818ca72e01b7b7bdb820fdd5f060c16d2138ee7ee9a796425180d"
+      "sha256": "42737f783ede04598f033e9387d028efc8532fa08c9618b27e5988781fdfa639"
     },
     "dns-intent.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/dns-intent.schema.json",
-      "sha256": "a996613780f767b54b9f3565359cb5a7d969de411ecf2309740464acab3e1c8d"
+      "sha256": "0c5cdb9b1fd5a92541422a1125c36a78725f6e02070a13b6e975fb7473fb4f62"
     },
     "hook-request.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/hook-request.schema.json",
@@ -226,9 +314,17 @@
       "id": "https://deployment-tools.invalid/contracts/hook-result.schema.json",
       "sha256": "c9d4d8d894e04e1fa31752e90ef6a09acd1f5a7e936aa16a7ea794a641c05874"
     },
+    "ingress-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/ingress-adapter.schema.json",
+      "sha256": "02d675ebde30076684c98b64db5aa4a06fc64860e2301117a308eef6c2af9e06"
+    },
     "install-bundle.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/install-bundle.schema.json",
       "sha256": "223ccef9277fb375bdcf1c38d5762d5b9c606053e9c86fcd2ca38c358680d498"
+    },
+    "network-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/network-adapter.schema.json",
+      "sha256": "bdaf62784f3fbdca99a07e3752717445cb2d916058bbeaffad56b68ad80bdebb"
     },
     "onboarding.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/onboarding.schema.json",
@@ -248,11 +344,19 @@
     },
     "records.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/records.schema.json",
-      "sha256": "f78abf9ed652e73b77cdf9b1f26a5b151f1a9d481f1d300378e19f124d07d5aa"
+      "sha256": "6535afbec50a8147977692d5a40f21da438b0e226ed51284d386f8a8f0592915"
     },
     "recovery-set.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/recovery-set.schema.json",
       "sha256": "b9e3552c023e2684a6ef22a7a9ec003f777a35e4baab95310408df88ea3047ef"
+    },
+    "report-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/report-adapter.schema.json",
+      "sha256": "fc1e07ae6c4a9446d05910dfb140c43bc1b1a9ac38500cf0a67860c15157295f"
+    },
+    "repository-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/repository-adapter.schema.json",
+      "sha256": "fbe335c511520a4c400fc4bcd093b37c482494713ff4b5307943500b4bcb4211"
     },
     "resource-records.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/resource-records.schema.json",
@@ -260,11 +364,27 @@
     },
     "resources.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/resources.schema.json",
-      "sha256": "a1d16d63acc44286e3ca97316fe780c59bdc2aefb2a09f70bb2905cbdad7ac6a"
+      "sha256": "c7b99fd704145e31d8ce5965b1bee2f4d4e40b31a37dd8594f3e7c8d98777440"
+    },
+    "runtime-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/runtime-adapter.schema.json",
+      "sha256": "b2f8802cd8af42ab758a7a02566715abc0c8c459d827a922e69e4cd9d28cbbac"
+    },
+    "secret-source-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/secret-source-adapter.schema.json",
+      "sha256": "bf713b73112deaaa0ac93673dbbdb4c772a946e0e6a205330c6486d8a19405fb"
+    },
+    "service-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/service-adapter.schema.json",
+      "sha256": "de4ee5f9471b01d404bf20494c525a49e9a7327b2ee80bb3c798d9cd953a446c"
+    },
+    "software-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/software-adapter.schema.json",
+      "sha256": "0be50aa51028fd7f8eb110a554dba212d57d1ef64c47e29187f63856609dba82"
     },
     "source.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/source.schema.json",
-      "sha256": "3af0f0321956c092a9c6f5b7071bdf676c1a26ff1b5e6234716778814e9f01b0"
+      "sha256": "946f9b4185c4296614223cc1b517d033c0f1e2957cd16eb74d88ca849946af23"
     },
     "ssh-request.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/ssh-request.schema.json",
@@ -273,6 +393,10 @@
     "ssh-response.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/ssh-response.schema.json",
       "sha256": "0291bb7bd7f9d527c24e19d816df0bd086d485b93af0e8e52c710341155cee4b"
+    },
+    "storage-adapter.schema.json": {
+      "id": "https://deployment-tools.invalid/contracts/storage-adapter.schema.json",
+      "sha256": "66c39a9da6572ff836e54ccbf23d548aaa90470d949be95afab0f7cce187db16"
     },
     "test-suite.schema.json": {
       "id": "https://deployment-tools.invalid/contracts/test-suite.schema.json",

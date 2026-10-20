@@ -8,11 +8,47 @@ resolution-markers = [
 
 [manifest]
 members = [
+    "a-deployment-tools-apt-adapter",
+    "a-deployment-tools-archive-slots-adapter",
+    "a-deployment-tools-bind-rfc2136-adapter",
+    "a-deployment-tools-buildah-adapter",
+    "a-deployment-tools-buildkit-adapter",
+    "a-deployment-tools-caddy-adapter",
+    "a-deployment-tools-delegated-cgroup-adapter",
+    "a-deployment-tools-dnsmasq-appliance-adapter",
+    "a-deployment-tools-docker-compose-runtime",
+    "a-deployment-tools-ext4-filesystem-adapter",
+    "a-deployment-tools-firewalld-adapter",
+    "a-deployment-tools-forgejo-adapter",
+    "a-deployment-tools-forgejo-age-adapter",
+    "a-deployment-tools-forgejo-issues-adapter",
+    "a-deployment-tools-git-ssh-adapter",
+    "a-deployment-tools-homebrew-adapter",
+    "a-deployment-tools-jsonl-adapter",
+    "a-deployment-tools-launchd-adapter",
+    "a-deployment-tools-nftables-adapter",
+    "a-deployment-tools-nginx-adapter",
+    "a-deployment-tools-openbao-database-adapter",
+    "a-deployment-tools-openbao-kv-adapter",
+    "a-deployment-tools-podman-quadlet-runtime",
+    "a-deployment-tools-postgresql-capture-adapter",
+    "a-deployment-tools-postgresql-credential-issuer-adapter",
+    "a-deployment-tools-procd-adapter",
+    "a-deployment-tools-quiesced-files-adapter",
+    "a-deployment-tools-restic-adapter",
+    "a-deployment-tools-sealed-archive-adapter",
+    "a-deployment-tools-systemd-adapter",
+    "a-deployment-tools-systemd-cgroup-adapter",
+    "a-deployment-tools-systemd-native-runtime",
+    "a-deployment-tools-xfs-project-adapter",
+    "deployment-tools-adapter-protocol",
+    "deployment-tools-adapter-support",
     "deployment-tools-app",
     "deployment-tools-cli-support",
     "deployment-tools-client",
     "deployment-tools-contracts",
     "deployment-tools-directory",
+    "deployment-tools-domain",
     "deployment-tools-host",
     "deployment-tools-owner-support",
     "deployment-tools-reporting",
@@ -36,6 +72,393 @@ dev = [
     { name = "types-psutil", specifier = ">=7,<8" },
     { name = "types-pyyaml", specifier = ">=6,<7" },
 ]
+
+[[package]]
+name = "a-deployment-tools-apt-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/software/apt" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-archive-slots-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/software/archive-slots" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-bind-rfc2136-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/dns/bind-rfc2136" }
+dependencies = [
+    { name = "deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+]
+
+[[package]]
+name = "a-deployment-tools-buildah-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/builds/buildah" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-buildkit-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/builds/buildkit" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-caddy-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/ingress/caddy" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-delegated-cgroup-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/compute/delegated-cgroup" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-dnsmasq-appliance-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/dns/dnsmasq-appliance" }
+dependencies = [
+    { name = "deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+]
+
+[[package]]
+name = "a-deployment-tools-docker-compose-runtime"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/runtimes/docker-compose" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-ext4-filesystem-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/storage/ext4-filesystem" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-firewalld-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/network/firewalld" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-forgejo-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/repositories/forgejo" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-forgejo-age-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/secrets/forgejo-age" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-forgejo-issues-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/reporting/forgejo-issues" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-git-ssh-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/repositories/git-ssh" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-homebrew-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/software/homebrew" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-jsonl-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/reporting/jsonl" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-launchd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/services/launchd" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-nftables-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/network/nftables" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-nginx-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/ingress/nginx" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-openbao-database-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/credentials/openbao-database" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-openbao-kv-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/secrets/openbao-kv" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-podman-quadlet-runtime"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/runtimes/podman-quadlet" }
+dependencies = [
+    { name = "deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+]
+
+[[package]]
+name = "a-deployment-tools-postgresql-capture-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/capture/postgresql" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-postgresql-credential-issuer-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/credentials/postgresql" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-procd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/services/procd" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-quiesced-files-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/capture/quiesced-files" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-restic-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/backup/restic" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-sealed-archive-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/backup/sealed-archive" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-systemd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/services/systemd" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-systemd-cgroup-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/compute/systemd-cgroup" }
+dependencies = [
+    { name = "deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+]
+
+[[package]]
+name = "a-deployment-tools-systemd-native-runtime"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/runtimes/systemd-native" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+
+[[package]]
+name = "a-deployment-tools-xfs-project-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/deployment-tools/storage/xfs-project" }
+dependencies = [
+    { name = "deployment-tools-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "alembic"
@@ -518,9 +941,41 @@ wheels = [
 ]
 
 [[package]]
+name = "deployment-tools-adapter-protocol"
+version = "0.1.0.dev0"
+source = { editable = "packages/deployment-tools-adapter-protocol" }
+dependencies = [
+    { name = "deployment-tools-contracts" },
+    { name = "jsonschema" },
+    { name = "referencing" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "jsonschema", specifier = "==4.26.0" },
+    { name = "referencing", specifier = "==0.37.0" },
+]
+
+[[package]]
+name = "deployment-tools-adapter-support"
+version = "0.1.0.dev0"
+source = { editable = "packages/deployment-tools-adapter-support" }
+dependencies = [
+    { name = "deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+]
+
+[[package]]
 name = "deployment-tools-app"
 version = "0.1.0.dev0"
-source = { editable = "packages/app" }
+source = { editable = "deployment-tools/app-ops" }
 dependencies = [
     { name = "deployment-tools-cli-support" },
     { name = "deployment-tools-owner-support" },
@@ -528,40 +983,36 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "packages/cli-support" },
-    { name = "deployment-tools-owner-support", editable = "packages/owner-support" },
+    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
+    { name = "deployment-tools-owner-support", editable = "deployment-tools/owner-support" },
 ]
 
 [[package]]
 name = "deployment-tools-cli-support"
 version = "0.1.0.dev0"
-source = { editable = "packages/cli-support" }
+source = { editable = "deployment-tools/cli-support" }
 dependencies = [
     { name = "deployment-tools-contracts" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/contracts" }]
+requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
 
 [[package]]
 name = "deployment-tools-client"
 version = "0.1.0.dev0"
-source = { editable = "packages/client" }
+source = { editable = "packages/deployment-tools-client" }
 dependencies = [
-    { name = "deployment-tools-cli-support" },
     { name = "deployment-tools-contracts" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "packages/cli-support" },
-    { name = "deployment-tools-contracts", editable = "packages/contracts" },
-]
+requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
 
 [[package]]
 name = "deployment-tools-contracts"
 version = "0.1.0.dev0"
-source = { editable = "packages/contracts" }
+source = { editable = "packages/deployment-tools-contracts" }
 dependencies = [
     { name = "cryptography" },
     { name = "jsonschema" },
@@ -580,7 +1031,7 @@ requires-dist = [
 [[package]]
 name = "deployment-tools-directory"
 version = "0.1.0.dev0"
-source = { editable = "packages/directory" }
+source = { editable = "some-implementations/deployment-tools/applications/directory" }
 dependencies = [
     { name = "deployment-tools-contracts" },
     { name = "pyyaml" },
@@ -588,14 +1039,29 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-contracts", editable = "packages/contracts" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
     { name = "pyyaml", specifier = "==6.0.3" },
+]
+
+[[package]]
+name = "deployment-tools-domain"
+version = "0.1.0.dev0"
+source = { editable = "deployment-tools/domain-ops" }
+dependencies = [
+    { name = "deployment-tools-cli-support" },
+    { name = "deployment-tools-client" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
+    { name = "deployment-tools-client", editable = "packages/deployment-tools-client" },
 ]
 
 [[package]]
 name = "deployment-tools-host"
 version = "0.1.0.dev0"
-source = { editable = "packages/host" }
+source = { editable = "deployment-tools/host-ops" }
 dependencies = [
     { name = "deployment-tools-cli-support" },
     { name = "deployment-tools-owner-support" },
@@ -603,16 +1069,17 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "packages/cli-support" },
-    { name = "deployment-tools-owner-support", editable = "packages/owner-support" },
+    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
+    { name = "deployment-tools-owner-support", editable = "deployment-tools/owner-support" },
 ]
 
 [[package]]
 name = "deployment-tools-owner-support"
 version = "0.1.0.dev0"
-source = { editable = "packages/owner-support" }
+source = { editable = "deployment-tools/owner-support" }
 dependencies = [
     { name = "alembic" },
+    { name = "deployment-tools-adapter-protocol" },
     { name = "deployment-tools-contracts" },
     { name = "sqlalchemy" },
 ]
@@ -620,14 +1087,15 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18,<2" },
-    { name = "deployment-tools-contracts", editable = "packages/contracts" },
+    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]
 
 [[package]]
 name = "deployment-tools-reporting"
 version = "0.1.0.dev0"
-source = { editable = "packages/reporting" }
+source = { editable = "some-implementations/deployment-tools/applications/receipts" }
 dependencies = [
     { name = "alembic" },
     { name = "deployment-tools-contracts" },
@@ -637,7 +1105,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18,<2" },
-    { name = "deployment-tools-contracts", editable = "packages/contracts" },
+    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]
 

@@ -1,0 +1,51 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "deployment-tools.buildkit",
+  "roles": [
+    "build"
+  ],
+  "entrypoint": "bin/a-deployment-tools-buildkit-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "endpoint_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "account_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "output_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "endpoint_handle",
+      "account_handle",
+      "output_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

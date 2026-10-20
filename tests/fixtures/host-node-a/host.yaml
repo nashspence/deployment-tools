@@ -2,7 +2,6 @@ format: deployment-ops/source/v2
 kind: Host
 id: node-a
 platform: linux
-runtime_profile: qualified-linux
 repository_secrets: secrets.yaml
 concerns:
   base:
@@ -40,10 +39,10 @@ concerns:
         reason: Synthetic service
 app_accounts:
   demo-app:
-    runtime: podman-quadlet-v1
     device_groups: []
     reason: Synthetic app allocation
     resource_account: app-demo-app
+    runtime_instance: quadlet
 grants:
   demo-app-data:
     app: demo-app
@@ -52,7 +51,6 @@ grants:
     resources:
     - dataset:demo-app-state
     reason: Synthetic app dataset
-adapters: {}
 access: []
 receipt_public_keys: {}
 resources:
@@ -184,3 +182,22 @@ resources:
     gc_memory_max_bytes: 134217728
     gc_interval_seconds: 21600
     gc_jitter_seconds: 300
+platform_profile: qualified-linux
+adapter_instances:
+  quadlet:
+    id: quadlet
+    implementation: deployment-tools.podman-quadlet
+    installation_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    role: runtime
+    schema_digest: sha256:e4bbe3fdf024f1cfee743e997f83e95348c3ac49fa64312968f846f897660058
+    configuration:
+      account: app-demo-app
+    grants:
+    - scope:
+        authority: 00000000-0000-4000-8000-000000000001
+        kind: application
+        handle: demo-app
+      access:
+      - observe
+      - change
+    generation: 1

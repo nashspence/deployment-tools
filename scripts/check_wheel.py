@@ -25,7 +25,8 @@ def check_wheels(directory: Path) -> None:
             found.add(name)
             unit = expected[name]
             if (
-                metadata["Version"] != read_toml(ROOT / "release.toml")["version"]
+                metadata["Version"]
+                != read_toml(ROOT / unit["path"] / "pyproject.toml")["project"]["version"]
                 or metadata["License-Expression"] != "Apache-2.0"
             ):
                 raise ValueError("wheel version or license metadata mismatch")
