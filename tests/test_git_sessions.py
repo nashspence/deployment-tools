@@ -9,6 +9,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/workspace.schema.json"
+    ],
+    "scope": "temporary local Git repositories",
+    "relationship": "candidate",
+    "reason": "Real Git fixture clone/fetch/bundle behavior; not the public session CLI, remote custody or native recovery.",
+    "claims": [],
+}
+
 
 @unittest.skipUnless(shutil.which("git"), "local Git fixture prerequisites missing")
 class GitWorkspaceTests(unittest.TestCase):

@@ -1,5 +1,8 @@
 format = "deployment-tools-operation-bindings/v1"
 
+[interfaces]
+tests = ["tests/test_component_policy.py::test_components_and_public_contracts_are_current"]
+
 [[implementations]]
 id = "cli:domain-ops:info"
 stage = "scaffold"

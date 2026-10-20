@@ -7,6 +7,15 @@ import yaml
 
 from tests.support import ROOT
 
+CHECK_PURPOSE = {
+    "purpose": "repository-policy",
+    "authority": [".github/workflows/ci.yml"],
+    "scope": "workflow and hook policy",
+    "relationship": "no-product-claim",
+    "reason": "Required workflow configuration and refusal guards, not execution of the selected native services.",
+    "claims": [],
+}
+
 
 class WorkflowSafety(unittest.TestCase):
     @classmethod
@@ -29,6 +38,10 @@ class WorkflowSafety(unittest.TestCase):
         self.assertIn(
             'uv run --locked --all-packages --group dev --python "${{ matrix.python }}"', commands
         )
+        report = next(
+            line for line in commands.splitlines() if "scripts.engineering report" in line
+        )
+        self.assertIn('--python "${{ matrix.python }}"', report)
 
     def test_no_privileged_pr_target(self):
         self.assertNotIn("pull_request_target", self.workflow["on"])

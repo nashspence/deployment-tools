@@ -26,7 +26,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/directory/src/deployment_tools_directory/projection.py": "fd094609fb45989a9218b6a058d140338514dd3c0ed380c1c2c9d072d6bd45b5",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_directory.projection:load_directory",
       "work": "O(input_bytes)-bounded-parser-depth"
@@ -43,7 +43,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/owner-support/src/deployment_tools_owner/journal.py": "ed4d6a77cb2e46117c9cf53472cf5936fbd9c95ef81d5166602804fa829ccd07",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_owner.journal:Journal.submit",
       "work": "O(retained_requests)-reference-scan"
@@ -69,7 +69,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.events",
       "work": "O(log(retained_events)+page_items^2*event_bytes)"
@@ -89,7 +89,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.put",
       "work": "O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan"
@@ -110,7 +110,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/reporting/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_reporting.store:EventStore.workflows",
       "work": "O(retained_events*log(retained_events))-reference-grouping"
@@ -131,7 +131,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/client/src/deployment_tools_client/wire.py": "e5f48312cdd600196b65c16d98fbd431328b8694d430946a529cc095daaf4a80",
-        "tests/test_engineering.py": "0ee800d85123a12adb4d31c39cf42b3b21ecfdd129d5275afa3081aa92980f5e"
+        "tests/test_engineering.py": "c2b774cad20dbe3f9d31f086c6d293d9578a84d6ce517a5bbd5f0061925cce1e"
       },
       "symbol": "deployment_tools_client.wire:read_frame",
       "work": "O(frame_bytes)"

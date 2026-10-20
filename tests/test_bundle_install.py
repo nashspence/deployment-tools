@@ -8,6 +8,15 @@ import pytest
 
 from scripts.bundle_install import install, sha256, verify
 
+CHECK_PURPOSE = {
+    "purpose": "validation-tooling",
+    "authority": ["scripts/bundle_install.py"],
+    "scope": "local scaffold installer",
+    "relationship": "no-product-claim",
+    "reason": "Synthetic bundles test hash, path and offline installation guards; no native activation promise.",
+    "claims": [],
+}
+
 
 def bundle_fixture(root):
     (root / "wheels").mkdir()

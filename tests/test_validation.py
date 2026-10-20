@@ -9,6 +9,15 @@ import pytest
 from scripts import validation
 from scripts.project_policy import ROOT
 
+CHECK_PURPOSE = {
+    "purpose": "validation-tooling",
+    "authority": ["scripts/validation.py"],
+    "scope": "receipt runner",
+    "relationship": "no-product-claim",
+    "reason": "Actual child executions and synthetic repositories verify source, selection, outcomes and retention; no deployment effect is established.",
+    "claims": [],
+}
+
 
 @pytest.fixture
 def checkout(tmp_path, monkeypatch):
@@ -21,10 +30,37 @@ def checkout(tmp_path, monkeypatch):
         ROOT / "scripts/validation_pytest.py", tmp_path / "scripts/validation_pytest.py"
     )
     shutil.copyfile(ROOT / "scripts/run_stats.py", tmp_path / "scripts/run_stats.py")
+    shutil.copyfile(ROOT / "scripts/check_evidence.py", tmp_path / "scripts/check_evidence.py")
+    (tmp_path / "Makefile").write_text("# check-purpose: validation-tooling\nunit:\n")
     (tmp_path / "policy").mkdir()
     shutil.copyfile(ROOT / "policy/performance.toml", tmp_path / "policy/performance.toml")
     (tmp_path / "tests").mkdir()
     (tmp_path / "tests/test_example.py").write_text("def test_pass():\n    assert True\n")
+    from scripts.check_evidence import FORMAT, encode_inventory, entrypoints, fingerprint
+
+    group = {
+        "purpose": "validation-tooling",
+        "authority": ["Makefile"],
+        "scope": "synthetic runner fixture",
+        "relationship": "no-product-claim",
+        "reason": "Controlled child outcomes exercise receipt integrity",
+        "claims": [],
+    }
+    (tmp_path / "conftest.py").write_text(
+        "def pytest_collection_modifyitems(items):\n"
+        f"    for item in items: item.module.CHECK_PURPOSE = {group!r}\n"
+    )
+    (tmp_path / "policy/checks.json").write_text(
+        json.dumps(
+            encode_inventory(
+                {
+                    "format": FORMAT,
+                    "entrypoints": entrypoints(tmp_path),
+                    "pytest": {"tests/test_example.py::test_pass": fingerprint({"check": group})},
+                }
+            )
+        )
+    )
     subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
     subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
     subprocess.run(

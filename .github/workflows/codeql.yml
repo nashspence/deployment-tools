@@ -18,6 +18,10 @@ concurrency:
 
 jobs:
   analyze:
+    env:
+      CHECK_PURPOSES: repository-policy
+      CHECK_SCOPE: repository checks; no product or native qualification
+      CHECK_AUTHORITY: release.toml
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-24.04
     timeout-minutes: 20

@@ -22,6 +22,18 @@ from deployment_tools_directory.projection import (
 
 from tests.support import fixture_path
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": [
+        "packages/contracts/src/deployment_tools_contracts/contracts/directory.schema.json"
+    ],
+    "scope": "local directory projection/reference helpers",
+    "relationship": "candidate",
+    "reason": "Synthetic input, projection, origin and listener decisions; no running discovery service or network admission is qualified.",
+    "claims": [],
+}
+
+
 R = Path(__file__).resolve().parents[1]
 
 

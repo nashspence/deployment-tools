@@ -19,6 +19,16 @@ from scripts.engineering import declarations
 from tests.support import FIXTURES
 from tests.test_component_policy import restore_fixture
 
+CHECK_PURPOSE = {
+    "purpose": "implementation",
+    "authority": ["release.toml"],
+    "scope": "reference-model engineering checks",
+    "relationship": "candidate",
+    "reason": "Fixed fixture identities/counts, bounded I/O, SQLite VM work and crash subprocesses establish only the recorded local model behavior.",
+    "claims": [],
+}
+
+
 OWNER = "00000000-0000-4000-8000-000000000001"
 EPOCH = "00000000-0000-4000-8000-000000000002"
 REQUEST = "00000000-0000-4000-8000-000000000003"
@@ -345,3 +355,91 @@ def test_event_byte_capacity_continues_or_rejects_explicitly(tmp_path):
         assert store.db.execute("SELECT count(*) FROM events").fetchone() == (80,)
     finally:
         store.close()
+
+
+CHECK_OVERRIDES = {
+    "test_frame_work_tracks_current_frame_not_stream_extent": {
+        "purpose": "implementation",
+        "authority": ["packages/client/src/deployment_tools_client/wire.py#read_frame"],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:wire.read-frame"],
+    },
+    "test_directory_capacity_is_rejection_not_silent_truncation": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/directory/src/deployment_tools_directory/projection.py#load_directory"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:directory.load"],
+    },
+    "test_journal_reference_scan_and_replay_identity": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/owner-support/src/deployment_tools_owner/journal.py#Journal.submit"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:journal.submit"],
+    },
+    "test_owner_crash_replay_preserves_state": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/owner-support/src/deployment_tools_owner/journal.py#Journal.submit"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:journal.submit"],
+    },
+    "test_reporting_capacity_rejects_new_identity_but_allows_replay": {
+        "purpose": "implementation",
+        "authority": ["packages/reporting/src/deployment_tools_reporting/store.py#EventStore.put"],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:reporting.put"],
+    },
+    "test_reporting_crash_replay_preserves_committed_event": {
+        "purpose": "implementation",
+        "authority": ["packages/reporting/src/deployment_tools_reporting/store.py#EventStore.put"],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:reporting.put"],
+    },
+    "test_event_pages_use_bounded_indexed_work_and_preserve_full_extent": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/reporting/src/deployment_tools_reporting/store.py#EventStore.events"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:reporting.events"],
+    },
+    "test_event_byte_capacity_continues_or_rejects_explicitly": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/reporting/src/deployment_tools_reporting/store.py#EventStore.events"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:reporting.events"],
+    },
+    "test_workflow_pagination_preserves_logical_extent": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/reporting/src/deployment_tools_reporting/store.py#EventStore.workflows"
+        ],
+        "scope": "local reference model; no native deployment or recovery",
+        "relationship": "scoped-witness",
+        "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
+        "claims": ["engineering:reporting.workflows"],
+    },
+}
