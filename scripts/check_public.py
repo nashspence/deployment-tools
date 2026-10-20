@@ -157,7 +157,7 @@ def run(history: bool = False, denylist: str | None = None) -> int:
     for name in names:
         p = Path(name)
         if any(part in BLOCKED_PARTS for part in p.parts) or (
-            p.suffix in BLOCKED_SUFFIX and name != "README.md"
+            p.suffix in BLOCKED_SUFFIX and name not in {"README.md", "AGENTS.md"}
         ):
             problems.append(f"{name}: forbidden public path")
         full = ROOT / name

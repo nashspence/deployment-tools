@@ -15,3 +15,5 @@ Deployment-tools is intended to connect three things that tend to become separat
 These alternatives can be extended or combined. The reason to build deployment-tools is to make the agreement between configuration, application data, and recoverable local work reusable and testable—not to claim that the individual capabilities are new.
 
 That remains an intended distinction, not a demonstrated reliability advantage: deployment-tools is currently a reference scaffold, without production-qualified native management.
+
+Interested in working on deployment-tools? Continue with the [Developer guide](AGENTS.md) for repository-wide development guidance.
