@@ -19,3 +19,36 @@ def test_dependabot_public_signoff_is_allowed_only_in_commit_messages():
     signoff = "Signed-off-by: dependabot[bot] <support@" + "github.com>"
     assert check_text("commit", "\n\n" + signoff, git_commit=True) == []
     assert check_text("source", signoff)
+
+
+def test_working_readme_exception_preserves_other_path_and_content_checks(tmp_path, monkeypatch):
+    import scripts.check_public as scanner
+
+    names = ["README.md"]
+    monkeypatch.setattr(scanner, "ROOT", tmp_path)
+    monkeypatch.setattr(scanner, "git", lambda *args: b"\0".join(name.encode() for name in names))
+    readme = tmp_path / "README.md"
+    readme.write_text("Working overview\n")
+    assert scanner.run() == 0
+    readme.write_text("https://" + "private-domain.internal/path\n")
+    assert scanner.run() == 1
+    readme.write_text("Working overview\n")
+    for name in ("notes.md", "packages/example/README.md", "docs/README.md"):
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("Additional documentation\n")
+        names[:] = ["README.md", name]
+        assert scanner.run() == 1
+
+
+def test_markdown_links_receive_destination_checks():
+    assert check_text("README.md", "[reference](https://" + "private-domain.internal/path)")
+    for url in (
+        "https://docs.ansible.com/projects/ansible/latest/getting_started/basic_concepts.html",
+        "https://pyinfra.com/",
+        "https://kamal-deploy.org/",
+        "https://komo.do/docs/intro",
+        "https://coolify.io/docs/core/how-coolify-works",
+        "https://doc.yunohost.org/en/admin/what_is_yunohost/",
+    ):
+        assert check_text("README.md", f"[reference]({url})\u2060") == []

@@ -57,6 +57,12 @@ ALLOWED_DOMAINS = {
     "www.apache.org",
     "apache.org",
     "mise.jdx.dev",
+    "docs.ansible.com",
+    "pyinfra.com",
+    "kamal-deploy.org",
+    "komo.do",
+    "coolify.io",
+    "doc.yunohost.org",
 }
 
 
@@ -96,8 +102,9 @@ def check_text(
         if term.lower() in text.lower():
             problems.append(f"{name}: private denylist match")
     for raw in re.findall(r'(?:https?|ssh)://[^\s<>"\'`]+', text):
+        raw = raw.rstrip(").,;:\u2060")
         # Regexes/grammar fragments are not concrete destinations.
-        if any(c in raw for c in ("\\", "[", "]", "{", "}", "^", "$", "|", ")")):
+        if any(c in raw for c in ("\\", "[", "]", "{", "}", "^", "$", "|")):
             continue
         try:
             host = urlsplit(raw).hostname
@@ -149,7 +156,9 @@ def run(history: bool = False, denylist: str | None = None) -> int:
         ]
     for name in names:
         p = Path(name)
-        if any(part in BLOCKED_PARTS for part in p.parts) or p.suffix in BLOCKED_SUFFIX:
+        if any(part in BLOCKED_PARTS for part in p.parts) or (
+            p.suffix in BLOCKED_SUFFIX and name != "README.md"
+        ):
             problems.append(f"{name}: forbidden public path")
         full = ROOT / name
         if full.is_symlink():
