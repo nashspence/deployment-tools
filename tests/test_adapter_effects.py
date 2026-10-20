@@ -224,9 +224,12 @@ def test_observation_from_previous_admission_generation_cannot_release_hold():
         c.prove_quiescent("demo", observation(0))
 
 
-def test_restore_rejects_binding_with_wrong_subject_scope():
+@pytest.mark.parametrize(
+    "field,value", [("handle", "other"), ("kind", "dataset")], ids=["subject-handle", "scope-kind"]
+)
+def test_restore_rejects_binding_with_wrong_subject_scope(field, value):
     c, _ = coordinator()
     snapshot = c.snapshot()
-    snapshot["bindings"]["demo"]["scope"]["handle"] = "other"
+    snapshot["bindings"]["demo"]["scope"][field] = value
     with pytest.raises(ContractError, match="RESTORE_BINDING_IDENTITY"):
         c.restore(snapshot)

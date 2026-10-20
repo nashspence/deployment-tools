@@ -36,13 +36,15 @@ Keep interpretation with its owner, too. Generic code should not acquire file-fo
 
 The [component policy tests](tests/test_component_policy.py) and [component inventory](policy/components.toml) define the precise ownership and dependency rules.
 
+Product-owned implementations live under `deployment-tools/`, reusable packages under `packages/`, and supplied independent implementations under `some-implementations/deployment-tools/`. The receiving owner explicitly approves installation, instance configuration, and scoped binding; application source cannot enroll an adapter or replace its instance configuration.
+
 ## Preserve custody and independent recovery
 
 Act only on the exact inputs and within the current permissions granted to the operation. A known identity or an earlier authorization does not replace the checks required by its contract.
 
 Preserve confirmed outcomes across retries. A timeout does not prove that work failed, and a cancellation request does not prove execution has stopped. Release data or execution resources only when the owning contract says it is safe.
 
-Local owners retain authority over their accepted work. Optional reporting, discovery, and client state must not become authorization or recovery prerequisites. The [contracts](packages/contracts/) and [owner-state tests](tests/test_engineering.py) define the maintained reference behavior.
+Local owners retain authority over their accepted work. Optional reporting, discovery, and client state must not become authorization or recovery prerequisites. The [contracts](packages/deployment-tools-contracts/) and [owner-state tests](tests/test_engineering.py) define the maintained reference behavior.
 
 Never expose secrets or private deployment identity in public code, fixtures, logs, examples, or generated contracts.
 
@@ -86,7 +88,7 @@ Preserved fixtures and introduced migration revisions are immutable. Transitions
 
 A performance target is a nonbinding goal for measured speed or elapsed time. Unlike a declared growth bound, it is not a contract. Missing a target does not fail validation.
 
-Use `make profile` as the shared entry point for maintained profiling scenarios. Add new scenarios there rather than creating separate developer-facing commands. Their implementations remain with their owners.
+Use the shared profiling entry point for maintained scenarios. Their implementations remain with their owners.
 
 Report verified work, elapsed time, resource use, and measurement conditions. Compare only against matching measured references. An unavailable comparison is neither a pass nor a failure. Invalid evidence and failed execution remain errors.
 
@@ -104,7 +106,7 @@ Keep correctness, growth-contract conformance, and elapsed-time observations sep
 
 Passing a test establishes only what its checks actually show. Tests can protect public behavior, internal rules, repository policy, or the tools used for validation—sometimes within the same test. Neither a test’s name nor where it runs determines what it proves. Evidence for a public promise must point to its owning contract and demonstrate the relevant behavior under the recorded conditions. Agreement between implementations proves only agreement unless that agreement is itself promised. Keep promises without sufficient proof visible, and preserve other required checks.
 
-The [check accounting](scripts/check_evidence.py) reconciles actual collection and maintained Make/Actions entrypoints. Review source-local purpose, authority, scope and relationship declarations before regenerating `policy/checks.json` with `make evidence args=--evidence-generate`. New checks, parameter cases and jobs require review. Mixed checks use explicit assertion groups; classification alone supplies no proof.
+The [check accounting](scripts/check_evidence.py) reconciles actual collection and maintained Make/Actions entrypoints. Review source-local purpose, authority, scope and relationship declarations before refreshing the collection snapshot. New checks, parameter cases and jobs require review. Mixed checks use explicit assertion groups; classification alone supplies no proof.
 
 Report elapsed time even when no numerical target or comparable reference exists. Use credible performance evidence to recommend investigation or improvement. The stronger the evidence and the more serious its likely consequences, the stronger the recommendation may be.
 
@@ -114,26 +116,13 @@ Record significant findings and recommendations in GitHub. Performance targets d
 
 Use the versions of tools and libraries fixed by the repository rather than relying on whatever happens to be installed locally. The [mise configuration](mise.toml), [workspace dependencies](pyproject.toml), and [uv lock](uv.lock) own those versions; ship only the runtime content the component needs.
 
-From a trusted checkout, bootstrap the pinned tools, workspace dependencies, and local unit-test commit hook:
-
-```bash
-mise trust --yes
-make setup
-```
+Use `make help` for setup, validation, reporting, and argument conventions. The [Makefile](Makefile) owns that command guidance.
 
 Run focused tests while working. Cover relevant failure, interruption, and retry paths as well as success. New components must enter the existing validation gates, not sit outside them. Check built and installed software where packaging, platform behavior, or handoffs are affected. A declared operation is not evidence that it ran correctly.
 
-Before pushing, run:
+Before pushing, run the full required checks. Include compilation for Python changes, migration qualification for state changes, installed-package checks for packaging, platform or handoff changes, and a dependency audit for dependency changes. The commit hook must run the full unit suite; do not bypass it.
 
-```bash
-make check
-```
-
-If Python source changed, also run `make compile`. Use `make database-qualification` for state changes, `make dist-smoke` for packaging, platform, or handoff changes, and `make audit` for dependency changes. Use `make help` for current command guidance.
-
-Use `TESTS` for focused test paths or node IDs, `FILES` for Ruff/format paths, and `args` for tool flags. For example, `make unit TESTS=tests/test_engineering.py args='-k replay'` is an iteration run; the commit hook always runs the full unit suite. Do not bypass it.
-
-When operation bindings or engineering declarations change, review their sources before explicitly regenerating their maps with `make operation-qualification args=generate` or `make engineering args=generate`. A generated map is not execution evidence.
+Review operation bindings and engineering declarations before explicitly refreshing their generated maps. A generated map is not execution evidence.
 
 After pushing, watch that exact commit’s required GitHub Actions checks through completion. Fix failures before handing work back. A skipped or blocked check is not a pass; report the gap rather than claiming complete validation. Do not remove required coverage or weaken a check merely to make a result green.
 

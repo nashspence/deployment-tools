@@ -189,3 +189,27 @@ def test_read_response_is_bound_to_request_and_complete_coverage():
     response["request_digest"] = D
     with pytest.raises(ContractError, match="RESPONSE_IDENTITY"):
         check_response("runtime", query, response)
+
+
+@pytest.mark.parametrize(
+    "schema",
+    [
+        {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+            "allOf": [{"$ref": "#/$defs/Missing"}],
+        },
+        {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+            "$defs": {"Loop": {"$ref": "#/$defs/Loop"}},
+            "allOf": [{"$ref": "#/$defs/Loop"}],
+        },
+    ],
+    ids=["unresolved-local-reference", "recursive-local-reference"],
+)
+def test_invalid_local_schema_resolution_is_a_redacted_contract_rejection(schema):
+    with pytest.raises(ContractError, match=r"^CONFIGURATION_REJECTED$"):
+        check_configuration(schema, {}, digest(schema))

@@ -10,6 +10,7 @@ from typing import Any
 from deployment_tools_contracts.validation import ContractError, canonical, digest, validate
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError
+from referencing.exceptions import Unresolvable
 
 ROLES: dict[str, dict[str, dict[str, Any]]] = json.loads(
     Path(__file__).with_name("roles.json").read_text(encoding="utf-8")
@@ -67,8 +68,11 @@ def check_configuration(schema: dict[str, Any], value: Any, expected_digest: str
     check_schema(schema)
     require(digest(schema) == expected_digest, "SCHEMA_IDENTITY")
     require(len(canonical(value)) <= 1048576, "CONFIGURATION_CAPACITY")
-    errors = Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(value)
-    require(next(errors, None) is None, "CONFIGURATION_REJECTED")
+    try:
+        errors = Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(value)
+        require(next(errors, None) is None, "CONFIGURATION_REJECTED")
+    except (RecursionError, Unresolvable):
+        raise ContractError("CONFIGURATION_REJECTED") from None
 
 
 def check_request(role: str, value: dict[str, Any]) -> None:

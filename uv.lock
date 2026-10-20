@@ -82,9 +82,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-archive-slots-adapter"
@@ -95,9 +93,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-bind-rfc2136-adapter"
@@ -125,9 +121,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-buildkit-adapter"
@@ -138,9 +132,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-caddy-adapter"
@@ -151,9 +143,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-delegated-cgroup-adapter"
@@ -164,9 +154,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-dnsmasq-appliance-adapter"
@@ -194,9 +182,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-ext4-filesystem-adapter"
@@ -207,9 +193,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-firewalld-adapter"
@@ -220,9 +204,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-forgejo-adapter"
@@ -233,9 +215,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-forgejo-age-adapter"
@@ -246,9 +226,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-forgejo-issues-adapter"
@@ -259,9 +237,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-git-ssh-adapter"
@@ -272,9 +248,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-homebrew-adapter"
@@ -285,9 +259,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-jsonl-adapter"
@@ -298,9 +270,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-launchd-adapter"
@@ -311,9 +281,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-nftables-adapter"
@@ -324,9 +292,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-nginx-adapter"
@@ -337,9 +303,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-openbao-database-adapter"
@@ -350,9 +314,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-openbao-kv-adapter"
@@ -363,9 +325,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-podman-quadlet-runtime"
@@ -393,9 +353,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-postgresql-credential-issuer-adapter"
@@ -406,9 +364,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-procd-adapter"
@@ -419,9 +375,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-quiesced-files-adapter"
@@ -432,9 +386,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-restic-adapter"
@@ -445,9 +397,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-sealed-archive-adapter"
@@ -458,9 +408,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-systemd-adapter"
@@ -471,9 +419,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-systemd-cgroup-adapter"
@@ -501,9 +447,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "a-deployment-tools-xfs-project-adapter"
@@ -514,9 +458,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-]
+requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
 
 [[package]]
 name = "alembic"
@@ -1005,12 +947,14 @@ source = { editable = "packages/deployment-tools-adapter-protocol" }
 dependencies = [
     { name = "deployment-tools-contracts" },
     { name = "jsonschema" },
+    { name = "referencing" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
     { name = "jsonschema", specifier = "==4.26.0" },
+    { name = "referencing", specifier = "==0.37.0" },
 ]
 
 [[package]]
@@ -1052,9 +996,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
-]
+requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
 
 [[package]]
 name = "deployment-tools-client"
@@ -1065,9 +1007,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
-]
+requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
 
 [[package]]
 name = "deployment-tools-contracts"
@@ -1146,10 +1086,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "alembic", specifier = "<2,>=1.18" },
+    { name = "alembic", specifier = ">=1.18,<2" },
     { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
     { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
-    { name = "sqlalchemy", specifier = "<3,>=2.0" },
+    { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]
 
 [[package]]
@@ -1164,9 +1104,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "alembic", specifier = "<2,>=1.18" },
+    { name = "alembic", specifier = ">=1.18,<2" },
     { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
-    { name = "sqlalchemy", specifier = "<3,>=2.0" },
+    { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]
 
 [[package]]

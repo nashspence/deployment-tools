@@ -9,7 +9,7 @@ description = "Implementation-neutral closed adapter contracts and semantic vali
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-dependencies = ["deployment-tools-contracts==0.1.0.dev0", "jsonschema==4.26.0"]
+dependencies = ["deployment-tools-contracts==0.1.0.dev0", "jsonschema==4.26.0", "referencing==0.37.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

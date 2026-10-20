@@ -267,6 +267,7 @@ class AdapterCoordinator:
             validate("adapter.schema.json", binding, "RuntimeBinding")
             require(
                 key == binding["subject"]
+                and binding["scope"]["kind"] == "application"
                 and binding["scope"]["handle"] == key
                 and binding["scope"]["authority"] == snapshot["owner"]["id"],
                 "RESTORE_BINDING_IDENTITY",

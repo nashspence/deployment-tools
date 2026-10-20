@@ -251,7 +251,7 @@
         "repository-policy"
       ],
       "scope": "repository-local",
-      "work_sha256": "ee1bdaaa97ad66f30bdb2bc1d0d7ccd4b703995cc0ccad32ad785a3a085c800d"
+      "work_sha256": "8c2ae78b15f26f030d163fdefc9a0c97aeb70368a84594b865ce4231e64c0fac"
     },
     "make:license": {
       "authority": "Makefile",
@@ -426,6 +426,14 @@
     },
     {
       "node": "tests/test_adapter_contracts.py::test_installation_approval_and_scope_are_not_descriptor_fields",
+      "purpose_sha256": "f856d6947f0d881402760897451fedd012e4c5f76773f5e7428663d91d9fb615"
+    },
+    {
+      "node": "tests/test_adapter_contracts.py::test_invalid_local_schema_resolution_is_a_redacted_contract_rejection[recursive-local-reference]",
+      "purpose_sha256": "f856d6947f0d881402760897451fedd012e4c5f76773f5e7428663d91d9fb615"
+    },
+    {
+      "node": "tests/test_adapter_contracts.py::test_invalid_local_schema_resolution_is_a_redacted_contract_rejection[unresolved-local-reference]",
       "purpose_sha256": "f856d6947f0d881402760897451fedd012e4c5f76773f5e7428663d91d9fb615"
     },
     {
@@ -769,7 +777,11 @@
       "purpose_sha256": "93d9b5034447cc11420aa371d62d833d4d1d8b69e723ea5bd6fc8c5bb80fb785"
     },
     {
-      "node": "tests/test_adapter_effects.py::test_restore_rejects_binding_with_wrong_subject_scope",
+      "node": "tests/test_adapter_effects.py::test_restore_rejects_binding_with_wrong_subject_scope[scope-kind]",
+      "purpose_sha256": "93d9b5034447cc11420aa371d62d833d4d1d8b69e723ea5bd6fc8c5bb80fb785"
+    },
+    {
+      "node": "tests/test_adapter_effects.py::test_restore_rejects_binding_with_wrong_subject_scope[subject-handle]",
       "purpose_sha256": "93d9b5034447cc11420aa371d62d833d4d1d8b69e723ea5bd6fc8c5bb80fb785"
     },
     {
