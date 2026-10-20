@@ -21,7 +21,7 @@ def test_dependabot_public_signoff_is_allowed_only_in_commit_messages():
     assert check_text("source", signoff)
 
 
-def test_working_readme_exception_preserves_other_path_and_content_checks(tmp_path, monkeypatch):
+def test_onboarding_documents_preserve_other_path_and_content_checks(tmp_path, monkeypatch):
     import scripts.check_public as scanner
 
     names = ["README.md"]
@@ -33,7 +33,15 @@ def test_working_readme_exception_preserves_other_path_and_content_checks(tmp_pa
     readme.write_text("https://" + "private-domain.internal/path\n")
     assert scanner.run() == 1
     readme.write_text("Working overview\n")
-    for name in ("notes.md", "packages/example/README.md", "docs/README.md"):
+    (tmp_path / "AGENTS.md").write_text("Developer guide\n")
+    names[:] = ["README.md", "AGENTS.md"]
+    assert scanner.run() == 0
+    for name in (
+        "notes.md",
+        "packages/example/README.md",
+        "docs/README.md",
+        "packages/example/AGENTS.md",
+    ):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("Additional documentation\n")
