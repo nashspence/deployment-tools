@@ -1,4 +1,4 @@
-format = "deployment-tools-performance-targets/v1"
+format = "fishhat-performance-targets/v1"
 report_only = true
 # Initial developer information targets, not measured baselines or release promises.
 # Metrics describe one pytest process; descendants and dependency installation are excluded.

@@ -21,7 +21,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 SNAPSHOT = "policy/checks.json"
-FORMAT = "deployment-tools-check-evidence/v1"
+FORMAT = "fishhat-check-evidence/v1"
 PURPOSES = {"public-contract", "implementation", "repository-policy", "validation-tooling"}
 RELATIONSHIPS = {"scoped-witness", "candidate", "no-product-claim"}
 ACTIVE: ContextVar[set[str] | None] = ContextVar("evidence_groups", default=None)

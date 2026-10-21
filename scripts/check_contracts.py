@@ -3,7 +3,7 @@
 import json
 from urllib.parse import unquote, urldefrag, urljoin
 
-from deployment_tools_contracts.validation import (
+from fishhat_contracts.validation import (
     SCHEMAS,
     strict_json,
     strict_yaml,

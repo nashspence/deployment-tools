@@ -1,11 +1,11 @@
-format = "deployment-tools-state-inventory/v1"
+format = "fishhat-state-inventory/v1"
 
 [[owners]]
 id = "owner-journal"
-module = "deployment_tools_owner.journal"
-migrations = "deployment_tools_owner.migrations"
+module = "fishhat_owner.journal"
+migrations = "fishhat_owner.migrations"
 migration_head = "v1_0001"
-source = "deployment-tools/owner-support/src/deployment_tools_owner/journal.py"
+source = "fishhat/owner-support/src/fishhat_owner/journal.py"
 format_version = 1
 version_authority = "pragma-user-version"
 transition = "explicit-forward-only"
@@ -16,10 +16,10 @@ sha256 = "587842b991e43d179e62c49a60f3a123d9496257587e12690091164914f5c7c4"
 
 [[owners]]
 id = "reported-events"
-module = "deployment_tools_reporting.store"
-migrations = "deployment_tools_reporting.migrations"
+module = "fishhat_reporting.store"
+migrations = "fishhat_reporting.migrations"
 migration_head = "v1_0001"
-source = "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py"
+source = "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py"
 format_version = 1
 version_authority = "meta-schema"
 transition = "explicit-forward-only"

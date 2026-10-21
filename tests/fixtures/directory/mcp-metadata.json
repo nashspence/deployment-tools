@@ -75,7 +75,7 @@
                   "properties": {
                     "id": {
                       "enum": [
-                        "deployment-tools",
+                        "fishhat",
                         "domain"
                       ]
                     },

@@ -10,7 +10,7 @@ from typing import Any
 
 import psutil
 
-FORMAT = "deployment-tools-run-stats/v1"
+FORMAT = "fishhat-run-stats/v1"
 
 
 class RunStats:
@@ -117,10 +117,7 @@ def comparison(
     import tomllib
 
     policy = tomllib.loads((root / "policy/performance.toml").read_text())
-    if (
-        policy["format"] != "deployment-tools-performance-targets/v1"
-        or policy["report_only"] is not True
-    ):
+    if policy["format"] != "fishhat-performance-targets/v1" or policy["report_only"] is not True:
         raise ValueError("invalid report-only performance targets")
     selected = [(name, spec) for name, spec in policy["targets"].items() if spec["paths"] == paths]
     if not selected or filtered:

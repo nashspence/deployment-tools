@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-owner-support"
+version = "0.1.0.dev0"
+description = "Fishhat owner-state reference scaffold"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-adapter-protocol==0.1.0.dev0", "fishhat-contracts==0.1.0.dev0", "alembic>=1.18,<2", "SQLAlchemy>=2.0,<3"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_owner = ["py.typed", "schema/*.sql"]
+
+[tool.uv.sources]
+fishhat-adapter-protocol = { workspace = true }
+fishhat-contracts = { workspace = true }
+
+[tool.fishhat.component]
+id = "owner-support"
+module = "fishhat_owner"
+role = "owner-state"

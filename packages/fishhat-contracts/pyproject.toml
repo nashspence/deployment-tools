@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-contracts"
+version = "0.1.0.dev0"
+description = "Fishhat shared-contracts reference scaffold"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["jsonschema==4.26.0", "referencing==0.37.0", "PyYAML==6.0.3", "cryptography==50.0.2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_contracts = ["py.typed", "contracts/*.json"]
+
+[tool.fishhat.component]
+id = "contracts"
+module = "fishhat_contracts"
+role = "shared-contracts"

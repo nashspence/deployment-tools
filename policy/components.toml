@@ -1,353 +1,353 @@
-format = "deployment-tools-components/v1"
+format = "fishhat-components/v1"
 
 [[components]]
 id = "adapter-protocol"
-distribution = "deployment-tools-adapter-protocol"
-path = "packages/deployment-tools-adapter-protocol"
-module = "deployment_tools_adapters"
+distribution = "fishhat-adapter-protocol"
+path = "packages/fishhat-adapter-protocol"
+module = "fishhat_adapters"
 role = "adapter-protocol"
-internal_dependencies = ["deployment-tools-contracts"]
+internal_dependencies = ["fishhat-contracts"]
 
 [[components]]
 id = "adapter-support"
-distribution = "deployment-tools-adapter-support"
-path = "packages/deployment-tools-adapter-support"
-module = "deployment_tools_adapter_support"
+distribution = "fishhat-adapter-support"
+path = "packages/fishhat-adapter-support"
+module = "fishhat_adapter_support"
 role = "adapter-support"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-contracts"]
 
 [[components]]
 id = "app"
-distribution = "deployment-tools-app"
-path = "deployment-tools/app-ops"
-module = "deployment_tools_app"
+distribution = "fishhat-app"
+path = "fishhat/app-ops"
+module = "fishhat_app"
 role = "app-owner-scaffold"
-internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-owner-support"]
+internal_dependencies = ["fishhat-cli-support", "fishhat-owner-support"]
 
 [[components]]
 id = "apt-adapter"
-distribution = "a-deployment-tools-apt-adapter"
-path = "some-implementations/deployment-tools/software/apt"
-module = "a_deployment_tools_apt_adapter"
+distribution = "a-fishhat-apt-adapter"
+path = "some-implementations/fishhat/software/apt"
+module = "a_fishhat_apt_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "archive-slots-adapter"
-distribution = "a-deployment-tools-archive-slots-adapter"
-path = "some-implementations/deployment-tools/software/archive-slots"
-module = "a_deployment_tools_archive_slots_adapter"
+distribution = "a-fishhat-archive-slots-adapter"
+path = "some-implementations/fishhat/software/archive-slots"
+module = "a_fishhat_archive_slots_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "bind-rfc2136-adapter"
-distribution = "a-deployment-tools-bind-rfc2136-adapter"
-path = "some-implementations/deployment-tools/dns/bind-rfc2136"
-module = "a_deployment_tools_bind_rfc2136_adapter"
+distribution = "a-fishhat-bind-rfc2136-adapter"
+path = "some-implementations/fishhat/dns/bind-rfc2136"
+module = "a_fishhat_bind_rfc2136_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-adapter-support", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-adapter-support", "fishhat-contracts"]
 
 [[components]]
 id = "buildah-adapter"
-distribution = "a-deployment-tools-buildah-adapter"
-path = "some-implementations/deployment-tools/builds/buildah"
-module = "a_deployment_tools_buildah_adapter"
+distribution = "a-fishhat-buildah-adapter"
+path = "some-implementations/fishhat/builds/buildah"
+module = "a_fishhat_buildah_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "buildkit-adapter"
-distribution = "a-deployment-tools-buildkit-adapter"
-path = "some-implementations/deployment-tools/builds/buildkit"
-module = "a_deployment_tools_buildkit_adapter"
+distribution = "a-fishhat-buildkit-adapter"
+path = "some-implementations/fishhat/builds/buildkit"
+module = "a_fishhat_buildkit_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "caddy-adapter"
-distribution = "a-deployment-tools-caddy-adapter"
-path = "some-implementations/deployment-tools/ingress/caddy"
-module = "a_deployment_tools_caddy_adapter"
+distribution = "a-fishhat-caddy-adapter"
+path = "some-implementations/fishhat/ingress/caddy"
+module = "a_fishhat_caddy_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "cli-support"
-distribution = "deployment-tools-cli-support"
-path = "deployment-tools/cli-support"
-module = "deployment_tools_cli"
+distribution = "fishhat-cli-support"
+path = "fishhat/cli-support"
+module = "fishhat_cli"
 role = "shared-cli"
-internal_dependencies = ["deployment-tools-contracts"]
+internal_dependencies = ["fishhat-contracts"]
 
 [[components]]
 id = "client"
-distribution = "deployment-tools-client"
-path = "packages/deployment-tools-client"
-module = "deployment_tools_client"
+distribution = "fishhat-client"
+path = "packages/fishhat-client"
+module = "fishhat_client"
 role = "portable-client"
-internal_dependencies = ["deployment-tools-contracts"]
+internal_dependencies = ["fishhat-contracts"]
 
 [[components]]
 id = "contracts"
-distribution = "deployment-tools-contracts"
-path = "packages/deployment-tools-contracts"
-module = "deployment_tools_contracts"
+distribution = "fishhat-contracts"
+path = "packages/fishhat-contracts"
+module = "fishhat_contracts"
 role = "shared-contracts"
 internal_dependencies = []
 
 [[components]]
 id = "delegated-cgroup-adapter"
-distribution = "a-deployment-tools-delegated-cgroup-adapter"
-path = "some-implementations/deployment-tools/compute/delegated-cgroup"
-module = "a_deployment_tools_delegated_cgroup_adapter"
+distribution = "a-fishhat-delegated-cgroup-adapter"
+path = "some-implementations/fishhat/compute/delegated-cgroup"
+module = "a_fishhat_delegated_cgroup_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "directory"
-distribution = "deployment-tools-directory"
-path = "some-implementations/deployment-tools/applications/directory"
-module = "deployment_tools_directory"
+distribution = "fishhat-directory"
+path = "some-implementations/fishhat/applications/directory"
+module = "fishhat_directory"
 role = "optional-discovery"
-internal_dependencies = ["deployment-tools-contracts"]
+internal_dependencies = ["fishhat-contracts"]
 
 [[components]]
 id = "dnsmasq-appliance-adapter"
-distribution = "a-deployment-tools-dnsmasq-appliance-adapter"
-path = "some-implementations/deployment-tools/dns/dnsmasq-appliance"
-module = "a_deployment_tools_dnsmasq_appliance_adapter"
+distribution = "a-fishhat-dnsmasq-appliance-adapter"
+path = "some-implementations/fishhat/dns/dnsmasq-appliance"
+module = "a_fishhat_dnsmasq_appliance_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-adapter-support", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-adapter-support", "fishhat-contracts"]
 
 [[components]]
 id = "docker-compose-runtime"
-distribution = "a-deployment-tools-docker-compose-runtime"
-path = "some-implementations/deployment-tools/runtimes/docker-compose"
-module = "a_deployment_tools_docker_compose_runtime"
+distribution = "a-fishhat-docker-compose-runtime"
+path = "some-implementations/fishhat/runtimes/docker-compose"
+module = "a_fishhat_docker_compose_runtime"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "domain"
-distribution = "deployment-tools-domain"
-path = "deployment-tools/domain-ops"
-module = "deployment_tools_domain"
+distribution = "fishhat-domain"
+path = "fishhat/domain-ops"
+module = "fishhat_domain"
 role = "domain-client"
-internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-client"]
+internal_dependencies = ["fishhat-cli-support", "fishhat-client"]
 
 [[components]]
 id = "ext4-filesystem-adapter"
-distribution = "a-deployment-tools-ext4-filesystem-adapter"
-path = "some-implementations/deployment-tools/storage/ext4-filesystem"
-module = "a_deployment_tools_ext4_filesystem_adapter"
+distribution = "a-fishhat-ext4-filesystem-adapter"
+path = "some-implementations/fishhat/storage/ext4-filesystem"
+module = "a_fishhat_ext4_filesystem_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "firewalld-adapter"
-distribution = "a-deployment-tools-firewalld-adapter"
-path = "some-implementations/deployment-tools/network/firewalld"
-module = "a_deployment_tools_firewalld_adapter"
+distribution = "a-fishhat-firewalld-adapter"
+path = "some-implementations/fishhat/network/firewalld"
+module = "a_fishhat_firewalld_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "forgejo-adapter"
-distribution = "a-deployment-tools-forgejo-adapter"
-path = "some-implementations/deployment-tools/repositories/forgejo"
-module = "a_deployment_tools_forgejo_adapter"
+distribution = "a-fishhat-forgejo-adapter"
+path = "some-implementations/fishhat/repositories/forgejo"
+module = "a_fishhat_forgejo_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "forgejo-age-adapter"
-distribution = "a-deployment-tools-forgejo-age-adapter"
-path = "some-implementations/deployment-tools/secrets/forgejo-age"
-module = "a_deployment_tools_forgejo_age_adapter"
+distribution = "a-fishhat-forgejo-age-adapter"
+path = "some-implementations/fishhat/secrets/forgejo-age"
+module = "a_fishhat_forgejo_age_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "forgejo-issues-adapter"
-distribution = "a-deployment-tools-forgejo-issues-adapter"
-path = "some-implementations/deployment-tools/reporting/forgejo-issues"
-module = "a_deployment_tools_forgejo_issues_adapter"
+distribution = "a-fishhat-forgejo-issues-adapter"
+path = "some-implementations/fishhat/reporting/forgejo-issues"
+module = "a_fishhat_forgejo_issues_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "git-ssh-adapter"
-distribution = "a-deployment-tools-git-ssh-adapter"
-path = "some-implementations/deployment-tools/repositories/git-ssh"
-module = "a_deployment_tools_git_ssh_adapter"
+distribution = "a-fishhat-git-ssh-adapter"
+path = "some-implementations/fishhat/repositories/git-ssh"
+module = "a_fishhat_git_ssh_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "homebrew-adapter"
-distribution = "a-deployment-tools-homebrew-adapter"
-path = "some-implementations/deployment-tools/software/homebrew"
-module = "a_deployment_tools_homebrew_adapter"
+distribution = "a-fishhat-homebrew-adapter"
+path = "some-implementations/fishhat/software/homebrew"
+module = "a_fishhat_homebrew_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "host"
-distribution = "deployment-tools-host"
-path = "deployment-tools/host-ops"
-module = "deployment_tools_host"
+distribution = "fishhat-host"
+path = "fishhat/host-ops"
+module = "fishhat_host"
 role = "host-owner-scaffold"
-internal_dependencies = ["deployment-tools-cli-support", "deployment-tools-owner-support"]
+internal_dependencies = ["fishhat-cli-support", "fishhat-owner-support"]
 
 [[components]]
 id = "jsonl-adapter"
-distribution = "a-deployment-tools-jsonl-adapter"
-path = "some-implementations/deployment-tools/reporting/jsonl"
-module = "a_deployment_tools_jsonl_adapter"
+distribution = "a-fishhat-jsonl-adapter"
+path = "some-implementations/fishhat/reporting/jsonl"
+module = "a_fishhat_jsonl_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "launchd-adapter"
-distribution = "a-deployment-tools-launchd-adapter"
-path = "some-implementations/deployment-tools/services/launchd"
-module = "a_deployment_tools_launchd_adapter"
+distribution = "a-fishhat-launchd-adapter"
+path = "some-implementations/fishhat/services/launchd"
+module = "a_fishhat_launchd_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "nftables-adapter"
-distribution = "a-deployment-tools-nftables-adapter"
-path = "some-implementations/deployment-tools/network/nftables"
-module = "a_deployment_tools_nftables_adapter"
+distribution = "a-fishhat-nftables-adapter"
+path = "some-implementations/fishhat/network/nftables"
+module = "a_fishhat_nftables_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "nginx-adapter"
-distribution = "a-deployment-tools-nginx-adapter"
-path = "some-implementations/deployment-tools/ingress/nginx"
-module = "a_deployment_tools_nginx_adapter"
+distribution = "a-fishhat-nginx-adapter"
+path = "some-implementations/fishhat/ingress/nginx"
+module = "a_fishhat_nginx_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "openbao-database-adapter"
-distribution = "a-deployment-tools-openbao-database-adapter"
-path = "some-implementations/deployment-tools/credentials/openbao-database"
-module = "a_deployment_tools_openbao_database_adapter"
+distribution = "a-fishhat-openbao-database-adapter"
+path = "some-implementations/fishhat/credentials/openbao-database"
+module = "a_fishhat_openbao_database_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "openbao-kv-adapter"
-distribution = "a-deployment-tools-openbao-kv-adapter"
-path = "some-implementations/deployment-tools/secrets/openbao-kv"
-module = "a_deployment_tools_openbao_kv_adapter"
+distribution = "a-fishhat-openbao-kv-adapter"
+path = "some-implementations/fishhat/secrets/openbao-kv"
+module = "a_fishhat_openbao_kv_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "owner-support"
-distribution = "deployment-tools-owner-support"
-path = "deployment-tools/owner-support"
-module = "deployment_tools_owner"
+distribution = "fishhat-owner-support"
+path = "fishhat/owner-support"
+module = "fishhat_owner"
 role = "owner-state"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-contracts"]
 
 [[components]]
 id = "podman-quadlet-runtime"
-distribution = "a-deployment-tools-podman-quadlet-runtime"
-path = "some-implementations/deployment-tools/runtimes/podman-quadlet"
-module = "a_deployment_tools_podman_quadlet_runtime"
+distribution = "a-fishhat-podman-quadlet-runtime"
+path = "some-implementations/fishhat/runtimes/podman-quadlet"
+module = "a_fishhat_podman_quadlet_runtime"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-adapter-support", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-adapter-support", "fishhat-contracts"]
 
 [[components]]
 id = "postgresql-capture-adapter"
-distribution = "a-deployment-tools-postgresql-capture-adapter"
-path = "some-implementations/deployment-tools/capture/postgresql"
-module = "a_deployment_tools_postgresql_capture_adapter"
+distribution = "a-fishhat-postgresql-capture-adapter"
+path = "some-implementations/fishhat/capture/postgresql"
+module = "a_fishhat_postgresql_capture_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "postgresql-credential-issuer-adapter"
-distribution = "a-deployment-tools-postgresql-credential-issuer-adapter"
-path = "some-implementations/deployment-tools/credentials/postgresql"
-module = "a_deployment_tools_postgresql_credential_issuer_adapter"
+distribution = "a-fishhat-postgresql-credential-issuer-adapter"
+path = "some-implementations/fishhat/credentials/postgresql"
+module = "a_fishhat_postgresql_credential_issuer_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "procd-adapter"
-distribution = "a-deployment-tools-procd-adapter"
-path = "some-implementations/deployment-tools/services/procd"
-module = "a_deployment_tools_procd_adapter"
+distribution = "a-fishhat-procd-adapter"
+path = "some-implementations/fishhat/services/procd"
+module = "a_fishhat_procd_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "quiesced-files-adapter"
-distribution = "a-deployment-tools-quiesced-files-adapter"
-path = "some-implementations/deployment-tools/capture/quiesced-files"
-module = "a_deployment_tools_quiesced_files_adapter"
+distribution = "a-fishhat-quiesced-files-adapter"
+path = "some-implementations/fishhat/capture/quiesced-files"
+module = "a_fishhat_quiesced_files_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "reporting"
-distribution = "deployment-tools-reporting"
-path = "some-implementations/deployment-tools/applications/receipts"
-module = "deployment_tools_reporting"
+distribution = "fishhat-reporting"
+path = "some-implementations/fishhat/applications/receipts"
+module = "fishhat_reporting"
 role = "optional-reporting"
-internal_dependencies = ["deployment-tools-contracts"]
+internal_dependencies = ["fishhat-contracts"]
 
 [[components]]
 id = "restic-adapter"
-distribution = "a-deployment-tools-restic-adapter"
-path = "some-implementations/deployment-tools/backup/restic"
-module = "a_deployment_tools_restic_adapter"
+distribution = "a-fishhat-restic-adapter"
+path = "some-implementations/fishhat/backup/restic"
+module = "a_fishhat_restic_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "sealed-archive-adapter"
-distribution = "a-deployment-tools-sealed-archive-adapter"
-path = "some-implementations/deployment-tools/backup/sealed-archive"
-module = "a_deployment_tools_sealed_archive_adapter"
+distribution = "a-fishhat-sealed-archive-adapter"
+path = "some-implementations/fishhat/backup/sealed-archive"
+module = "a_fishhat_sealed_archive_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "systemd-adapter"
-distribution = "a-deployment-tools-systemd-adapter"
-path = "some-implementations/deployment-tools/services/systemd"
-module = "a_deployment_tools_systemd_adapter"
+distribution = "a-fishhat-systemd-adapter"
+path = "some-implementations/fishhat/services/systemd"
+module = "a_fishhat_systemd_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "systemd-cgroup-adapter"
-distribution = "a-deployment-tools-systemd-cgroup-adapter"
-path = "some-implementations/deployment-tools/compute/systemd-cgroup"
-module = "a_deployment_tools_systemd_cgroup_adapter"
+distribution = "a-fishhat-systemd-cgroup-adapter"
+path = "some-implementations/fishhat/compute/systemd-cgroup"
+module = "a_fishhat_systemd_cgroup_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-protocol", "deployment-tools-adapter-support", "deployment-tools-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-adapter-support", "fishhat-contracts"]
 
 [[components]]
 id = "systemd-native-runtime"
-distribution = "a-deployment-tools-systemd-native-runtime"
-path = "some-implementations/deployment-tools/runtimes/systemd-native"
-module = "a_deployment_tools_systemd_native_runtime"
+distribution = "a-fishhat-systemd-native-runtime"
+path = "some-implementations/fishhat/runtimes/systemd-native"
+module = "a_fishhat_systemd_native_runtime"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]
 
 [[components]]
 id = "xfs-project-adapter"
-distribution = "a-deployment-tools-xfs-project-adapter"
-path = "some-implementations/deployment-tools/storage/xfs-project"
-module = "a_deployment_tools_xfs_project_adapter"
+distribution = "a-fishhat-xfs-project-adapter"
+path = "some-implementations/fishhat/storage/xfs-project"
+module = "a_fishhat_xfs_project_adapter"
 role = "adapter-implementation"
-internal_dependencies = ["deployment-tools-adapter-support"]
+internal_dependencies = ["fishhat-adapter-support"]

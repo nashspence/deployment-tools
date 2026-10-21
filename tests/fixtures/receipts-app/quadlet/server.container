@@ -2,7 +2,7 @@
 [Unit]
 Description=Optional report-only index
 [Container]
-Image=registry.example.invalid/deployment-tools/receipts@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Image=registry.example.invalid/fishhat/receipts@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Pull=never
 ReadOnly=true
 NoNewPrivileges=true

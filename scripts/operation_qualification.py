@@ -13,11 +13,11 @@ from scripts.validation import source_identity
 
 MAP_PATH = "policy/operations.json"
 REGISTRY = "policy/operation-coverage.toml"
-CONTRACTS = "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/"
+CONTRACTS = "packages/fishhat-contracts/src/fishhat_contracts/contracts/"
 
 
 def runtime_commands(tool: str) -> list[str]:
-    from deployment_tools_cli.validation import build_parser
+    from fishhat_cli.validation import build_parser
 
     result: list[str] = []
     for action in build_parser(tool)._actions:
@@ -131,11 +131,11 @@ def build_map(root: Path = ROOT) -> dict[str, Any]:
             REGISTRY,
             "release.toml",
             "policy/components.toml",
-            "deployment-tools/cli-support/src/deployment_tools_cli/validation.py",
+            "fishhat/cli-support/src/fishhat_cli/validation.py",
         }
     )
     registry = read_toml(root / REGISTRY)
-    if registry["format"] != "deployment-tools-operation-bindings/v1":
+    if registry["format"] != "fishhat-operation-bindings/v1":
         raise ValueError("unsupported operation binding format")
     interface_tests = registry["interfaces"]["tests"]
     sources.add(read_toml(root / "release.toml")["interfaces"]["snapshot"])
@@ -187,7 +187,7 @@ def build_map(root: Path = ROOT) -> dict[str, Any]:
                 sources.add(test_path(reference, root))
             row["tests"][kind] = tests
     return {
-        "format": "deployment-tools-operation-coverage/v1",
+        "format": "fishhat-operation-coverage/v1",
         "production_qualified": False,
         "sources": {
             name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sorted(sources)
@@ -238,7 +238,7 @@ def report(root: Path = ROOT) -> dict[str, Any]:
             }
         )
     result = {
-        "format": "deployment-tools-operation-results/v1",
+        "format": "fishhat-operation-results/v1",
         "source": source,
         "production_qualified": False,
         "operations": rows,

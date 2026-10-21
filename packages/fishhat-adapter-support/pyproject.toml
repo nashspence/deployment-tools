@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-adapter-support"
+version = "0.1.0.dev0"
+description = "Bounded local adapter command support; no native dispatch"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-adapter-protocol==0.1.0.dev0", "fishhat-contracts==0.1.0.dev0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_adapter_support = ["py.typed"]
+
+[tool.uv.sources]
+fishhat-adapter-protocol = { workspace = true }
+fishhat-contracts = { workspace = true }
+
+[tool.fishhat.component]
+id = "adapter-support"
+module = "fishhat_adapter_support"
+role = "adapter-support"

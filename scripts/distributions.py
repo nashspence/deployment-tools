@@ -161,7 +161,7 @@ def prepare(dist: Path, output: Path) -> Path:
         ).stdout
     )
     provenance = {
-        "format": "deployment-tools-build-provenance/v1",
+        "format": "fishhat-build-provenance/v1",
         "source_repository": policy["governance"]["repository_name"],
         "source_commit": commit,
         "working_tree_dirty": dirty,
@@ -172,7 +172,7 @@ def prepare(dist: Path, output: Path) -> Path:
     }
     (output / "provenance.json").write_text(json.dumps(provenance, indent=2, sort_keys=True) + "\n")
     sbom = {
-        "format": "deployment-tools-dependency-inventory/v1",
+        "format": "fishhat-dependency-inventory/v1",
         "components": [
             {
                 "name": name,
@@ -191,7 +191,7 @@ def prepare(dist: Path, output: Path) -> Path:
         if path.is_file()
     }
     manifest = {
-        "format": "deployment-tools-scaffold-bundle/v1",
+        "format": "fishhat-scaffold-bundle/v1",
         "version": policy["version"],
         "production_qualified": False,
         "profile": {
@@ -218,7 +218,7 @@ def prepare(dist: Path, output: Path) -> Path:
 def smoke(bundle: Path) -> None:
     expected = sha256(bundle / "manifest.json")
     manifest = verify(bundle, expected)
-    with tempfile.TemporaryDirectory(prefix="deployment-tools-installed-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="fishhat-installed-") as temporary:
         scratch = Path(temporary)
         for item in components():
             env = scratch / item["id"]
@@ -240,7 +240,7 @@ def smoke(bundle: Path) -> None:
                 shutil.rmtree(env)
         consumer = scratch / "consumer.py"
         consumer.write_text(
-            'from typing import assert_type\nfrom deployment_tools_contracts import canonical, digest\nassert_type(canonical({"key": "value"}), bytes)\nassert_type(digest({"key": "value"}), str)\n'
+            'from typing import assert_type\nfrom fishhat_contracts import canonical, digest\nassert_type(canonical({"key": "value"}), bytes)\nassert_type(digest({"key": "value"}), str)\n'
         )
         python = (
             scratch
@@ -288,7 +288,7 @@ def build() -> None:
 
 
 def smoke_fresh(dist: Path) -> None:
-    with tempfile.TemporaryDirectory(prefix="deployment-tools-bundle-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="fishhat-bundle-") as temporary:
         bundle = Path(temporary) / "bundle"
         prepare(dist, bundle)
         smoke(bundle)

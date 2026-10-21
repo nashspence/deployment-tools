@@ -3,19 +3,19 @@ import json
 import unittest
 from pathlib import Path
 
-from deployment_tools_client.bootstrap import (
+from fishhat_client.bootstrap import (
     prepare_invocation,
     validate_catalogue,
     validate_selection,
 )
-from deployment_tools_contracts.validation import ContractError
+from fishhat_contracts.validation import ContractError
 
 from tests.support import fixture_path
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/bootstrap-recovery.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/bootstrap-recovery.schema.json"
     ],
     "scope": "offline bootstrap input/reference helpers",
     "relationship": "candidate",

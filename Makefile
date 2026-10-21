@@ -5,7 +5,7 @@ MISE_BIN ?= mise
 FILES ?= .
 TESTS ?= tests
 UNIT_REPORT_ARGS ?= --durations=30 --durations-min=0.25
-PYTHON_PATHS ?= packages deployment-tools some-implementations scripts tests
+PYTHON_PATHS ?= packages fishhat some-implementations scripts tests
 BUNDLE_OUTPUT ?= artifacts/scaffold-bundle
 UV_RUN = "$(MISE_BIN)" x -- uv run --locked --all-packages --group dev
 VALIDATE = $(UV_RUN) python -m scripts.validation run --target $@ --
@@ -49,7 +49,7 @@ help:
 		"                     For operation-qualification/engineering: check (default), generate or report [--require-current-proofs]." \
 		"  TESTS='...'        Select unit test paths or node IDs; default: tests." \
 		"  FILES='...'        Select Ruff/format paths; default: ." \
-		"  PYTHON_PATHS='...' Select compile paths; default: packages deployment-tools some-implementations scripts tests." \
+		"  PYTHON_PATHS='...' Select compile paths; default: packages fishhat some-implementations scripts tests." \
 		"  UNIT_REPORT_ARGS='...' Pytest reporting flags; default: --durations=30 --durations-min=0.25." \
 		"  profile args='--workload canonical|unit|database-qualification|engineering-tests'" \
 		'  BUNDLE_OUTPUT=...  Persistent bundle destination; it must not already exist.' \

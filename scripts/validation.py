@@ -21,7 +21,7 @@ from scripts.check_evidence import entrypoints, execution_origin, valid_evidence
 from scripts.project_policy import ROOT
 from scripts.run_stats import valid_phases, valid_stats
 
-FORMAT = "deployment-tools-validation/v1"
+FORMAT = "fishhat-validation/v1"
 MAX_RECEIPTS = 64
 MAX_BYTES = 4 * 1024 * 1024
 OVERRIDES = (
@@ -48,7 +48,7 @@ CANONICAL = {
         "compileall",
         "-q",
         "packages",
-        "deployment-tools",
+        "fishhat",
         "some-implementations",
         "scripts",
         "tests",
@@ -257,14 +257,14 @@ def run(target: str, command: list[str], root: Path = ROOT) -> int:
     status = 127
     state = "completed"
     child = None
-    with tempfile.TemporaryDirectory(prefix="deployment-tools-test-results-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="fishhat-test-results-") as temporary:
         report = Path(temporary) / "tests.json"
         invocation = list(command)
         environment = dict(os.environ)
         if target in TEST_TARGETS and command[1:3] == ["-m", "pytest"]:
             invocation[3:3] = ["-p", "scripts.validation_pytest"]
-            environment["DEPLOYMENT_TOOLS_TEST_REPORT"] = str(report)
-            environment["DEPLOYMENT_TOOLS_TEST_ORIGIN"] = path.stem
+            environment["FISHHAT_TEST_REPORT"] = str(report)
+            environment["FISHHAT_TEST_ORIGIN"] = path.stem
         try:
             child = subprocess.Popen(invocation, cwd=root, env=environment)
             status = child.wait()

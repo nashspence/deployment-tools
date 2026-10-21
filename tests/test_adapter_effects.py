@@ -4,14 +4,14 @@ import copy
 import json
 
 import pytest
-from deployment_tools_contracts.validation import ContractError
-from deployment_tools_owner.adapter_state import AdapterCoordinator
+from fishhat_contracts.validation import ContractError
+from fishhat_owner.adapter_state import AdapterCoordinator
 
 from tests.adapter_support import OWNER, binding, identifier, observation, request, runtime_registry
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
-    "authority": ["deployment-tools/owner-support/src/deployment_tools_owner/adapter_state.py"],
+    "authority": ["fishhat/owner-support/src/fishhat_owner/adapter_state.py"],
     "scope": "owner reference commit/dispatch and restoration ordering only",
     "relationship": "candidate",
     "reason": "Injected commit boundary is not a native supervisor or durable production journal.",

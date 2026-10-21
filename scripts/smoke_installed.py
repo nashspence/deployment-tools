@@ -33,7 +33,7 @@ def main() -> None:
                 raise AssertionError("installed type marker missing")
             for entry in pkgutil.walk_packages(module.__path__, module.__name__ + "."):
                 importlib.import_module(entry.name)
-    from deployment_tools_contracts import canonical, digest, strict_json, strict_yaml, validate
+    from fishhat_contracts import canonical, digest, strict_json, strict_yaml, validate
 
     data = strict_yaml((args.fixtures / "domain/domain.yaml").read_text())
     validate("source.schema.json", data)
@@ -65,7 +65,7 @@ def main() -> None:
         )
         rejected = subprocess.run([str(executable), "apply"], capture_output=True, timeout=15)
         assert rejected.returncode == 2
-    if selected["distribution"].startswith("a-deployment-tools-"):
+    if selected["distribution"].startswith("a-fishhat-"):
         distribution = importlib.metadata.distribution(selected["distribution"])
         entrypoints = [
             entry for entry in distribution.entry_points if entry.group == "console_scripts"
@@ -90,12 +90,12 @@ def main() -> None:
         )
         assert rejected.returncode == 2
     if args.component == "client":
-        from deployment_tools_client.wire import frame, read_frame
+        from fishhat_client.wire import frame, read_frame
 
         assert read_frame(io.BytesIO(frame({"test": True}))) == {"test": True}
     if args.component == "owner-support":
-        from deployment_tools_owner.journal import Journal
-        from deployment_tools_owner.migrations import upgrade
+        from fishhat_owner.journal import Journal
+        from fishhat_owner.migrations import upgrade
 
         with tempfile.TemporaryDirectory() as temporary:
             store = Journal(
@@ -108,8 +108,8 @@ def main() -> None:
             assert reopened.generation == 0
             reopened.close()
     if args.component == "reporting":
-        from deployment_tools_reporting.migrations import upgrade as reporting_upgrade
-        from deployment_tools_reporting.store import EventStore
+        from fishhat_reporting.migrations import upgrade as reporting_upgrade
+        from fishhat_reporting.store import EventStore
 
         event = json.loads((args.fixtures / "tracking/event.json").read_text())
         with tempfile.TemporaryDirectory() as temporary:
@@ -127,7 +127,7 @@ def main() -> None:
             assert reopened_index.put(event, principal="reader", scopes={"append"})[0] == 200
             reopened_index.close()
     if args.component == "directory":
-        from deployment_tools_directory.projection import load_directory, prepare_projection
+        from fishhat_directory.projection import load_directory, prepare_projection
 
         projection = prepare_projection(
             load_directory((args.fixtures / "directory/directory.yaml").read_text())

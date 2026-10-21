@@ -11,7 +11,7 @@ sudo -n true
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update -qq
 sudo apt-get install -y --no-install-recommends podman uidmap fuse-overlayfs slirp4netns passt xfsprogs openssh-server busybox-static
-work="$(mktemp -d "$RUNNER_TEMP/deployment-tools-native.XXXXXXXX")"
+work="$(mktemp -d "$RUNNER_TEMP/fishhat-native.XXXXXXXX")"
 account="dtci$(id -u)"; account_created=0; mounted=0; ssh_pid=''
 cleanup() {
   status=$?
@@ -47,8 +47,8 @@ user_run() {
 sudo install -d -o "$account" -g "$account" "/home/$account/context"
 sudo install -o "$account" -g "$account" /bin/busybox "/home/$account/context/busybox"
 printf '%s\n' 'FROM scratch' 'COPY busybox /bin/busybox' 'ENTRYPOINT ["/bin/busybox"]' | sudo tee "/home/$account/context/Containerfile" >/dev/null
-user_run podman build --network=none --pull=never --layers=false -t localhost/deployment-tools-ci:local "/home/$account/context"
-[[ "$(user_run podman run --rm --network=none --cap-drop=all --security-opt=no-new-privileges localhost/deployment-tools-ci:local echo rootless-ok)" == rootless-ok ]]
+user_run podman build --network=none --pull=never --layers=false -t localhost/fishhat-ci:local "/home/$account/context"
+[[ "$(user_run podman run --rm --network=none --cap-drop=all --security-opt=no-new-privileges localhost/fishhat-ci:local echo rootless-ok)" == rootless-ok ]]
 # Verify real ancestor settings; this is not OOM/pressure qualification.
 sudo systemctl set-property --runtime "user-$uid.slice" MemoryHigh=384M MemoryMax=512M TasksMax=256 CPUQuota=100%
 [[ "$(cat "/sys/fs/cgroup/user.slice/user-$uid.slice/memory.max")" == 536870912 ]]
@@ -57,7 +57,7 @@ sudo systemctl set-property --runtime "user-$uid.slice" MemoryHigh=384M MemoryMa
 sudo install -d -o "$account" -g "$account" "/home/$account/.config/containers/systemd"
 cat <<'EOF' | sudo tee "/home/$account/.config/containers/systemd/ci-probe.container" >/dev/null
 [Container]
-Image=localhost/deployment-tools-ci:local
+Image=localhost/fishhat-ci:local
 Pull=never
 Network=none
 Exec=echo quadlet-ok

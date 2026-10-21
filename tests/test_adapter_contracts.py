@@ -4,7 +4,7 @@ import copy
 import json
 
 import pytest
-from deployment_tools_adapters import (
+from fishhat_adapters import (
     ROLES,
     Registry,
     check_configuration,
@@ -12,15 +12,13 @@ from deployment_tools_adapters import (
     check_request,
     check_schema,
 )
-from deployment_tools_contracts.validation import SCHEMAS, ContractError, digest, validate
+from fishhat_contracts.validation import SCHEMAS, ContractError, digest, validate
 
 from tests.adapter_support import SCOPE, D, descriptors, request, runtime_registry
 
 CHECK_PURPOSE = {
     "purpose": "public-contract",
-    "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/adapter.schema.json"
-    ],
+    "authority": ["packages/fishhat-contracts/src/fishhat_contracts/contracts/adapter.schema.json"],
     "scope": "closed adapter data and reference admission, not native execution",
     "relationship": "candidate",
     "reason": "Negative and cross-field schema checks; no native capability claim.",
@@ -124,7 +122,7 @@ def test_enrollment_does_not_silently_rebind():
 
 
 def test_control_records_keep_their_strict_encoding():
-    from deployment_tools_contracts.validation import canonical
+    from fishhat_contracts.validation import canonical
 
     with pytest.raises(ContractError):
         canonical({"cpu": 0.5})
@@ -164,10 +162,10 @@ def test_role_response_shape_is_closed_and_method_specific(role):
 
 
 def test_read_response_is_bound_to_request_and_complete_coverage():
-    from deployment_tools_adapters import check_response
+    from fishhat_adapters import check_response
 
     query = {
-        "contract": "deployment-tools.runtime",
+        "contract": "fishhat.runtime",
         "method": "observe",
         "input": {"scope": SCOPE, "cursor": None, "limit": 10},
     }

@@ -8,12 +8,12 @@ import sys
 import uuid
 
 import pytest
-from deployment_tools_client.wire import frame, read_frame
-from deployment_tools_contracts import ContractError
-from deployment_tools_contracts.validation import MAX_BYTES, canonical
-from deployment_tools_directory.projection import load_directory, prepare_projection
-from deployment_tools_owner.journal import Journal
-from deployment_tools_reporting.store import EventStore
+from fishhat_client.wire import frame, read_frame
+from fishhat_contracts import ContractError
+from fishhat_contracts.validation import MAX_BYTES, canonical
+from fishhat_directory.projection import load_directory, prepare_projection
+from fishhat_owner.journal import Journal
+from fishhat_reporting.store import EventStore
 
 from scripts.engineering import declarations
 from tests.support import FIXTURES
@@ -131,7 +131,7 @@ def test_owner_crash_replay_preserves_state(tmp_path, committed):
     path = restore_fixture(tmp_path, "owner")
     script = """import os, sys
 from pathlib import Path
-from deployment_tools_owner.journal import Journal
+from fishhat_owner.journal import Journal
 j = Journal(Path(sys.argv[1]), sys.argv[2], sys.argv[3])
 class CrashCommit:
     def __init__(self, db): self.db = db
@@ -171,7 +171,7 @@ def test_reporting_crash_replay_preserves_committed_event(tmp_path, committed):
     pending = {**expected, "id": str(uuid.uuid4())}
     script = """import json, os, sys
 from pathlib import Path
-from deployment_tools_reporting.store import EventStore
+from fishhat_reporting.store import EventStore
 sample = json.loads(sys.argv[3])
 store = EventStore(Path(sys.argv[1]), sample["domain_id"], sys.argv[4])
 class CrashCommit:
@@ -360,9 +360,7 @@ def test_event_byte_capacity_continues_or_rejects_explicitly(tmp_path):
 CHECK_OVERRIDES = {
     "test_frame_work_tracks_current_frame_not_stream_extent": {
         "purpose": "implementation",
-        "authority": [
-            "packages/deployment-tools-client/src/deployment_tools_client/wire.py#read_frame"
-        ],
+        "authority": ["packages/fishhat-client/src/fishhat_client/wire.py#read_frame"],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
         "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
@@ -371,7 +369,7 @@ CHECK_OVERRIDES = {
     "test_directory_capacity_is_rejection_not_silent_truncation": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/directory/src/deployment_tools_directory/projection.py#load_directory"
+            "some-implementations/fishhat/applications/directory/src/fishhat_directory/projection.py#load_directory"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
@@ -380,9 +378,7 @@ CHECK_OVERRIDES = {
     },
     "test_journal_reference_scan_and_replay_identity": {
         "purpose": "implementation",
-        "authority": [
-            "deployment-tools/owner-support/src/deployment_tools_owner/journal.py#Journal.submit"
-        ],
+        "authority": ["fishhat/owner-support/src/fishhat_owner/journal.py#Journal.submit"],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
         "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
@@ -390,9 +386,7 @@ CHECK_OVERRIDES = {
     },
     "test_owner_crash_replay_preserves_state": {
         "purpose": "implementation",
-        "authority": [
-            "deployment-tools/owner-support/src/deployment_tools_owner/journal.py#Journal.submit"
-        ],
+        "authority": ["fishhat/owner-support/src/fishhat_owner/journal.py#Journal.submit"],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
         "reason": "Fixed fixture values, explicit rejection, counted work and complete pagination assertions independently challenge the operation-owned bounds.",
@@ -401,7 +395,7 @@ CHECK_OVERRIDES = {
     "test_reporting_capacity_rejects_new_identity_but_allows_replay": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py#EventStore.put"
+            "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py#EventStore.put"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
@@ -411,7 +405,7 @@ CHECK_OVERRIDES = {
     "test_reporting_crash_replay_preserves_committed_event": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py#EventStore.put"
+            "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py#EventStore.put"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
@@ -421,7 +415,7 @@ CHECK_OVERRIDES = {
     "test_event_pages_use_bounded_indexed_work_and_preserve_full_extent": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py#EventStore.events"
+            "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py#EventStore.events"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
@@ -431,7 +425,7 @@ CHECK_OVERRIDES = {
     "test_event_byte_capacity_continues_or_rejects_explicitly": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py#EventStore.events"
+            "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py#EventStore.events"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",
@@ -441,7 +435,7 @@ CHECK_OVERRIDES = {
     "test_workflow_pagination_preserves_logical_extent": {
         "purpose": "implementation",
         "authority": [
-            "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py#EventStore.workflows"
+            "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py#EventStore.workflows"
         ],
         "scope": "local reference model; no native deployment or recovery",
         "relationship": "scoped-witness",

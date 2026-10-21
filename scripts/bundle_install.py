@@ -26,7 +26,7 @@ def verify(bundle: Path, expected: str) -> dict[str, Any]:
         raise ValueError("untrusted or changed manifest")
     manifest: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
     if (
-        manifest.get("format") != "deployment-tools-scaffold-bundle/v1"
+        manifest.get("format") != "fishhat-scaffold-bundle/v1"
         or manifest.get("production_qualified") is not False
     ):
         raise ValueError("unsupported bundle qualification")

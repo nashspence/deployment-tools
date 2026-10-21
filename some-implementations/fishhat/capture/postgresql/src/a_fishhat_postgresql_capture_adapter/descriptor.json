@@ -1,0 +1,51 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "fishhat.postgresql-capture",
+  "roles": [
+    "capture"
+  ],
+  "entrypoint": "bin/a-fishhat-postgresql-capture-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "connection_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "database": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "output_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "connection_handle",
+      "database",
+      "output_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

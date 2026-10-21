@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/workspace.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/session/v2"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "root": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "domain_dir": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "tools_dir": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tool_env": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "test_env": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "repository": {
+      "$ref": "common.schema.json#/$defs/Repository"
+    },
+    "baseline": {
+      "$ref": "common.schema.json#/$defs/Commit"
+    },
+    "install_bundle_digest": {
+      "$ref": "common.schema.json#/$defs/Digest"
+    },
+    "status": {
+      "enum": [
+        "open",
+        "closed"
+      ]
+    },
+    "evidence_dir": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "format",
+    "id",
+    "domain_id",
+    "root",
+    "domain_dir",
+    "tools_dir",
+    "tool_env",
+    "test_env",
+    "repository",
+    "baseline",
+    "install_bundle_digest",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -25,7 +25,7 @@ WORKLOADS = {
 def synthetic(size: int, repeats: int) -> int:
     import io
 
-    from deployment_tools_client.wire import frame, read_frame
+    from fishhat_client.wire import frame, read_frame
 
     message = {"synthetic": "x" * size}
     for _ in range(repeats):
@@ -81,7 +81,7 @@ def run(workload: str, size: int, repeats: int) -> int:
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / (workload + ".json")
     value = {
-        "format": "deployment-tools-profile/v1",
+        "format": "fishhat-profile/v1",
         "non_contractual": True,
         "qualification_eligible": False,
         "production_qualified": False,

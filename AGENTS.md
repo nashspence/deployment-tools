@@ -1,8 +1,8 @@
 # Developer guide
 
-Read [README.md](README.md) for an introduction to deployment-tools.
+Read [README.md](README.md) for an introduction to fishhat.
 
-The README explains deployment-tools’ intended system boundaries. This guide explains how to work inside them, for human contributors and automated agents alike. It states repository-wide work rules and points to the sources that own detailed behavior.
+The README explains fishhat’ intended system boundaries. This guide explains how to work inside them, for human contributors and automated agents alike. It states repository-wide work rules and points to the sources that own detailed behavior.
 
 The current implementation is a reference scaffold. Declared operations, reference models, and installed-package checks do not qualify native deployment or recovery. [Release policy](release.toml) owns that boundary.
 
@@ -36,7 +36,7 @@ Keep interpretation with its owner, too. Generic code should not acquire file-fo
 
 The [component policy tests](tests/test_component_policy.py) and [component inventory](policy/components.toml) define the precise ownership and dependency rules.
 
-Product-owned implementations live under `deployment-tools/`, reusable packages under `packages/`, and supplied independent implementations under `some-implementations/deployment-tools/`. The receiving owner explicitly approves installation, instance configuration, and scoped binding; application source cannot enroll an adapter or replace its instance configuration.
+Product-owned implementations live under `fishhat/`, reusable packages under `packages/`, and supplied independent implementations under `some-implementations/fishhat/`. The receiving owner explicitly approves installation, instance configuration, and scoped binding; application source cannot enroll an adapter or replace its instance configuration.
 
 ## Preserve custody and independent recovery
 
@@ -44,7 +44,7 @@ Act only on the exact inputs and within the current permissions granted to the o
 
 Preserve confirmed outcomes across retries. A timeout does not prove that work failed, and a cancellation request does not prove execution has stopped. Release data or execution resources only when the owning contract says it is safe.
 
-Local owners retain authority over their accepted work. Optional reporting, discovery, and client state must not become authorization or recovery prerequisites. The [contracts](packages/deployment-tools-contracts/) and [owner-state tests](tests/test_engineering.py) define the maintained reference behavior.
+Local owners retain authority over their accepted work. Optional reporting, discovery, and client state must not become authorization or recovery prerequisites. The [contracts](packages/fishhat-contracts/) and [owner-state tests](tests/test_engineering.py) define the maintained reference behavior.
 
 Never expose secrets or private deployment identity in public code, fixtures, logs, examples, or generated contracts.
 

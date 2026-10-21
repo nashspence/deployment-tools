@@ -75,7 +75,7 @@ def test_test_stats_retention_bounds_and_sanitization(tmp_path):
     unrelated.parent.mkdir(parents=True)
     unrelated.write_text("retained")
     for _ in range(35):
-        write_stats(tmp_path, {"format": "deployment-tools-pytest-timing/v1"})
+        write_stats(tmp_path, {"format": "fishhat-pytest-timing/v1"})
     assert len(list(unrelated.parent.glob("*.json"))) == 33
     assert unrelated.read_text() == "retained"
     assert "PRIVATE_SENTINEL" not in safe_node("tests/example.py::test_a[PRIVATE_SENTINEL/invalid]")

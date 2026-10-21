@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-domain"
+version = "0.1.0.dev0"
+description = "Portable domain command frontend"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-client==0.1.0.dev0", "fishhat-cli-support==0.1.0.dev0"]
+
+[project.scripts]
+domain-ops = "fishhat_domain.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_domain = ["py.typed"]
+
+[tool.uv.sources]
+fishhat-client = { workspace = true }
+fishhat-cli-support = { workspace = true }
+
+[tool.fishhat.component]
+id = "domain"
+module = "fishhat_domain"
+role = "domain-client"
