@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-client"
+version = "0.1.0.dev0"
+description = "Fishhat portable-client reference scaffold"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-contracts==0.1.0.dev0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_client = ["py.typed"]
+
+[tool.uv.sources]
+fishhat-contracts = { workspace = true }
+
+[tool.fishhat.component]
+id = "client"
+module = "fishhat_client"
+role = "portable-client"

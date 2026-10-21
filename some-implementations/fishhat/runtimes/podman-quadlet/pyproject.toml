@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-fishhat-podman-quadlet-runtime"
+version = "0.1.0.dev0"
+description = "podman-quadlet adapter: closed configuration scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-contracts==0.1.0.dev0", "fishhat-adapter-protocol==0.1.0.dev0", "fishhat-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-fishhat-podman-quadlet-runtime = "a_fishhat_podman_quadlet_runtime.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_fishhat_podman_quadlet_runtime = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+fishhat-contracts = { workspace = true }
+fishhat-adapter-protocol = { workspace = true }
+fishhat-adapter-support = { workspace = true }
+
+[tool.fishhat.component]
+id = "podman-quadlet-runtime"
+module = "a_fishhat_podman_quadlet_runtime"
+role = "adapter-implementation"

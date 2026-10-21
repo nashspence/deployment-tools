@@ -113,7 +113,7 @@ def migration_histories(root: Path = ROOT) -> list[dict[str, Any]]:
 
 def projection(root: Path = ROOT) -> dict[str, Any]:
     return {
-        "format": "deployment-tools-engineering-map/v1",
+        "format": "fishhat-engineering-map/v1",
         "production_qualified": False,
         "operations": declarations(root),
         "state_owners": migration_histories(root),

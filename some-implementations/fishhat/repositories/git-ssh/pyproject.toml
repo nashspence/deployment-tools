@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-fishhat-git-ssh-adapter"
+version = "0.1.0.dev0"
+description = "git-ssh adapter: closed configuration scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-fishhat-git-ssh-adapter = "a_fishhat_git_ssh_adapter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_fishhat_git_ssh_adapter = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+fishhat-adapter-support = { workspace = true }
+
+[tool.fishhat.component]
+id = "git-ssh-adapter"
+module = "a_fishhat_git_ssh_adapter"
+role = "adapter-implementation"

@@ -8,50 +8,50 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "a-deployment-tools-apt-adapter",
-    "a-deployment-tools-archive-slots-adapter",
-    "a-deployment-tools-bind-rfc2136-adapter",
-    "a-deployment-tools-buildah-adapter",
-    "a-deployment-tools-buildkit-adapter",
-    "a-deployment-tools-caddy-adapter",
-    "a-deployment-tools-delegated-cgroup-adapter",
-    "a-deployment-tools-dnsmasq-appliance-adapter",
-    "a-deployment-tools-docker-compose-runtime",
-    "a-deployment-tools-ext4-filesystem-adapter",
-    "a-deployment-tools-firewalld-adapter",
-    "a-deployment-tools-forgejo-adapter",
-    "a-deployment-tools-forgejo-age-adapter",
-    "a-deployment-tools-forgejo-issues-adapter",
-    "a-deployment-tools-git-ssh-adapter",
-    "a-deployment-tools-homebrew-adapter",
-    "a-deployment-tools-jsonl-adapter",
-    "a-deployment-tools-launchd-adapter",
-    "a-deployment-tools-nftables-adapter",
-    "a-deployment-tools-nginx-adapter",
-    "a-deployment-tools-openbao-database-adapter",
-    "a-deployment-tools-openbao-kv-adapter",
-    "a-deployment-tools-podman-quadlet-runtime",
-    "a-deployment-tools-postgresql-capture-adapter",
-    "a-deployment-tools-postgresql-credential-issuer-adapter",
-    "a-deployment-tools-procd-adapter",
-    "a-deployment-tools-quiesced-files-adapter",
-    "a-deployment-tools-restic-adapter",
-    "a-deployment-tools-sealed-archive-adapter",
-    "a-deployment-tools-systemd-adapter",
-    "a-deployment-tools-systemd-cgroup-adapter",
-    "a-deployment-tools-systemd-native-runtime",
-    "a-deployment-tools-xfs-project-adapter",
-    "deployment-tools-adapter-protocol",
-    "deployment-tools-adapter-support",
-    "deployment-tools-app",
-    "deployment-tools-cli-support",
-    "deployment-tools-client",
-    "deployment-tools-contracts",
-    "deployment-tools-directory",
-    "deployment-tools-domain",
-    "deployment-tools-host",
-    "deployment-tools-owner-support",
-    "deployment-tools-reporting",
+    "a-fishhat-apt-adapter",
+    "a-fishhat-archive-slots-adapter",
+    "a-fishhat-bind-rfc2136-adapter",
+    "a-fishhat-buildah-adapter",
+    "a-fishhat-buildkit-adapter",
+    "a-fishhat-caddy-adapter",
+    "a-fishhat-delegated-cgroup-adapter",
+    "a-fishhat-dnsmasq-appliance-adapter",
+    "a-fishhat-docker-compose-runtime",
+    "a-fishhat-ext4-filesystem-adapter",
+    "a-fishhat-firewalld-adapter",
+    "a-fishhat-forgejo-adapter",
+    "a-fishhat-forgejo-age-adapter",
+    "a-fishhat-forgejo-issues-adapter",
+    "a-fishhat-git-ssh-adapter",
+    "a-fishhat-homebrew-adapter",
+    "a-fishhat-jsonl-adapter",
+    "a-fishhat-launchd-adapter",
+    "a-fishhat-nftables-adapter",
+    "a-fishhat-nginx-adapter",
+    "a-fishhat-openbao-database-adapter",
+    "a-fishhat-openbao-kv-adapter",
+    "a-fishhat-podman-quadlet-runtime",
+    "a-fishhat-postgresql-capture-adapter",
+    "a-fishhat-postgresql-credential-issuer-adapter",
+    "a-fishhat-procd-adapter",
+    "a-fishhat-quiesced-files-adapter",
+    "a-fishhat-restic-adapter",
+    "a-fishhat-sealed-archive-adapter",
+    "a-fishhat-systemd-adapter",
+    "a-fishhat-systemd-cgroup-adapter",
+    "a-fishhat-systemd-native-runtime",
+    "a-fishhat-xfs-project-adapter",
+    "fishhat-adapter-protocol",
+    "fishhat-adapter-support",
+    "fishhat-app",
+    "fishhat-cli-support",
+    "fishhat-client",
+    "fishhat-contracts",
+    "fishhat-directory",
+    "fishhat-domain",
+    "fishhat-host",
+    "fishhat-owner-support",
+    "fishhat-reporting",
 ]
 
 [manifest.dependency-groups]
@@ -74,391 +74,391 @@ dev = [
 ]
 
 [[package]]
-name = "a-deployment-tools-apt-adapter"
+name = "a-fishhat-apt-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/software/apt" }
+source = { editable = "some-implementations/fishhat/software/apt" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-archive-slots-adapter"
+name = "a-fishhat-archive-slots-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/software/archive-slots" }
+source = { editable = "some-implementations/fishhat/software/archive-slots" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-bind-rfc2136-adapter"
+name = "a-fishhat-bind-rfc2136-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/dns/bind-rfc2136" }
+source = { editable = "some-implementations/fishhat/dns/bind-rfc2136" }
 dependencies = [
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
 ]
 
 [[package]]
-name = "a-deployment-tools-buildah-adapter"
+name = "a-fishhat-buildah-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/builds/buildah" }
+source = { editable = "some-implementations/fishhat/builds/buildah" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-buildkit-adapter"
+name = "a-fishhat-buildkit-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/builds/buildkit" }
+source = { editable = "some-implementations/fishhat/builds/buildkit" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-caddy-adapter"
+name = "a-fishhat-caddy-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/ingress/caddy" }
+source = { editable = "some-implementations/fishhat/ingress/caddy" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-delegated-cgroup-adapter"
+name = "a-fishhat-delegated-cgroup-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/compute/delegated-cgroup" }
+source = { editable = "some-implementations/fishhat/compute/delegated-cgroup" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-dnsmasq-appliance-adapter"
+name = "a-fishhat-dnsmasq-appliance-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/dns/dnsmasq-appliance" }
+source = { editable = "some-implementations/fishhat/dns/dnsmasq-appliance" }
 dependencies = [
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
-]
-
-[[package]]
-name = "a-deployment-tools-docker-compose-runtime"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/runtimes/docker-compose" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-ext4-filesystem-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/storage/ext4-filesystem" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-firewalld-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/network/firewalld" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-forgejo-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/repositories/forgejo" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-forgejo-age-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/secrets/forgejo-age" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-forgejo-issues-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/reporting/forgejo-issues" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-git-ssh-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/repositories/git-ssh" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-homebrew-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/software/homebrew" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-jsonl-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/reporting/jsonl" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-launchd-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/services/launchd" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-nftables-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/network/nftables" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-nginx-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/ingress/nginx" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-openbao-database-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/credentials/openbao-database" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-openbao-kv-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/secrets/openbao-kv" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-podman-quadlet-runtime"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/runtimes/podman-quadlet" }
-dependencies = [
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
 ]
 
 [[package]]
-name = "a-deployment-tools-postgresql-capture-adapter"
+name = "a-fishhat-docker-compose-runtime"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/capture/postgresql" }
+source = { editable = "some-implementations/fishhat/runtimes/docker-compose" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
-
-[[package]]
-name = "a-deployment-tools-postgresql-credential-issuer-adapter"
-version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/credentials/postgresql" }
-dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-procd-adapter"
+name = "a-fishhat-ext4-filesystem-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/services/procd" }
+source = { editable = "some-implementations/fishhat/storage/ext4-filesystem" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-quiesced-files-adapter"
+name = "a-fishhat-firewalld-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/capture/quiesced-files" }
+source = { editable = "some-implementations/fishhat/network/firewalld" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-restic-adapter"
+name = "a-fishhat-forgejo-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/backup/restic" }
+source = { editable = "some-implementations/fishhat/repositories/forgejo" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-sealed-archive-adapter"
+name = "a-fishhat-forgejo-age-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/backup/sealed-archive" }
+source = { editable = "some-implementations/fishhat/secrets/forgejo-age" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-systemd-adapter"
+name = "a-fishhat-forgejo-issues-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/services/systemd" }
+source = { editable = "some-implementations/fishhat/reporting/forgejo-issues" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-systemd-cgroup-adapter"
+name = "a-fishhat-git-ssh-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/compute/systemd-cgroup" }
+source = { editable = "some-implementations/fishhat/repositories/git-ssh" }
 dependencies = [
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-homebrew-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/software/homebrew" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-jsonl-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/reporting/jsonl" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-launchd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/services/launchd" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-nftables-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/network/nftables" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-nginx-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/ingress/nginx" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-openbao-database-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/credentials/openbao-database" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-openbao-kv-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/secrets/openbao-kv" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-podman-quadlet-runtime"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/runtimes/podman-quadlet" }
+dependencies = [
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
 ]
 
 [[package]]
-name = "a-deployment-tools-systemd-native-runtime"
+name = "a-fishhat-postgresql-capture-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/runtimes/systemd-native" }
+source = { editable = "some-implementations/fishhat/capture/postgresql" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
-name = "a-deployment-tools-xfs-project-adapter"
+name = "a-fishhat-postgresql-credential-issuer-adapter"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/storage/xfs-project" }
+source = { editable = "some-implementations/fishhat/credentials/postgresql" }
 dependencies = [
-    { name = "deployment-tools-adapter-support" },
+    { name = "fishhat-adapter-support" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-adapter-support", editable = "packages/deployment-tools-adapter-support" }]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-procd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/services/procd" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-quiesced-files-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/capture/quiesced-files" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-restic-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/backup/restic" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-sealed-archive-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/backup/sealed-archive" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-systemd-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/services/systemd" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-systemd-cgroup-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/compute/systemd-cgroup" }
+dependencies = [
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support" },
+    { name = "fishhat-contracts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
+]
+
+[[package]]
+name = "a-fishhat-systemd-native-runtime"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/runtimes/systemd-native" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-xfs-project-adapter"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/storage/xfs-project" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
 
 [[package]]
 name = "alembic"
@@ -576,11 +576,11 @@ filecache = [
 
 [[package]]
 name = "certifi"
-version = "2026.10.18"
+version = "2026.10.19"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7e/eb/a2aa1ac3ea30dd3f30ca57f40232138b6b0040719316ecb85daf61167771/certifi-2026.10.18.tar.gz", hash = "sha256:b9995d97b64d0431a5af837d8ca8cd6238104d1f319f04bd93ea43124d6c861e", size = 135227, upload-time = "2026-10-18T16:21:07.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/bd/1436c50cc46699de0230fbaacc1d1de7bfec413176099949e9d5112e88f2/certifi-2026.10.19.tar.gz", hash = "sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae", size = 137598, upload-time = "2026-10-20T02:24:16.604Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/ba/95dd616042484f7c83a06974388b37b837732740ee70bc5dc715b5fcd55a/certifi-2026.10.18-py3-none-any.whl", hash = "sha256:73191c47aaa79da394e8fee2dbc2ec827432cab56311122c9e47abf79e390f62", size = 134093, upload-time = "2026-10-18T16:21:06.276Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/51/29046e48f693c54e5b7412216d447a1d8362c9653148d98c02cdf65fa733/certifi-2026.10.19-py3-none-any.whl", hash = "sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b", size = 136464, upload-time = "2026-10-20T02:24:15.072Z" },
 ]
 
 [[package]]
@@ -941,78 +941,87 @@ wheels = [
 ]
 
 [[package]]
-name = "deployment-tools-adapter-protocol"
+name = "filelock"
+version = "4.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/28/3893324bcadf8f89b1616637468d766af3f625008c0735bf704fdfa86617/filelock-4.2.4.tar.gz", hash = "sha256:c6d8663535e1650ee430507b4ffbac7b464dd64b7647ea0112a9f406499d163d", size = 652444, upload-time = "2026-10-19T01:57:51.001Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/1b/5e74289a1878e666bb4b65fe5805a04cafcac2aa5f519ef1ead67ef91c56/filelock-4.2.4-py3-none-any.whl", hash = "sha256:301241438c57936ef93f4243a94f2559022268bfcf9b375a9a72eb0f8db8358e", size = 162475, upload-time = "2026-10-19T01:57:49.419Z" },
+]
+
+[[package]]
+name = "fishhat-adapter-protocol"
 version = "0.1.0.dev0"
-source = { editable = "packages/deployment-tools-adapter-protocol" }
+source = { editable = "packages/fishhat-adapter-protocol" }
 dependencies = [
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-contracts" },
     { name = "jsonschema" },
     { name = "referencing" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
     { name = "jsonschema", specifier = "==4.26.0" },
     { name = "referencing", specifier = "==0.37.0" },
 ]
 
 [[package]]
-name = "deployment-tools-adapter-support"
+name = "fishhat-adapter-support"
 version = "0.1.0.dev0"
-source = { editable = "packages/deployment-tools-adapter-support" }
+source = { editable = "packages/fishhat-adapter-support" }
 dependencies = [
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
 ]
 
 [[package]]
-name = "deployment-tools-app"
+name = "fishhat-app"
 version = "0.1.0.dev0"
-source = { editable = "deployment-tools/app-ops" }
+source = { editable = "fishhat/app-ops" }
 dependencies = [
-    { name = "deployment-tools-cli-support" },
-    { name = "deployment-tools-owner-support" },
+    { name = "fishhat-cli-support" },
+    { name = "fishhat-owner-support" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
-    { name = "deployment-tools-owner-support", editable = "deployment-tools/owner-support" },
+    { name = "fishhat-cli-support", editable = "fishhat/cli-support" },
+    { name = "fishhat-owner-support", editable = "fishhat/owner-support" },
 ]
 
 [[package]]
-name = "deployment-tools-cli-support"
+name = "fishhat-cli-support"
 version = "0.1.0.dev0"
-source = { editable = "deployment-tools/cli-support" }
+source = { editable = "fishhat/cli-support" }
 dependencies = [
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
+requires-dist = [{ name = "fishhat-contracts", editable = "packages/fishhat-contracts" }]
 
 [[package]]
-name = "deployment-tools-client"
+name = "fishhat-client"
 version = "0.1.0.dev0"
-source = { editable = "packages/deployment-tools-client" }
+source = { editable = "packages/fishhat-client" }
 dependencies = [
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" }]
+requires-dist = [{ name = "fishhat-contracts", editable = "packages/fishhat-contracts" }]
 
 [[package]]
-name = "deployment-tools-contracts"
+name = "fishhat-contracts"
 version = "0.1.0.dev0"
-source = { editable = "packages/deployment-tools-contracts" }
+source = { editable = "packages/fishhat-contracts" }
 dependencies = [
     { name = "cryptography" },
     { name = "jsonschema" },
@@ -1029,93 +1038,84 @@ requires-dist = [
 ]
 
 [[package]]
-name = "deployment-tools-directory"
+name = "fishhat-directory"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/applications/directory" }
+source = { editable = "some-implementations/fishhat/applications/directory" }
 dependencies = [
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-contracts" },
     { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
     { name = "pyyaml", specifier = "==6.0.3" },
 ]
 
 [[package]]
-name = "deployment-tools-domain"
+name = "fishhat-domain"
 version = "0.1.0.dev0"
-source = { editable = "deployment-tools/domain-ops" }
+source = { editable = "fishhat/domain-ops" }
 dependencies = [
-    { name = "deployment-tools-cli-support" },
-    { name = "deployment-tools-client" },
+    { name = "fishhat-cli-support" },
+    { name = "fishhat-client" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
-    { name = "deployment-tools-client", editable = "packages/deployment-tools-client" },
+    { name = "fishhat-cli-support", editable = "fishhat/cli-support" },
+    { name = "fishhat-client", editable = "packages/fishhat-client" },
 ]
 
 [[package]]
-name = "deployment-tools-host"
+name = "fishhat-host"
 version = "0.1.0.dev0"
-source = { editable = "deployment-tools/host-ops" }
+source = { editable = "fishhat/host-ops" }
 dependencies = [
-    { name = "deployment-tools-cli-support" },
-    { name = "deployment-tools-owner-support" },
+    { name = "fishhat-cli-support" },
+    { name = "fishhat-owner-support" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deployment-tools-cli-support", editable = "deployment-tools/cli-support" },
-    { name = "deployment-tools-owner-support", editable = "deployment-tools/owner-support" },
+    { name = "fishhat-cli-support", editable = "fishhat/cli-support" },
+    { name = "fishhat-owner-support", editable = "fishhat/owner-support" },
 ]
 
 [[package]]
-name = "deployment-tools-owner-support"
+name = "fishhat-owner-support"
 version = "0.1.0.dev0"
-source = { editable = "deployment-tools/owner-support" }
+source = { editable = "fishhat/owner-support" }
 dependencies = [
     { name = "alembic" },
-    { name = "deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol" },
+    { name = "fishhat-contracts" },
     { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18,<2" },
-    { name = "deployment-tools-adapter-protocol", editable = "packages/deployment-tools-adapter-protocol" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]
 
 [[package]]
-name = "deployment-tools-reporting"
+name = "fishhat-reporting"
 version = "0.1.0.dev0"
-source = { editable = "some-implementations/deployment-tools/applications/receipts" }
+source = { editable = "some-implementations/fishhat/applications/receipts" }
 dependencies = [
     { name = "alembic" },
-    { name = "deployment-tools-contracts" },
+    { name = "fishhat-contracts" },
     { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18,<2" },
-    { name = "deployment-tools-contracts", editable = "packages/deployment-tools-contracts" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
-]
-
-[[package]]
-name = "filelock"
-version = "4.2.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d8/28/3893324bcadf8f89b1616637468d766af3f625008c0735bf704fdfa86617/filelock-4.2.4.tar.gz", hash = "sha256:c6d8663535e1650ee430507b4ffbac7b464dd64b7647ea0112a9f406499d163d", size = 652444, upload-time = "2026-10-19T01:57:51.001Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/1b/5e74289a1878e666bb4b65fe5805a04cafcac2aa5f519ef1ead67ef91c56/filelock-4.2.4-py3-none-any.whl", hash = "sha256:301241438c57936ef93f4243a94f2559022268bfcf9b375a9a72eb0f8db8358e", size = 162475, upload-time = "2026-10-19T01:57:49.419Z" },
 ]
 
 [[package]]

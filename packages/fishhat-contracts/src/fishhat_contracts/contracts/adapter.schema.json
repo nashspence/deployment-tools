@@ -1,0 +1,1050 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/adapter.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/adapter/v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "runtime",
+          "compute",
+          "storage",
+          "capture",
+          "backup",
+          "secret-source",
+          "credential-issuer",
+          "dns",
+          "ingress",
+          "network",
+          "software",
+          "service",
+          "repository",
+          "build",
+          "report"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 15,
+      "uniqueItems": true
+    },
+    "entrypoint": {
+      "$ref": "common.schema.json#/$defs/RelativePath"
+    },
+    "configuration_schema": {
+      "type": "object"
+    },
+    "component_schema": {
+      "type": "object"
+    },
+    "implemented": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+      },
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "native_qualified": {
+      "const": false
+    },
+    "source_schema": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "format",
+    "id",
+    "roles",
+    "entrypoint",
+    "configuration_schema",
+    "component_schema",
+    "implemented",
+    "native_qualified",
+    "source_schema"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ImplementationId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+    },
+    "Handle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+    },
+    "Generation": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "digest",
+        "media_type",
+        "size_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "kind": {
+          "enum": [
+            "application",
+            "allocation",
+            "dataset",
+            "backup-repository",
+            "secret-source",
+            "credential-issuer",
+            "dns-service",
+            "ingress",
+            "network",
+            "software",
+            "service",
+            "repository",
+            "builder",
+            "report-sink"
+          ]
+        },
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        }
+      },
+      "required": [
+        "authority",
+        "kind",
+        "handle"
+      ],
+      "additionalProperties": false
+    },
+    "Selection": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "source_schema_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "source": {
+          "type": "object",
+          "maxProperties": 128
+        }
+      },
+      "required": [
+        "instance",
+        "source_schema_digest",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Grant": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "observe",
+              "change"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "scope",
+        "access"
+      ],
+      "additionalProperties": false
+    },
+    "Installation": {
+      "type": "object",
+      "properties": {
+        "implementation": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+        },
+        "artifact": {
+          "$ref": "adapter.schema.json#/$defs/Artifact"
+        },
+        "descriptor_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "implementation",
+        "artifact",
+        "descriptor_digest",
+        "enabled"
+      ],
+      "additionalProperties": false
+    },
+    "Instance": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "implementation": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+        },
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "role": {
+          "enum": [
+            "runtime",
+            "compute",
+            "storage",
+            "capture",
+            "backup",
+            "secret-source",
+            "credential-issuer",
+            "dns",
+            "ingress",
+            "network",
+            "software",
+            "service",
+            "repository",
+            "build",
+            "report"
+          ]
+        },
+        "schema_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "configuration": {
+          "type": "object",
+          "maxProperties": 128
+        },
+        "grants": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Grant"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "id",
+        "implementation",
+        "installation_digest",
+        "role",
+        "schema_digest",
+        "configuration",
+        "grants",
+        "generation"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeBinding": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "configuration_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "native_incarnation": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "admission_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "instance_generation": {
+          "$ref": "adapter.schema.json#/$defs/Generation"
+        }
+      },
+      "required": [
+        "subject",
+        "instance",
+        "generation",
+        "installation_digest",
+        "configuration_digest",
+        "scope",
+        "native_incarnation",
+        "admission_generation",
+        "instance_generation"
+      ],
+      "additionalProperties": false
+    },
+    "Deployment": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "release_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "projection_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "handle",
+        "release_digest",
+        "binding_digest",
+        "projection_digest",
+        "components"
+      ],
+      "additionalProperties": false
+    },
+    "Observation": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "native_incarnation": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "coverage": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "unknown"
+          ]
+        },
+        "activity": {
+          "enum": [
+            "active",
+            "inactive",
+            "unknown"
+          ]
+        },
+        "health": {
+          "enum": [
+            "healthy",
+            "unhealthy",
+            "unknown",
+            "unsupported"
+          ]
+        },
+        "quiescence": {
+          "enum": [
+            "verified",
+            "not-quiescent",
+            "unknown"
+          ]
+        },
+        "continuation": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "admission_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "scope",
+        "generation",
+        "observed_at",
+        "native_incarnation",
+        "coverage",
+        "activity",
+        "health",
+        "quiescence",
+        "continuation",
+        "instance",
+        "installation_digest",
+        "admission_generation"
+      ],
+      "additionalProperties": false
+    },
+    "EffectAttempt": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "operation_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "effect_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "native_incarnation": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+        },
+        "method": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "input_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "state": {
+          "enum": [
+            "prepared",
+            "dispatched",
+            "reconciling",
+            "resolved"
+          ]
+        },
+        "certainty": {
+          "enum": [
+            "none",
+            "known",
+            "unknown"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "pending",
+            "succeeded",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "native_task": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "operation_id",
+        "effect_id",
+        "attempt_id",
+        "instance",
+        "installation_digest",
+        "binding_generation",
+        "native_incarnation",
+        "contract",
+        "method",
+        "scope",
+        "input_digest",
+        "state",
+        "certainty",
+        "outcome",
+        "native_task"
+      ],
+      "additionalProperties": false
+    },
+    "EffectResult": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "input_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "acknowledgment": {
+          "enum": [
+            "accepted",
+            "rejected",
+            "unknown"
+          ]
+        },
+        "task_state": {
+          "enum": [
+            "running",
+            "terminal",
+            "unknown"
+          ]
+        },
+        "effect_certainty": {
+          "enum": [
+            "none",
+            "known",
+            "unknown"
+          ]
+        },
+        "postcondition": {
+          "enum": [
+            "satisfied",
+            "not-satisfied",
+            "unknown"
+          ]
+        },
+        "native_task": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "attempt_id",
+        "input_digest",
+        "acknowledgment",
+        "task_state",
+        "effect_certainty",
+        "postcondition",
+        "native_task"
+      ],
+      "additionalProperties": false
+    },
+    "Qualification": {
+      "type": "object",
+      "properties": {
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "contract_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "configuration_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "environment_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "runner": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/Entry"
+              },
+              "outcome": {
+                "enum": [
+                  "passed",
+                  "failed",
+                  "skipped",
+                  "not-executed"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "outcome"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 1024,
+          "uniqueItems": true
+        },
+        "external_accounts": {
+          "const": false
+        },
+        "native_dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Artifact"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "installation_digest",
+        "contract_digest",
+        "configuration_digest",
+        "environment_digest",
+        "runner",
+        "cases",
+        "external_accounts",
+        "native_dependencies"
+      ],
+      "additionalProperties": false
+    },
+    "Snapshot": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "dataset": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "format": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+        },
+        "consistency": {
+          "enum": [
+            "quiesced",
+            "native-transaction"
+          ]
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Artifact"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "restore_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "handle",
+        "dataset",
+        "format",
+        "consistency",
+        "artifacts",
+        "restore_requirements"
+      ],
+      "additionalProperties": false
+    },
+    "Counter": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "enum": [
+            "bytes",
+            "inodes",
+            "tasks",
+            "cpu-millis"
+          ]
+        },
+        "coverage": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "unsupported",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "coverage"
+      ],
+      "additionalProperties": false
+    },
+    "Allocation": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "accounting_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "purposes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "runtime",
+              "state",
+              "scratch",
+              "logs"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "native_identity_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "counters": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Counter"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "hard_isolation": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "handle",
+        "accounting_domain",
+        "purposes",
+        "native_identity_digest",
+        "counters",
+        "hard_isolation"
+      ],
+      "additionalProperties": false
+    },
+    "SecretVersion": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "entry": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "value_handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$"
+        },
+        "validity": {
+          "enum": [
+            "valid",
+            "expired",
+            "revoked",
+            "unknown"
+          ]
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "entry",
+        "version",
+        "value_handle",
+        "validity",
+        "expires_at"
+      ],
+      "additionalProperties": false
+    },
+    "NativeObject": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "kind": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "native_selector": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "incarnation": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "produced_by": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Handle"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "handle",
+        "scope",
+        "kind",
+        "native_selector",
+        "incarnation",
+        "produced_by",
+        "references"
+      ],
+      "additionalProperties": false
+    },
+    "BackupObject": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "repository": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/Artifact"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "completeness": {
+          "enum": [
+            "sealed",
+            "incomplete",
+            "unknown"
+          ]
+        },
+        "retrieval": {
+          "enum": [
+            "available",
+            "deferred",
+            "missing",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "handle",
+        "repository",
+        "artifacts",
+        "completeness",
+        "retrieval"
+      ],
+      "additionalProperties": false
+    },
+    "CredentialLease": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "consumer": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "value_handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "lease": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "validity": {
+          "enum": [
+            "valid",
+            "expired",
+            "revoked",
+            "unknown"
+          ]
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "renewable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "identity",
+        "consumer",
+        "value_handle",
+        "lease",
+        "validity",
+        "expires_at",
+        "renewable"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

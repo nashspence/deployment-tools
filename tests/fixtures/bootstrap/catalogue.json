@@ -23,13 +23,13 @@
       "total_bytes": 32768
     },
     {
-      "source_id": "deployment-tools",
+      "source_id": "fishhat",
       "repository": {
         "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
         "repository_id": 31,
-        "name": "tools/deployment-tools"
+        "name": "tools/fishhat"
       },
-      "bare_repository_path": "/recovery/bootstrap/repos/deployment-tools.git",
+      "bare_repository_path": "/recovery/bootstrap/repos/fishhat.git",
       "branch": "main",
       "commit": "2222222222222222222222222222222222222222",
       "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

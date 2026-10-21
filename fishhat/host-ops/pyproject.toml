@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishhat-host"
+version = "0.1.0.dev0"
+description = "Fishhat host-owner-scaffold reference scaffold"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-owner-support==0.1.0.dev0", "fishhat-cli-support==0.1.0.dev0"]
+
+[project.scripts]
+host-ops = "fishhat_host.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fishhat_host = ["py.typed"]
+
+[tool.uv.sources]
+fishhat-owner-support = { workspace = true }
+fishhat-cli-support = { workspace = true }
+
+[tool.fishhat.component]
+id = "host"
+module = "fishhat_host"
+role = "host-owner-scaffold"

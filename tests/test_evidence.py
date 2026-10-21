@@ -233,7 +233,7 @@ def test_mixed_groups_need_their_actual_assertion_execution():
 
 
 def test_actual_cli_oracle_rejects_wrong_output_with_other_checks_green():
-    from deployment_tools_cli import validation
+    from fishhat_cli import validation
 
     from tests import test_operation_coverage as cli
 
@@ -253,7 +253,7 @@ def test_actual_cli_oracle_rejects_wrong_output_with_other_checks_green():
 
 
 def test_actual_growth_oracle_rejects_silent_extent_loss(tmp_path):
-    from deployment_tools_reporting.store import EventStore
+    from fishhat_reporting.store import EventStore
 
     from tests.test_engineering import (
         test_event_pages_use_bounded_indexed_work_and_preserve_full_extent,

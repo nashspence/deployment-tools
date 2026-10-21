@@ -8,9 +8,9 @@ import tomllib
 from pathlib import Path
 
 import pytest
-from deployment_tools_contracts import ContractError
-from deployment_tools_owner.journal import Journal
-from deployment_tools_reporting.store import EventStore
+from fishhat_contracts import ContractError
+from fishhat_owner.journal import Journal
+from fishhat_reporting.store import EventStore
 
 from scripts.check_evidence import evidence_group
 from scripts.project_policy import ROOT, boundary_errors, components, snapshot, state_errors
@@ -39,7 +39,7 @@ def test_component_import_violation_is_detected(tmp_path):
         tmp_path / "packages",
         ignore=shutil.ignore_patterns("*.egg-info", "__pycache__", "build"),
     )
-    for directory in ("deployment-tools", "some-implementations"):
+    for directory in ("fishhat", "some-implementations"):
         shutil.copytree(
             ROOT / directory,
             tmp_path / directory,
@@ -48,8 +48,8 @@ def test_component_import_violation_is_detected(tmp_path):
     shutil.copyfile(ROOT / "pyproject.toml", tmp_path / "pyproject.toml")
     shutil.copytree(ROOT / "policy", tmp_path / "policy")
     shutil.copyfile(ROOT / "release.toml", tmp_path / "release.toml")
-    module = tmp_path / "packages/deployment-tools-client/src/deployment_tools_client/invalid.py"
-    module.write_text("import deployment_tools_reporting.store\n")
+    module = tmp_path / "packages/fishhat-client/src/fishhat_client/invalid.py"
+    module.write_text("import fishhat_reporting.store\n")
     assert any("undeclared cross-component import" in error for error in boundary_errors(tmp_path))
 
 
@@ -179,7 +179,59 @@ def test_retired_state_fixtures_and_migrations_remain_immutable(tmp_path, relati
     assert fixture_history_errors(tmp_path)
 
 
+@pytest.mark.parametrize("disposition", ["preserved", "changed", "deleted", "different-owner"])
+def test_migration_namespace_relocation_preserves_owner_and_introduced_bytes(tmp_path, disposition):
+    import subprocess
+
+    from scripts.project_policy import fixture_history_errors
+
+    initial = tmp_path / "packages/original/src/original_owner/migrations/versions/v1_0001.py"
+    initial.parent.mkdir(parents=True)
+    initial.write_text('revision = "v1_0001"\n')
+    inventory = tmp_path / "state/inventory.toml"
+    inventory.parent.mkdir()
+    inventory.write_text('[[owners]]\nid = "ledger"\nmigrations = "original_owner.migrations"\n')
+    project = tmp_path / "pyproject.toml"
+    project.write_text('[tool.uv.workspace]\nmembers = ["packages/*"]\n')
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Fixture Maintainer",
+            "-c",
+            "user.email=maintainer@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Introduce owned migration",
+        ],
+        cwd=tmp_path,
+        check=True,
+    )
+    target = tmp_path / "packages/renamed/src/renamed_owner/migrations/versions/v1_0001.py"
+    target.parent.mkdir(parents=True)
+    initial.rename(target)
+    (tmp_path / "packages/renamed/pyproject.toml").write_text('[project]\nname = "renamed"\n')
+    owner = "other-ledger" if disposition == "different-owner" else "ledger"
+    inventory.write_text(f'[[owners]]\nid = "{owner}"\nmigrations = "renamed_owner.migrations"\n')
+    if disposition == "changed":
+        target.write_text(target.read_text() + "\n")
+    elif disposition == "deleted":
+        target.unlink()
+    assert bool(fixture_history_errors(tmp_path)) == (disposition != "preserved")
+
+
 CHECK_OVERRIDES = {
+    "test_migration_namespace_relocation_preserves_owner_and_introduced_bytes": {
+        "purpose": "repository-policy",
+        "authority": ["release.toml#/state"],
+        "scope": "introduced migration history across namespace relocation",
+        "relationship": "no-product-claim",
+        "reason": "A namespace move must retain the durable owner identity and every introduced byte.",
+        "claims": [],
+    },
     "test_preserved_owner_journal_replays_and_retains_epoch": {
         "purpose": "implementation",
         "authority": ["state/inventory.toml"],

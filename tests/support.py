@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
-PACKAGE = ROOT / "packages/deployment-tools-contracts/src/deployment_tools_contracts"
+PACKAGE = ROOT / "packages/fishhat-contracts/src/fishhat_contracts"
 
 
 def fixture_path(name):

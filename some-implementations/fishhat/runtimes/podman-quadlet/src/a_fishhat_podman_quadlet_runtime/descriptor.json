@@ -1,0 +1,61 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "fishhat.podman-quadlet",
+  "roles": [
+    "runtime"
+  ],
+  "entrypoint": "bin/a-fishhat-podman-quadlet-runtime",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "account"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {
+      "unit": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 240,
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+      }
+    },
+    "required": [
+      "unit"
+    ],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+        },
+        "minItems": 1,
+        "maxItems": 256,
+        "uniqueItems": true
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}

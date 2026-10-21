@@ -4,7 +4,7 @@
   "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
   "root": "/home/example/work/change-001",
   "domain_dir": "/home/example/work/change-001/estate-config",
-  "tools_dir": "/home/example/work/change-001/deployment-tools",
+  "tools_dir": "/home/example/work/change-001/fishhat",
   "tool_env": "/home/example/work/change-001/.venv-tools",
   "test_env": "/home/example/work/change-001/.venv-tests",
   "repository": {

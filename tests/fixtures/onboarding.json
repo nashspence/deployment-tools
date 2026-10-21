@@ -6,9 +6,9 @@
     "identity": {
       "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
       "repository_id": 31,
-      "name": "tools/deployment-tools"
+      "name": "tools/fishhat"
     },
-    "clone_url": "ssh://git@forgejo.example.invalid/tools/deployment-tools.git",
+    "clone_url": "ssh://git@forgejo.example.invalid/tools/fishhat.git",
     "ref": "refs/heads/main",
     "entrypoint": "README.md"
   },

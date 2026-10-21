@@ -186,7 +186,7 @@ platform_profile: qualified-linux
 adapter_instances:
   quadlet:
     id: quadlet
-    implementation: deployment-tools.podman-quadlet
+    implementation: fishhat.podman-quadlet
     installation_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     role: runtime
     schema_digest: sha256:e4bbe3fdf024f1cfee743e997f83e95348c3ac49fa64312968f846f897660058

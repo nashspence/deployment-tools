@@ -1,0 +1,116 @@
+"""Explicit, forward-only reference-state upgrades; never invoked by store open."""
+
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
+from fishhat_contracts import ContractError
+from sqlalchemy import URL, Connection, create_engine, event
+
+HEAD = "v1_0001"
+
+
+def check_revision(db: sqlite3.Connection) -> None:
+    if db.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='alembic_version'"
+    ).fetchone():
+        if db.execute("SELECT version_num FROM alembic_version").fetchall() != [(HEAD,)]:
+            raise ContractError("unsupported migration revision")
+
+
+def configuration(connection: Connection) -> Config:
+    config = Config()
+    config.set_main_option("script_location", str(Path(__file__).parent))
+    config.attributes["connection"] = connection
+    return config
+
+
+def upgrade(path: Path) -> None:
+    if not path.is_file() or path.is_symlink():
+        raise ContractError("explicit existing state required for migration")
+    engine = create_engine(
+        URL.create("sqlite", database=str(path.resolve())), connect_args={"isolation_level": None}
+    )
+
+    @event.listens_for(engine, "begin")
+    def begin(connection: Connection) -> None:
+        connection.exec_driver_sql("BEGIN EXCLUSIVE")
+
+    try:
+        with engine.begin() as connection:
+            # Validate legacy format and exact schema before adopting its baseline.
+            tables = set(
+                connection.exec_driver_sql(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).scalars()
+            )
+            expected = {
+                "meta": [("key", "TEXT", 0, 1), ("value", "TEXT", 1, 0)],
+                "events": [
+                    ("sequence", "INTEGER", 0, 1),
+                    ("domain_id", "TEXT", 1, 0),
+                    ("workflow_id", "TEXT", 1, 0),
+                    ("event_id", "TEXT", 1, 0),
+                    ("content_digest", "TEXT", 1, 0),
+                    ("canonical_event", "BLOB", 1, 0),
+                    ("reporter", "TEXT", 1, 0),
+                    ("received_at", "TEXT", 1, 0),
+                ],
+            }
+            if tables - {"alembic_version", "sqlite_sequence"} != set(expected):
+                raise ContractError("unrecognized legacy state")
+            for table, columns in expected.items():
+                actual = [
+                    (row[1], row[2], row[3], row[5])
+                    for row in connection.exec_driver_sql(
+                        "SELECT * FROM pragma_table_info(?)", (table,)
+                    )
+                ]
+                if actual != columns:
+                    raise ContractError("unrecognized legacy schema")
+            indexes = {
+                "meta": {(1, ("key",))},
+                "events": {
+                    (0, ("domain_id", "workflow_id", "sequence")),
+                    (1, ("domain_id", "workflow_id", "event_id")),
+                },
+            }
+            for table, expected_indexes in indexes.items():
+                actual_indexes = {
+                    (
+                        row[2],
+                        tuple(
+                            item[2]
+                            for item in connection.exec_driver_sql(
+                                "SELECT * FROM pragma_index_info(?)", (row[1],)
+                            )
+                        ),
+                    )
+                    for row in connection.exec_driver_sql(
+                        "SELECT * FROM pragma_index_list(?)", (table,)
+                    )
+                }
+                if actual_indexes != expected_indexes:
+                    raise ContractError("unrecognized legacy indexes")
+            validate_marker(connection)
+            if "alembic_version" in tables:
+                if list(
+                    connection.exec_driver_sql("SELECT version_num FROM alembic_version").scalars()
+                ) != [HEAD]:
+                    raise ContractError("unsupported migration revision")
+            else:
+                command.stamp(configuration(connection), HEAD)
+            command.upgrade(configuration(connection), "head")
+    finally:
+        engine.dispose()
+
+
+def validate_marker(connection: Connection) -> None:
+    if (
+        connection.exec_driver_sql("SELECT value FROM meta WHERE key='schema'").scalar_one_or_none()
+        != "1"
+    ):
+        raise ContractError("unsupported legacy schema")

@@ -173,8 +173,8 @@ execute(importlib.import_module(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3
 
 @pytest.mark.parametrize("owner", OWNERS, ids=lambda owner: owner["id"])
 def test_store_open_rejects_unknown_alembic_revision_without_changing_state(owner, tmp_path):
-    from deployment_tools_owner.journal import Journal
-    from deployment_tools_reporting.store import EventStore
+    from fishhat_owner.journal import Journal
+    from fishhat_reporting.store import EventStore
 
     from tests.test_engineering import EPOCH, OWNER, SERVICE, event
 
@@ -193,7 +193,7 @@ def test_store_open_rejects_unknown_alembic_revision_without_changing_state(owne
 
 
 def test_alembic_requires_a_real_sqlite_transaction_before_ddl(tmp_path):
-    from deployment_tools_owner import migrations
+    from fishhat_owner import migrations
 
     engine = create_engine(URL.create("sqlite", database=str(tmp_path / "example.sqlite")))
     try:

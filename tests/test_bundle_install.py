@@ -26,7 +26,7 @@ def bundle_fixture(root):
     lock = root / "locks/fixture.txt"
     lock.write_text("fixture==1.0 --hash=sha256:" + sha256(wheel) + "\n")
     manifest = {
-        "format": "deployment-tools-scaffold-bundle/v1",
+        "format": "fishhat-scaffold-bundle/v1",
         "production_qualified": False,
         "profile": {
             "platform": sys.platform,

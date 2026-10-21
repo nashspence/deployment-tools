@@ -142,11 +142,9 @@ class SecurityGates(unittest.TestCase):
             self.assertNotIn("if", job)
             self.assertNotIn("continue-on-error", job)
         commands = "\n".join(step.get("run", "") for step in workflow["jobs"]["ruff"]["steps"])
+        self.assertIn("ruff check packages fishhat some-implementations scripts tests", commands)
         self.assertIn(
-            "ruff check packages deployment-tools some-implementations scripts tests", commands
-        )
-        self.assertIn(
-            "ruff format --check packages deployment-tools some-implementations scripts tests",
+            "ruff format --check packages fishhat some-implementations scripts tests",
             commands,
         )
 

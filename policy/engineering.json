@@ -1,5 +1,5 @@
 {
-  "format": "deployment-tools-engineering-map/v1",
+  "format": "fishhat-engineering-map/v1",
   "metrics": {
     "collection": "required",
     "non_contractual": true,
@@ -25,10 +25,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "some-implementations/deployment-tools/applications/directory/src/deployment_tools_directory/projection.py": "fd094609fb45989a9218b6a058d140338514dd3c0ed380c1c2c9d072d6bd45b5",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "some-implementations/fishhat/applications/directory/src/fishhat_directory/projection.py": "94a39d8fd9d82f63721d78f6f2e4fcbfcf57aeff4f00b1c256c0ebb84d8eb3f3",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_directory.projection:load_directory",
+      "symbol": "fishhat_directory.projection:load_directory",
       "work": "O(input_bytes)-bounded-parser-depth"
     },
     "journal.submit": {
@@ -42,10 +42,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "deployment-tools/owner-support/src/deployment_tools_owner/journal.py": "ed4d6a77cb2e46117c9cf53472cf5936fbd9c95ef81d5166602804fa829ccd07",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "fishhat/owner-support/src/fishhat_owner/journal.py": "3683b50821bfb6205e2c5414c4cefcdb49bce7a2c89051ce58cac1e0d6a241d2",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_owner.journal:Journal.submit",
+      "symbol": "fishhat_owner.journal:Journal.submit",
       "work": "O(retained_requests)-reference-scan"
     },
     "reporting.events": {
@@ -68,10 +68,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_reporting.store:EventStore.events",
+      "symbol": "fishhat_reporting.store:EventStore.events",
       "work": "O(log(retained_events)+page_items^2*event_bytes)"
     },
     "reporting.put": {
@@ -88,10 +88,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_reporting.store:EventStore.put",
+      "symbol": "fishhat_reporting.store:EventStore.put",
       "work": "O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan"
     },
     "reporting.workflows": {
@@ -109,10 +109,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/store.py": "78e1bd70cd4b058629c20e5bd8d9ee3c8a74c502bfdd5b21b4813f6d02f727dc",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_reporting.store:EventStore.workflows",
+      "symbol": "fishhat_reporting.store:EventStore.workflows",
       "work": "O(retained_events*log(retained_events))-reference-grouping"
     },
     "wire.read-frame": {
@@ -130,10 +130,10 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/deployment-tools-client/src/deployment_tools_client/wire.py": "e5f48312cdd600196b65c16d98fbd431328b8694d430946a529cc095daaf4a80",
-        "tests/test_engineering.py": "9fdd1e7012095018448f4a8cb6cbfd05af625c2e00addb6e64358404954f7858"
+        "packages/fishhat-client/src/fishhat_client/wire.py": "2e8e26926f39bf53954769d9a46f87b99b7963287850297f0bb8aadbb6233e81",
+        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
       },
-      "symbol": "deployment_tools_client.wire:read_frame",
+      "symbol": "fishhat_client.wire:read_frame",
       "work": "O(frame_bytes)"
     }
   },
@@ -152,9 +152,9 @@
       ],
       "qualification": "reference-model",
       "revisions": {
-        "deployment-tools/owner-support/src/deployment_tools_owner/migrations/versions/v1_0001.py": "ce9e88af5d0c0501974c16f50b7dd093d1bf422035ef9828e8663f93cc444f1d"
+        "fishhat/owner-support/src/fishhat_owner/migrations/versions/v1_0001.py": "ce9e88af5d0c0501974c16f50b7dd093d1bf422035ef9828e8663f93cc444f1d"
       },
-      "source": "deployment_tools_owner.migrations"
+      "source": "fishhat_owner.migrations"
     },
     {
       "head": "v1_0001",
@@ -169,9 +169,9 @@
       ],
       "qualification": "reference-model",
       "revisions": {
-        "some-implementations/deployment-tools/applications/receipts/src/deployment_tools_reporting/migrations/versions/v1_0001.py": "6b4f94c9383dcdded4f8c36be8a99ecaf061e49d66d270e4bcae0947489601fa"
+        "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/migrations/versions/v1_0001.py": "6b4f94c9383dcdded4f8c36be8a99ecaf061e49d66d270e4bcae0947489601fa"
       },
-      "source": "deployment_tools_reporting.migrations"
+      "source": "fishhat_reporting.migrations"
     }
   ]
 }

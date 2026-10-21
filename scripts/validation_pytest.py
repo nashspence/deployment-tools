@@ -30,7 +30,7 @@ from scripts.check_evidence import (
 )
 from scripts.run_stats import RunStats, comparison
 
-REPORT_VARIABLE = "DEPLOYMENT_TOOLS_TEST_REPORT"
+REPORT_VARIABLE = "FISHHAT_TEST_REPORT"
 SAFE_NODE = re.compile(r"tests/[A-Za-z0-9_./-]+\.py(?:::[A-Za-z0-9_]+)+(?:\[[A-Za-z0-9_.-]+\])?")
 
 
@@ -185,7 +185,7 @@ class TestResults:
         self.target = target
         self.evidence = {
             "format": EVIDENCE_FORMAT,
-            "origin": os.environ.get("DEPLOYMENT_TOOLS_TEST_ORIGIN"),
+            "origin": os.environ.get("FISHHAT_TEST_ORIGIN"),
             "inventory_sha256": self.inventory_hash,
             "groups": group_results(self.declarations, self.phases, self.observed, self.outcomes),
         }
@@ -196,7 +196,7 @@ class TestResults:
                 "python": platform.python_version(),
             },
             "profiling_target": target,
-            "format": "deployment-tools-pytest-timing/v1",
+            "format": "fishhat-pytest-timing/v1",
             "qualification_eligible": False,
             "collected": self.collected,
             "outcomes": self.outcomes,
@@ -238,9 +238,9 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    if not config.pluginmanager.hasplugin("deployment-tools-results"):
+    if not config.pluginmanager.hasplugin("fishhat-results"):
         destination = os.environ.get(REPORT_VARIABLE)
         config.pluginmanager.register(
             TestResults(config.rootpath, Path(destination) if destination else None),
-            "deployment-tools-results",
+            "fishhat-results",
         )

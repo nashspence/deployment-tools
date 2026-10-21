@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/common.schema.json",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24,
+      "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+    },
+    "Entry": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+    },
+    "Digest": {
+      "type": "string",
+      "minLength": 71,
+      "maxLength": 71,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "UUID": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "Time": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "RelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+    },
+    "AbsolutePath": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 512,
+      "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
+    },
+    "Commit": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 64,
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "Mode": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 4,
+      "pattern": "^0[0-7]{3}$"
+    },
+    "Role": {
+      "enum": [
+        "observer",
+        "operator",
+        "administrator"
+      ]
+    },
+    "Owner": {
+      "type": "object",
+      "properties": {
+        "tool": {
+          "enum": [
+            "host-ops",
+            "app-ops"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "epoch": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "required": [
+        "tool",
+        "id",
+        "epoch"
+      ],
+      "additionalProperties": false
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "domain",
+            "host",
+            "app",
+            "source",
+            "dns",
+            "recovery",
+            "publisher",
+            "backend",
+            "adapter",
+            "interface",
+            "dataset",
+            "component"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "Repository": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "repository_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        }
+      },
+      "required": [
+        "instance",
+        "repository_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24,
+          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+        },
+        "repository": {
+          "type": "object",
+          "properties": {
+            "instance": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "repository_id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "name": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+            }
+          },
+          "required": [
+            "instance",
+            "repository_id",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 64,
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+        },
+        "closure_digest": {
+          "type": "string",
+          "minLength": 71,
+          "maxLength": 71,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "source_id",
+        "repository",
+        "commit",
+        "entrypoint",
+        "closure_digest"
+      ],
+      "additionalProperties": false
+    },
+    "Handle": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "object",
+          "properties": {
+            "tool": {
+              "enum": [
+                "host-ops",
+                "app-ops"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "epoch": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          "required": [
+            "tool",
+            "id",
+            "epoch"
+          ],
+          "additionalProperties": false
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "purpose": {
+          "enum": [
+            "content",
+            "capture",
+            "restore-input",
+            "source-proposal",
+            "native-config",
+            "secret-candidate"
+          ]
+        },
+        "operation_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 71,
+          "maxLength": 71,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10737418240
+        }
+      },
+      "required": [
+        "owner",
+        "id",
+        "purpose",
+        "operation_id",
+        "digest",
+        "size"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

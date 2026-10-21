@@ -4,9 +4,9 @@ import json
 import unittest
 from copy import deepcopy
 
-from a_deployment_tools_podman_quadlet_runtime.commands import podman_delete_argv
-from a_deployment_tools_systemd_cgroup_adapter.commands import systemd_compute_settings
-from deployment_tools_contracts.resources import (
+from a_fishhat_podman_quadlet_runtime.commands import podman_delete_argv
+from a_fishhat_systemd_cgroup_adapter.commands import systemd_compute_settings
+from fishhat_contracts.resources import (
     ReservationModel,
     check_capacity,
     plan_cleanup,
@@ -16,14 +16,14 @@ from deployment_tools_contracts.resources import (
     validate_host_resources,
     validate_requirements,
 )
-from deployment_tools_contracts.validation import ContractError, strict_yaml, validate_host
+from fishhat_contracts.validation import ContractError, strict_yaml, validate_host
 
 from tests.support import fixture_path
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/resources.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/resources.schema.json"
     ],
     "scope": "offline resource decision models",
     "relationship": "candidate",

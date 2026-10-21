@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/receipts-service.schema.json",
+  "$defs": {
+    "Auth": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/receipts-auth/v1"
+        },
+        "principals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/Id"
+              },
+              "token_sha256": {
+                "$ref": "common.schema.json#/$defs/Digest"
+              },
+              "scopes": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "read",
+                    "append"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 2,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "id",
+              "token_sha256",
+              "scopes"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 32,
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "format",
+        "principals"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/receipts-service/v1"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "service_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "store_path": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
+    },
+    "container_port": {
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 65535
+    },
+    "host_bind": {
+      "const": "127.0.0.1"
+    },
+    "host_port": {
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 65535
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "bearer-file"
+        },
+        "config_file": {
+          "$ref": "common.schema.json#/$defs/AbsolutePath"
+        }
+      },
+      "required": [
+        "mode",
+        "config_file"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_event_bytes": {
+          "const": 16384
+        },
+        "max_page": {
+          "const": 100
+        },
+        "max_response_bytes": {
+          "const": 1048576
+        },
+        "max_requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "busy_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 250
+        },
+        "request_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "max_workflows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "max_events": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "database_bytes": {
+          "type": "integer",
+          "minimum": 1048576,
+          "maximum": 1073741824
+        },
+        "free_reserve_bytes": {
+          "type": "integer",
+          "minimum": 67108864,
+          "maximum": 1073741824
+        }
+      },
+      "required": [
+        "max_event_bytes",
+        "max_page",
+        "max_response_bytes",
+        "max_requests",
+        "busy_ms",
+        "request_seconds",
+        "max_workflows",
+        "max_events",
+        "database_bytes",
+        "free_reserve_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "outbound_connections": {
+      "const": false
+    },
+    "execution_capability": {
+      "const": false
+    },
+    "backup": {
+      "const": "stopped"
+    },
+    "enabled_by_default": {
+      "const": false
+    }
+  },
+  "required": [
+    "format",
+    "domain_id",
+    "service_id",
+    "store_path",
+    "container_port",
+    "host_bind",
+    "host_port",
+    "auth",
+    "limits",
+    "outbound_connections",
+    "execution_capability",
+    "backup",
+    "enabled_by_default"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,191 @@
+{
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "domain-ops-directory/release/v1"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "source_commit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "artifact_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target": {
+      "const": "linux-arm64-native"
+    },
+    "go_version": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sdk_version": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "protocol_version": {
+      "const": "2026-07-28"
+    },
+    "vendor_model": {
+      "const": "generic-appliance"
+    },
+    "qualified_firmware": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "measurements": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "installed_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20971520
+            },
+            "idle_rss_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 33554432
+            },
+            "load_rss_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 67108864
+            }
+          },
+          "required": [
+            "installed_bytes",
+            "idle_rss_bytes",
+            "load_rss_bytes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence_digests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      },
+      "maxItems": 128,
+      "uniqueItems": true
+    },
+    "qualified": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "source_commit",
+    "artifact_digest",
+    "target",
+    "go_version",
+    "sdk_version",
+    "protocol_version",
+    "vendor_model",
+    "qualified_firmware",
+    "measurements",
+    "evidence_digests",
+    "qualified"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/directory-release.schema.json",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "qualified": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source_commit": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "artifact_digest": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "go_version": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "sdk_version": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "qualified_firmware": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "measurements": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "evidence_digests": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

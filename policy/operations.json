@@ -1,5 +1,5 @@
 {
-  "format": "deployment-tools-operation-coverage/v1",
+  "format": "fishhat-operation-coverage/v1",
   "interfaces": {
     "expectation": "release.toml#/interfaces",
     "scope": "frozen signature, option and schema-byte consistency; no runtime or native qualification",
@@ -554,12 +554,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_app.cli:main",
+      "entrypoint": "fishhat_app.cli:main",
       "id": "cli:app-ops:info",
       "implementation": {
-        "path": "deployment-tools/app-ops/src/deployment_tools_app/cli.py",
+        "path": "fishhat/app-ops/src/fishhat_app/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_app.cli:main"
+        "symbol": "fishhat_app.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -578,12 +578,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_app.cli:main",
+      "entrypoint": "fishhat_app.cli:main",
       "id": "cli:app-ops:validate",
       "implementation": {
-        "path": "deployment-tools/app-ops/src/deployment_tools_app/cli.py",
+        "path": "fishhat/app-ops/src/fishhat_app/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_app.cli:main"
+        "symbol": "fishhat_app.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -602,12 +602,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_domain.cli:main",
+      "entrypoint": "fishhat_domain.cli:main",
       "id": "cli:domain-ops:info",
       "implementation": {
-        "path": "deployment-tools/domain-ops/src/deployment_tools_domain/cli.py",
+        "path": "fishhat/domain-ops/src/fishhat_domain/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_domain.cli:main"
+        "symbol": "fishhat_domain.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -626,12 +626,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_domain.cli:main",
+      "entrypoint": "fishhat_domain.cli:main",
       "id": "cli:domain-ops:validate",
       "implementation": {
-        "path": "deployment-tools/domain-ops/src/deployment_tools_domain/cli.py",
+        "path": "fishhat/domain-ops/src/fishhat_domain/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_domain.cli:main"
+        "symbol": "fishhat_domain.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -650,12 +650,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_host.cli:main",
+      "entrypoint": "fishhat_host.cli:main",
       "id": "cli:host-ops:info",
       "implementation": {
-        "path": "deployment-tools/host-ops/src/deployment_tools_host/cli.py",
+        "path": "fishhat/host-ops/src/fishhat_host/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_host.cli:main"
+        "symbol": "fishhat_host.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -674,12 +674,12 @@
       ]
     },
     {
-      "entrypoint": "deployment_tools_host.cli:main",
+      "entrypoint": "fishhat_host.cli:main",
       "id": "cli:host-ops:validate",
       "implementation": {
-        "path": "deployment-tools/host-ops/src/deployment_tools_host/cli.py",
+        "path": "fishhat/host-ops/src/fishhat_host/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_host.cli:main"
+        "symbol": "fishhat_host.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -746,9 +746,9 @@
       "alias_of": "cli:domain-ops:info",
       "id": "client:info",
       "implementation": {
-        "path": "deployment-tools/domain-ops/src/deployment_tools_domain/cli.py",
+        "path": "fishhat/domain-ops/src/fishhat_domain/cli.py",
         "stage": "scaffold",
-        "symbol": "deployment_tools_domain.cli:main"
+        "symbol": "fishhat_domain.cli:main"
       },
       "recovery": "not-applicable-read-only",
       "status": "implemented-scaffold",
@@ -1595,55 +1595,55 @@
   ],
   "production_qualified": false,
   "sources": {
-    "deployment-tools/app-ops/pyproject.toml": "8873648ba3fa635521fd7b458737d11523b3570382a529b5ae82c619057febd5",
-    "deployment-tools/app-ops/src/deployment_tools_app/cli.py": "d4057f9393826de2fbe811abd00f0c75ea6d35aab73a7d534d47c167d1afb7ec",
-    "deployment-tools/cli-support/src/deployment_tools_cli/validation.py": "8579eda5d3f2c2b0805bd6d9ae9c20e1ac9ced1139fe9a68301ee173a285f80b",
-    "deployment-tools/domain-ops/pyproject.toml": "86457df80f6371ea763a943e4108aa929b2e2cb5a127a43463386546288b7a76",
-    "deployment-tools/domain-ops/src/deployment_tools_domain/cli.py": "4b557db1c3a424b91ed4eabae292b1eca8753c6c1b38fa5a14e6a84e59343766",
-    "deployment-tools/host-ops/pyproject.toml": "c188d572f8179b3dd7ca816ff8fc415c1e0cb062f5d29a25b6659ba28087294d",
-    "deployment-tools/host-ops/src/deployment_tools_host/cli.py": "a77d656566dcb71e58086425c6eedc9fb3b21c74383aa93c1080b37894d7cec2",
-    "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/actions.json": "7452670545d5dacd12cf19819a458fe9f67115c78a336ed45e58edacb109b7aa",
-    "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/client-commands.json": "dc1b7882bf188d9c55f1d9d68d37dcc5bfb21edd31c74ae57410dfe257d670d4",
-    "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/owner-cli.json": "ad14c28e59b3bf357cc2a2135639d1009fa4962687c09637abf250fc390979b0",
-    "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/ssh-methods.json": "00315ae70e895d4583ccad459ae39c4054adef70a7906e5cc84e3a1b390f8053",
-    "policy/components.toml": "52d21d862eb5252291b06cf6443b68601bfff74a945e40a26dbcf4ffb333c5f1",
-    "policy/interfaces.json": "8db2266ed878304f9c53e2a77fd11d076883fcbbfe2c984e439a660395f684f4",
-    "policy/operation-coverage.toml": "4e07e4eec2905d02fab469be0fafcf7d8036258cb3ec57c121573f967475192d",
-    "release.toml": "924243b0261b5d6621d0a1831e7aff826dc2a5eed3e90afacc70cccdc5ab548e",
-    "some-implementations/deployment-tools/backup/restic/pyproject.toml": "2612e3d68af5c48181d912a49a90735856a5b6a879eddbc790bfe44b6ac3eb30",
-    "some-implementations/deployment-tools/backup/sealed-archive/pyproject.toml": "4ee072f14497e5698f24ac2188797dc02176f247ebe80341d1f92a287833e26c",
-    "some-implementations/deployment-tools/builds/buildah/pyproject.toml": "ec9e81855a5f20c98b03f369e2cf3b32e4d8c506acfe25846e544a8ae1b48a88",
-    "some-implementations/deployment-tools/builds/buildkit/pyproject.toml": "668758e98d40a1be3d10728f7df864391fa178acbbb5f5996f2ad9770331ef14",
-    "some-implementations/deployment-tools/capture/postgresql/pyproject.toml": "0414d6b9d5f9462dcdf6ca2de50c9a900c69eec68d2a475072e45f0b4bd90d43",
-    "some-implementations/deployment-tools/capture/quiesced-files/pyproject.toml": "cbf0a7df5ab92c2b9e44bf4fb7916aa842182746747140fa096c836bba6a49b9",
-    "some-implementations/deployment-tools/compute/delegated-cgroup/pyproject.toml": "b8fbd33707065bde7861b0015a9672ae22e480a2ccbad72637782b2872165099",
-    "some-implementations/deployment-tools/compute/systemd-cgroup/pyproject.toml": "16fbc33ec7679f9748ef2aa25e798341ab2e31ad6e1671d61fb301e11f6a7ae3",
-    "some-implementations/deployment-tools/credentials/openbao-database/pyproject.toml": "6d681ff95db5faf2b2138cace508afaca5bf4fa4448f2396916efbb7c7c4dbb0",
-    "some-implementations/deployment-tools/credentials/postgresql/pyproject.toml": "568aa592409df768853d7eca45b0087c1eebf27c9f5363835b1d4b2d39b67d8c",
-    "some-implementations/deployment-tools/dns/bind-rfc2136/pyproject.toml": "fa6fb8cd8fbd8f93c07f1307cc1cac3e642c0c8e65a07eb94bb3cbed76936732",
-    "some-implementations/deployment-tools/dns/dnsmasq-appliance/pyproject.toml": "8ea9de144c595d36bed825bbee2ab5215f142f3fc6675b9458cad380391732fc",
-    "some-implementations/deployment-tools/ingress/caddy/pyproject.toml": "03970135209486c7413f57b4ed3dafd0c159a137388716fc9c24d56fe2de20b1",
-    "some-implementations/deployment-tools/ingress/nginx/pyproject.toml": "2f82bbdf8cd682569a5b6d3db025cae3cadd589f18fa66655a914f65d76c20ae",
-    "some-implementations/deployment-tools/network/firewalld/pyproject.toml": "de6a51cf0e319f23d78877d452d2210e1e78f61cb767467f1cd1119ed2008b81",
-    "some-implementations/deployment-tools/network/nftables/pyproject.toml": "bdd398b19e7f1318bd2e62d06d07491fc070ca8a74bdf0e1b224d8261da5f088",
-    "some-implementations/deployment-tools/reporting/forgejo-issues/pyproject.toml": "bb85c7e639e184456a079a7a9c51cef650631ca7967cbaf67f4a55e6d3f17a2a",
-    "some-implementations/deployment-tools/reporting/jsonl/pyproject.toml": "d94653b11981499df1bac44630c04f998fc23f4f96a8c12e543df5a1fac5b4e1",
-    "some-implementations/deployment-tools/repositories/forgejo/pyproject.toml": "dd0bed862c4896ec82d64301da6bb9973f7e73849eae470c5f3e565c38e953f6",
-    "some-implementations/deployment-tools/repositories/git-ssh/pyproject.toml": "ffda3df9ebe9583c8da2256556db6ae3bb6a1516fc54e7c7f4833b1161b20b2d",
-    "some-implementations/deployment-tools/runtimes/docker-compose/pyproject.toml": "bf7d8404b461158027d9ac48c5015492bb79da0e721bdb533e05506bc48ff785",
-    "some-implementations/deployment-tools/runtimes/podman-quadlet/pyproject.toml": "9b0c18ec01298d0535a499df76d00db929bf41a535314d1feb6f93fb7bb2cd21",
-    "some-implementations/deployment-tools/runtimes/systemd-native/pyproject.toml": "2d196a9df500489f09fb48c65fe2387a684391b280a6062c8cd46637a9b0e8a7",
-    "some-implementations/deployment-tools/secrets/forgejo-age/pyproject.toml": "1633baadfe0c67dfbad4693e9545ce50b1d9657b886a4129b940d56649b385e3",
-    "some-implementations/deployment-tools/secrets/openbao-kv/pyproject.toml": "b8e21cecb7e9ef21a309c73ff6b6b421487986dcca361cb78fdb2b5f80268df0",
-    "some-implementations/deployment-tools/services/launchd/pyproject.toml": "51d3b8b086f8f968ef16f150cdae0bd6ead5639df0a8b2303404826b11b368e6",
-    "some-implementations/deployment-tools/services/procd/pyproject.toml": "f68f094fa2abb332a5a026274f0ed982eecfe392833f2f962f3c4bdf4107f415",
-    "some-implementations/deployment-tools/services/systemd/pyproject.toml": "f7bd0474886679088bf201b3e9e3f27162448af3d48797b086589e9c49f9d5a3",
-    "some-implementations/deployment-tools/software/apt/pyproject.toml": "e649ad0438f1989cdbd2230eec07a3b1c01cc120c98e6273b508b88219073577",
-    "some-implementations/deployment-tools/software/archive-slots/pyproject.toml": "b0ad1931ac74e8fd8f4b09f1c5caacb7ca8fd263bdb60bae705dee51c55d583f",
-    "some-implementations/deployment-tools/software/homebrew/pyproject.toml": "4f26ab793debc2579de4e92b05b1a9b4bb4e7fb6acb452086d5ae1220fa3e7ff",
-    "some-implementations/deployment-tools/storage/ext4-filesystem/pyproject.toml": "cd81a85212aadb36fb25e10cc0d71c2251858c338c490a1ea3d18dd8c260ed81",
-    "some-implementations/deployment-tools/storage/xfs-project/pyproject.toml": "f452b909066566668f8c84bedad971eedece9fe693e0a8f7fdf3e8d776f17d3a",
-    "tests/test_component_policy.py": "61ef789cbac6de29d2d5b08824b8e18a6045b3d4f4b6ca8e205c90c67cd0ea42",
-    "tests/test_operation_coverage.py": "47193186f66937029c9e2899cc97effa7faae26afbf3b51063e5c3e367a36af4"
+    "fishhat/app-ops/pyproject.toml": "52cecc72d3eda689ba752e6fedb0f2d63e29a075a627c3036c661ad7d0974dd6",
+    "fishhat/app-ops/src/fishhat_app/cli.py": "270fee1b171f53ecd42834ea9eff986bf21d1855410cac7407c2042f7a50fee6",
+    "fishhat/cli-support/src/fishhat_cli/validation.py": "2dc8578be1acf65ad60984b7034ae5c93a28aca20353452f433bec8c671c1e4f",
+    "fishhat/domain-ops/pyproject.toml": "84280227b1a670979b46e3ac09d0d0c3a83c9c5db3963000978612c0f1104b0f",
+    "fishhat/domain-ops/src/fishhat_domain/cli.py": "c8e1242a73f5a670e836a35cbb92ffffab44496aff92d198ea80ab14e3279a57",
+    "fishhat/host-ops/pyproject.toml": "936f41b03649731c9c78d07cff3fe97934cf36c984e8dc15688b8c32cfc518b5",
+    "fishhat/host-ops/src/fishhat_host/cli.py": "d8457ca822e6d01be0b1301fb439ef9f5ed74b6224aca2d85feb189dadeb611c",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/actions.json": "7452670545d5dacd12cf19819a458fe9f67115c78a336ed45e58edacb109b7aa",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/client-commands.json": "dc1b7882bf188d9c55f1d9d68d37dcc5bfb21edd31c74ae57410dfe257d670d4",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/owner-cli.json": "ad14c28e59b3bf357cc2a2135639d1009fa4962687c09637abf250fc390979b0",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/ssh-methods.json": "00315ae70e895d4583ccad459ae39c4054adef70a7906e5cc84e3a1b390f8053",
+    "policy/components.toml": "5ff568ec074c078282a82e4a709dae315b82c1b6b5e9fbfdd5e8b4a23e228f48",
+    "policy/interfaces.json": "e7045fedc8e8a1584d6dbc36fe78356e85feeb7233a921058a3bd350c2338990",
+    "policy/operation-coverage.toml": "9fdd2320914eaf5ae615e199a73169afe0451c6826e164a30652550b4070ca92",
+    "release.toml": "d53f1d09e5900fc08ed71dbf7321674a9460b5d029a8f863b2b012819c99f743",
+    "some-implementations/fishhat/backup/restic/pyproject.toml": "b48bf1976c6a4c0231bf6208d6d07ebc5d5ca56c923effb9c880d8c87f37d438",
+    "some-implementations/fishhat/backup/sealed-archive/pyproject.toml": "79620d29f22d52f809488c3b6a5f263cd0c686b78a86c39429976d17bba1937a",
+    "some-implementations/fishhat/builds/buildah/pyproject.toml": "d55d892d0795e77dc07da730d98082e4d015a65b5db2667f01b03c93dd303bec",
+    "some-implementations/fishhat/builds/buildkit/pyproject.toml": "325a9160b2c90b5219bce8643dae5152b8b9520e7ea7c9dbab15379eb426a01d",
+    "some-implementations/fishhat/capture/postgresql/pyproject.toml": "b6c7446b20b64105038ec2acfd4d5c77e3fb3d343e25e6635441f9b98c2f7ce0",
+    "some-implementations/fishhat/capture/quiesced-files/pyproject.toml": "3d8faad2e6845663793d8f884bd285394422e35a92d27605e4663c5fa8dfc65c",
+    "some-implementations/fishhat/compute/delegated-cgroup/pyproject.toml": "ab37cf46c353294f124c5bd719c71edb8b09254c4a81fcc1ab4805891308d539",
+    "some-implementations/fishhat/compute/systemd-cgroup/pyproject.toml": "b441f17783d4da70f7b2fd0d18b358c5083328e3bff33cc81239e3f0c48544ee",
+    "some-implementations/fishhat/credentials/openbao-database/pyproject.toml": "e28ad94215ec1f2f8494ba736e8399cf7a22cf4590efced9fc94499b6758f616",
+    "some-implementations/fishhat/credentials/postgresql/pyproject.toml": "85406999addc34b8e0d1ee3a71392054140067d9b051fc57c7bec6c58b5ac0cb",
+    "some-implementations/fishhat/dns/bind-rfc2136/pyproject.toml": "2fa752ffcf6e693e4a4699d41422980b781b56d6bb246e0421d264e0adc17906",
+    "some-implementations/fishhat/dns/dnsmasq-appliance/pyproject.toml": "e30d63d07cd90a1b3389b7272d1c78bc9154858d478611684508ce868967eb72",
+    "some-implementations/fishhat/ingress/caddy/pyproject.toml": "cb7d80a336f08e42750b764e4b61bcb7484828c733cb684d71165c0858f1200e",
+    "some-implementations/fishhat/ingress/nginx/pyproject.toml": "646bfb0f682ef4df53bb24bba2cc902662361d530338724c00c726f924e96393",
+    "some-implementations/fishhat/network/firewalld/pyproject.toml": "681a59929ca1f3a0551f6a9e4571d6d39ec31d6046f949b81afc68443478e261",
+    "some-implementations/fishhat/network/nftables/pyproject.toml": "7db2e0fcc90b04a948ef801712d74e2bb860851f017800d0b31d341989c64d2f",
+    "some-implementations/fishhat/reporting/forgejo-issues/pyproject.toml": "1d52795d7ab4a9bbca205479c7ecc1a8f950097a33f225ee8eec4dd6166052ad",
+    "some-implementations/fishhat/reporting/jsonl/pyproject.toml": "672d690a3585c869b9a53a0530bb8a68e2960ff388f13715d1e9a7b80cf507d1",
+    "some-implementations/fishhat/repositories/forgejo/pyproject.toml": "2c5696c78ee1bba7f665951d080a864c16ec865d16f693157db31053dc7d1dc9",
+    "some-implementations/fishhat/repositories/git-ssh/pyproject.toml": "9950e7ca4fda0d418c4092fc6a04f21a7c0bc469e8d274fed9c448a0962fdab7",
+    "some-implementations/fishhat/runtimes/docker-compose/pyproject.toml": "23e546db39b45f7b7d7dcc76d66bf730c939cb34e9f9314832ca9f84decec507",
+    "some-implementations/fishhat/runtimes/podman-quadlet/pyproject.toml": "438463c7ca6dbdf2c57b6094208dd8f1421c4e8c19b1a2b1c970352fbabf5d12",
+    "some-implementations/fishhat/runtimes/systemd-native/pyproject.toml": "fa59976eb58e128848efdad9601230c0bbcc349c9cac8fe220739ec963b1c5b9",
+    "some-implementations/fishhat/secrets/forgejo-age/pyproject.toml": "bf7cfbd942bf83bb395571ae7cf15f5a5cc5e7ad4c6a0e5f01fe6d61a0a9abfe",
+    "some-implementations/fishhat/secrets/openbao-kv/pyproject.toml": "845348844fde91d9e8b9390b3d12532d43281564417c9ecc47d3aaeadf2fd392",
+    "some-implementations/fishhat/services/launchd/pyproject.toml": "3c78e8cfe618335ac51c8e370ee3921ae972c06a20552bc666862a1a0fb74331",
+    "some-implementations/fishhat/services/procd/pyproject.toml": "e388ba8ccb3e49188d1ba348cf6e397adef6bc4435855800b55e17a75c4ae6fe",
+    "some-implementations/fishhat/services/systemd/pyproject.toml": "54d098f7bc3b8ec38d600a4e9460b7ecac680a5f5c820e6fe51163b7d6370e33",
+    "some-implementations/fishhat/software/apt/pyproject.toml": "79d11309abe9d0e87c60752df1367a4ff2c1b2093bf8ff713581d86fdfaecd4d",
+    "some-implementations/fishhat/software/archive-slots/pyproject.toml": "c5e045b8998b114fb8494db6ecbcb05505aff8c8ba81871cfee504888a277b96",
+    "some-implementations/fishhat/software/homebrew/pyproject.toml": "8f0231459ae00d1a279c90f45d8bb80d4f5890c699f10ccbc6a5a941f1dca80e",
+    "some-implementations/fishhat/storage/ext4-filesystem/pyproject.toml": "0b5ebc933d006a314b111cc07e4ecce613f42aaa824e32e3d822e30b6034fa5f",
+    "some-implementations/fishhat/storage/xfs-project/pyproject.toml": "258cf1194dc881b05eee058119c38bf29580d5293e9a2d79fd9217b6cd1d0064",
+    "tests/test_component_policy.py": "c8fa537f8926fa978509c928a3f1d50c7954a12c2d8abadaa3d80f93a090977b",
+    "tests/test_operation_coverage.py": "530b85672f58d85611defb55966f5a6cdbcb4a5b6538582f431d3735c008e46e"
   }
 }

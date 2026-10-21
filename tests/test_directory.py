@@ -4,8 +4,8 @@ import json
 import unittest
 from pathlib import Path
 
-from deployment_tools_contracts.validation import ContractError, strict_yaml
-from deployment_tools_directory.projection import (
+from fishhat_contracts.validation import ContractError, strict_yaml
+from fishhat_directory.projection import (
     NOW,
     WORKFLOWS,
     ReloadModel,
@@ -25,7 +25,7 @@ from tests.support import fixture_path
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/directory.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/directory.schema.json"
     ],
     "scope": "local directory projection/reference helpers",
     "relationship": "candidate",
@@ -57,7 +57,7 @@ class Directory(unittest.TestCase):
             validate_directory(self.v)
 
     def test_distinct_source_ids(self):
-        self.v["repositories"][1]["id"] = "deployment-tools"
+        self.v["repositories"][1]["id"] = "fishhat"
         with self.assertRaises(ContractError):
             validate_directory(self.v)
 

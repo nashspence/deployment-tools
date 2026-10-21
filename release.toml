@@ -1,4 +1,4 @@
-format = "deployment-tools-release/v1"
+format = "fishhat-release/v1"
 version = "0.1.0.dev0"
 stage = "reference-scaffold"
 production_qualified = false
@@ -9,7 +9,7 @@ scaffold_install_tests = ["ubuntu-24.04", "macos-15", "windows-2025"]
 native_qualified_profiles = []
 
 [interfaces]
-python_modules = ["deployment_tools_contracts", "deployment_tools_adapters"]
+python_modules = ["fishhat_contracts", "fishhat_adapters"]
 cli_tools = ["domain-ops", "host-ops", "app-ops"]
 snapshot = "policy/interfaces.json"
 pre_v1_changes = "explicit-reviewed-snapshot-update"
@@ -31,7 +31,7 @@ hash_checked_offline_install = true
 qualified_native_release_allowed = false
 
 [governance]
-repository_name = "nashspence/deployment-tools"
+repository_name = "nashspence/fishhat"
 branch = "main"
 workflow_integration_id = 15368
 required_checks = [

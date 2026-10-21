@@ -4,8 +4,8 @@ import copy
 import json
 from pathlib import Path
 
-from deployment_tools_adapters import Registry
-from deployment_tools_contracts.validation import digest
+from fishhat_adapters import Registry
+from fishhat_contracts.validation import digest
 
 from tests.support import ROOT
 
@@ -24,9 +24,7 @@ def identifier(n: int) -> str:
 
 
 def descriptors() -> list[Path]:
-    return sorted(
-        (ROOT / "some-implementations/deployment-tools").glob("*/*/src/*/descriptor.json")
-    )
+    return sorted((ROOT / "some-implementations/fishhat").glob("*/*/src/*/descriptor.json"))
 
 
 def runtime_registry() -> tuple[Registry, dict, dict]:
@@ -73,7 +71,7 @@ def binding() -> dict:
 
 def request(method: str = "activate") -> dict:
     return {
-        "contract": "deployment-tools.runtime",
+        "contract": "fishhat.runtime",
         "method": method,
         "input": {
             "scope": copy.deepcopy(SCOPE),

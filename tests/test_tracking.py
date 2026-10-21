@@ -10,11 +10,11 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch
 
-from deployment_tools_client.submission import prepare_delivery, submit_once
-from deployment_tools_client.workspace import check_closeout, validate_session
-from deployment_tools_contracts.validation import ContractError, canonical, validate
-from deployment_tools_owner.journal import Journal
-from deployment_tools_reporting.reports import (
+from fishhat_client.submission import prepare_delivery, submit_once
+from fishhat_client.workspace import check_closeout, validate_session
+from fishhat_contracts.validation import ContractError, canonical, validate
+from fishhat_owner.journal import Journal
+from fishhat_reporting.reports import (
     comment_match,
     render_issue_comment,
     report,
@@ -22,14 +22,14 @@ from deployment_tools_reporting.reports import (
     validate_index_auth,
     validate_profile,
 )
-from deployment_tools_reporting.store import EventStore
+from fishhat_reporting.store import EventStore
 
 from tests.support import ROOT, fixture_path
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/tracking-records.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/tracking-records.schema.json"
     ],
     "scope": "offline reporting/store reference models",
     "relationship": "candidate",
@@ -512,9 +512,7 @@ class Noninterference(unittest.TestCase):
 
     def test_no_tracking_import_dependency(self):
         tree = ast.parse(
-            (
-                ROOT / "packages/deployment-tools-client/src/deployment_tools_client/submission.py"
-            ).read_text()
+            (ROOT / "packages/fishhat-client/src/fishhat_client/submission.py").read_text()
         )
         imports = [
             ast.unparse(n) for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
@@ -527,9 +525,7 @@ class Noninterference(unittest.TestCase):
         )
 
     def test_tracking_unavailable_cannot_be_called_by_submission(self):
-        with patch(
-            "deployment_tools_reporting.reports.report", side_effect=AssertionError("must not run")
-        ):
+        with patch("fishhat_reporting.reports.report", side_effect=AssertionError("must not run")):
             d = prepare_delivery(self.template)
             r = submit_once(d, lambda x: {"request_id": x["request_id"], "state": "accepted"})
         self.assertEqual(r["exit_code"], 0)
@@ -660,10 +656,10 @@ class Noninterference(unittest.TestCase):
         import contextlib
         import io
 
-        from deployment_tools_cli.validation import main
+        from fishhat_cli.validation import main
 
         with patch(
-            "deployment_tools_reporting.reports.report",
+            "fishhat_reporting.reports.report",
             side_effect=AssertionError("reporting must be explicit"),
         ):
             with contextlib.redirect_stdout(io.StringIO()):
@@ -672,7 +668,7 @@ class Noninterference(unittest.TestCase):
 
 class DiscoveryNonblocking(unittest.TestCase):
     def test_directory_has_no_receipt_preflight_or_storage_gate(self):
-        from deployment_tools_directory.projection import WORKFLOWS
+        from fishhat_directory.projection import WORKFLOWS
 
         text = " ".join(x for steps in WORKFLOWS.values() for x in steps).lower()
         for obsolete in [

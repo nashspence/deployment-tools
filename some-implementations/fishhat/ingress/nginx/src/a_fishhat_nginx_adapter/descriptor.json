@@ -1,0 +1,44 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "fishhat.nginx",
+  "roles": [
+    "ingress"
+  ],
+  "entrypoint": "bin/a-fishhat-nginx-adapter",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "configuration_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "service_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "configuration_handle",
+      "service_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}

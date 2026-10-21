@@ -10,9 +10,9 @@ import uuid
 from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from deployment_tools_client.wire import frame, read_frame, select_target, ssh_command
-from deployment_tools_contracts.secrets import MAX_ENTRY, build_tar, inspect_tar, select_asset
-from deployment_tools_contracts.validation import (
+from fishhat_client.wire import frame, read_frame, select_target, ssh_command
+from fishhat_contracts.secrets import MAX_ENTRY, build_tar, inspect_tar, select_asset
+from fishhat_contracts.validation import (
     ContractError,
     canonical,
     digest,
@@ -26,14 +26,14 @@ from deployment_tools_contracts.validation import (
     validate_host,
     validate_plan,
 )
-from deployment_tools_contracts.witness import sign, verify
-from deployment_tools_owner.journal import Journal
+from fishhat_contracts.witness import sign, verify
+from fishhat_owner.journal import Journal
 
 from tests.support import fixture_path
 
 CHECK_PURPOSE = {
     "purpose": "public-contract",
-    "authority": ["policy/interfaces.json#/python/deployment_tools_contracts"],
+    "authority": ["policy/interfaces.json#/python/fishhat_contracts"],
     "scope": "offline contract library candidates",
     "relationship": "candidate",
     "reason": "Reviewed parsing, schema, wire, secret and witness cases exercise local helpers. Public API shape is authoritative here; behavior beyond the exact fixtures lacks an independently bound sufficient oracle.",
@@ -645,7 +645,7 @@ CHECK_CLASS_PURPOSE = {
     "Transport": {
         "purpose": "implementation",
         "authority": [
-            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/ssh-methods.json"
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/ssh-methods.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -655,7 +655,7 @@ CHECK_CLASS_PURPOSE = {
     "Secrets": {
         "purpose": "implementation",
         "authority": [
-            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/bundle-manifest.schema.json"
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/bundle-manifest.schema.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -665,7 +665,7 @@ CHECK_CLASS_PURPOSE = {
     "Evidence": {
         "purpose": "implementation",
         "authority": [
-            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/records.schema.json"
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/records.schema.json"
         ],
         "scope": "offline reference helper",
         "relationship": "candidate",
@@ -675,7 +675,7 @@ CHECK_CLASS_PURPOSE = {
     "Sources": {
         "purpose": "public-contract",
         "authority": [
-            "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/source.schema.json"
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/source.schema.json"
         ],
         "scope": "offline source-schema and cross-reference candidates",
         "relationship": "candidate",

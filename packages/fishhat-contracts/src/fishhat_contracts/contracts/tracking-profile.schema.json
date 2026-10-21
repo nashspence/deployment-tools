@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/tracking-profile.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "deployment-ops/tracking-profile/v1"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/UUID"
+    },
+    "issue": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "$ref": "common.schema.json#/$defs/Repository"
+            },
+            "api_origin": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://[^/?#@]+$"
+            },
+            "credential_file": {
+              "$ref": "common.schema.json#/$defs/AbsolutePath"
+            },
+            "issue_number": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "repository",
+            "api_origin",
+            "credential_file",
+            "issue_number"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "index": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "service_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            "base_url": {
+              "type": "string",
+              "pattern": "^http://127\\.0\\.0\\.1:[0-9]{1,5}$"
+            },
+            "credential_file": {
+              "$ref": "common.schema.json#/$defs/AbsolutePath"
+            }
+          },
+          "required": [
+            "service_id",
+            "base_url",
+            "credential_file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "overall_deadline_seconds": {
+      "const": 5
+    },
+    "request_timeout_seconds": {
+      "const": 2
+    },
+    "max_pages": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    },
+    "max_body_bytes": {
+      "const": 16384
+    },
+    "automatic_execution_hook": {
+      "const": false
+    }
+  },
+  "required": [
+    "format",
+    "domain_id",
+    "issue",
+    "index",
+    "overall_deadline_seconds",
+    "request_timeout_seconds",
+    "max_pages",
+    "max_body_bytes",
+    "automatic_execution_hook"
+  ],
+  "additionalProperties": false
+}

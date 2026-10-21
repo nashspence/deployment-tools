@@ -40,8 +40,8 @@ def fingerprint(path: Path) -> str:
 
 
 def snapshot() -> dict[str, Any]:
-    from deployment_tools_cli.validation import build_parser
-    from deployment_tools_contracts.validation import SCHEMAS
+    from fishhat_cli.validation import build_parser
+    from fishhat_contracts.validation import SCHEMAS
 
     policy = read_toml(ROOT / "release.toml")
     public: dict[str, Any] = {}
@@ -90,7 +90,7 @@ def snapshot() -> dict[str, Any]:
                     for item in command._actions
                 ]
     return {
-        "format": "deployment-tools-interface-snapshot/v1",
+        "format": "fishhat-interface-snapshot/v1",
         "python": public,
         "cli": {
             "tools": policy["interfaces"]["cli_tools"],
@@ -136,7 +136,7 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
         declared = {
             value.split("==")[0]
             for value in project["dependencies"]
-            if value.startswith(("deployment-tools-", "a-deployment-tools-"))
+            if value.startswith(("fishhat-", "a-fishhat-"))
         }
         graph[item["distribution"]] = declared
         if (
@@ -223,6 +223,33 @@ def boundary_errors(root: Path = ROOT) -> list[str]:
     return sorted(set(errors))
 
 
+def relocated_migration(root: Path, name: str, introduced: str) -> Path | None:
+    historical = subprocess.run(
+        ["git", "show", introduced + ":state/inventory.toml"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if historical.returncode:
+        return None
+    suffix = name.split("/src/", 1)[1]
+    previous = tomllib.loads(historical.stdout)["owners"]
+    current = read_toml(root / "state/inventory.toml")["owners"]
+    for owner in previous:
+        prefix = owner["migrations"].replace(".", "/") + "/"
+        if not suffix.startswith(prefix):
+            continue
+        matches = [item for item in current if item["id"] == owner["id"]]
+        if len(matches) != 1:
+            return None
+        relative = matches[0]["migrations"].replace(".", "/") + "/" + suffix[len(prefix) :]
+        candidates = [project.parent / "src" / relative for project in workspace_projects(root)]
+        candidates = [candidate for candidate in candidates if candidate.is_file()]
+        return candidates[0] if len(candidates) == 1 else None
+    return None
+
+
 def fixture_history_errors(root: Path) -> list[str]:
     if (
         subprocess.run(
@@ -245,9 +272,7 @@ def fixture_history_errors(root: Path) -> list[str]:
                 "--format=",
                 "--",
                 "state/fixtures",
-                "packages/*/src/*/migrations/versions/v*.py",
-                "deployment-tools/*/src/*/migrations/versions/v*.py",
-                "some-implementations/**/src/*/migrations/versions/v*.py",
+                ":(glob)**/src/*/migrations/versions/v*.py",
             ],
             cwd=root,
             capture_output=True,
@@ -269,11 +294,7 @@ def fixture_history_errors(root: Path) -> list[str]:
         ).stdout
         path = root / name
         if not path.is_file() and "/src/" in name and (root / "pyproject.toml").exists():
-            suffix = name.split("/src/", 1)[1]
-            candidates = [p.parent / "src" / suffix for p in workspace_projects(root)]
-            candidates = [p for p in candidates if p.is_file()]
-            if len(candidates) == 1:
-                path = candidates[0]
+            path = relocated_migration(root, name, introduced) or path
         if not path.is_file() or path.is_symlink() or path.read_bytes() != original:
             errors.append("immutable state fixture/migration changed or removed: " + name)
     return errors

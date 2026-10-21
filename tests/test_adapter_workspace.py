@@ -43,7 +43,7 @@ def test_each_scaffold_has_a_distinct_identity_and_selected_native_contrast():
         d = json.loads(path.read_text())
         identities.append(d["id"])
         for role in d["roles"]:
-            grouped.setdefault(role, set()).add(d["id"].removeprefix("deployment-tools."))
+            grouped.setdefault(role, set()).add(d["id"].removeprefix("fishhat."))
     assert len(set(identities)) == len(identities)
     assert grouped == CONTRASTS
     assert all(len(implementations) >= 2 for implementations in grouped.values())
@@ -61,7 +61,7 @@ def test_workspace_inventory_matches_actual_project_metadata():
     for p in workspace_projects():
         config = tomllib.loads(p.read_text())
         current = declared[str(p.parent.relative_to(ROOT))]
-        assert config["tool"]["deployment-tools"]["component"] == {
+        assert config["tool"]["fishhat"]["component"] == {
             k: current[k] for k in ("id", "module", "role")
         }
 
@@ -99,15 +99,14 @@ def test_public_packages_never_import_product_or_concrete_adapter_implementation
 def test_concrete_packages_do_not_depend_on_unrelated_implementations():
     for component in components():
         if component["role"] == "adapter-implementation":
-            assert component["distribution"].startswith("a-deployment-tools-")
-            assert component["module"].startswith("a_deployment_tools_")
+            assert component["distribution"].startswith("a-fishhat-")
+            assert component["module"].startswith("a_fishhat_")
             assert not any(
-                name.startswith("a-deployment-tools-")
-                for name in component["internal_dependencies"]
+                name.startswith("a-fishhat-") for name in component["internal_dependencies"]
             )
 
 
 def test_native_configuration_does_not_belong_in_the_owner_runtime_switch():
-    for directory in (ROOT / "deployment-tools/app-ops", ROOT / "deployment-tools/owner-support"):
+    for directory in (ROOT / "fishhat/app-ops", ROOT / "fishhat/owner-support"):
         for path in directory.rglob("*.py"):
-            assert "a_deployment_tools_" not in path.read_text()
+            assert "a_fishhat_" not in path.read_text()

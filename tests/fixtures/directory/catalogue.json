@@ -6,9 +6,9 @@
   "published_at": "2026-10-18T12:00:00Z",
   "repositories": [
     {
-      "id": "deployment-tools",
-      "clone_url": "ssh://git@forgejo.example.invalid/tools/deployment-tools.git",
-      "documentation_url": "https://forgejo.example.invalid/tools/deployment-tools",
+      "id": "fishhat",
+      "clone_url": "ssh://git@forgejo.example.invalid/tools/fishhat.git",
+      "documentation_url": "https://forgejo.example.invalid/tools/fishhat",
       "ref_hint": "refs/heads/main"
     },
     {

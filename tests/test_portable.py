@@ -14,7 +14,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from deployment_tools_client.workspace import (
+from fishhat_client.workspace import (
     check_closeout,
     clean_path,
     merge_exports,
@@ -26,15 +26,15 @@ from deployment_tools_client.workspace import (
     validate_session,
     validate_suite,
 )
-from deployment_tools_contracts.validation import ContractError, strict_yaml, validate
-from deployment_tools_owner.commands import FORMS, parse_command
+from fishhat_contracts.validation import ContractError, strict_yaml, validate
+from fishhat_owner.commands import FORMS, parse_command
 
 from tests.support import fixture_path
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/workspace.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/workspace.schema.json"
     ],
     "scope": "offline portable/client helpers",
     "relationship": "candidate",

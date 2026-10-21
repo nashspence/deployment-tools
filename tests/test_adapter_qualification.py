@@ -6,17 +6,15 @@ import io
 import json
 
 import pytest
-from deployment_tools_adapter_support import main
-from deployment_tools_adapters import require_qualification
-from deployment_tools_contracts.validation import ContractError
+from fishhat_adapter_support import main
+from fishhat_adapters import require_qualification
+from fishhat_contracts.validation import ContractError
 
 from tests.adapter_support import D, descriptors
 
 CHECK_PURPOSE = {
     "purpose": "public-contract",
-    "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/adapter.schema.json"
-    ],
+    "authority": ["packages/fishhat-contracts/src/fishhat_contracts/contracts/adapter.schema.json"],
     "scope": "qualification identity and truthful installed-scaffold command results",
     "relationship": "candidate",
     "reason": "Scaffold commands and evidence validation do not prove real native behavior.",

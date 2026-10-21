@@ -3,17 +3,17 @@ from __future__ import annotations
 import copy
 
 import pytest
-from a_deployment_tools_bind_rfc2136_adapter.render import render_update
-from a_deployment_tools_dnsmasq_appliance_adapter.render import render_hosts
-from deployment_tools_adapters.dns import validate_changes, validate_rrsets
-from deployment_tools_contracts.validation import ContractError
+from a_fishhat_bind_rfc2136_adapter.render import render_update
+from a_fishhat_dnsmasq_appliance_adapter.render import render_hosts
+from fishhat_adapters.dns import validate_changes, validate_rrsets
+from fishhat_contracts.validation import ContractError
 
 from tests.adapter_support import OWNER, identifier
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
     "authority": [
-        "packages/deployment-tools-contracts/src/deployment_tools_contracts/contracts/dns-intent.schema.json"
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/dns-intent.schema.json"
     ],
     "scope": "DNS RRset semantics and effect-free native source compilation",
     "relationship": "candidate",
