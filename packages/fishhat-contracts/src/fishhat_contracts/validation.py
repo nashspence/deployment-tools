@@ -180,8 +180,10 @@ def validate_domain(
         _require(host["source"] in domain["sources"], "unknown host source")
         source = domain["sources"][host["source"]]
         repo = source["repository"]
-        identity = repo["instance"], repo["repository_id"]
-        _require(identity not in seen, "duplicate canonical host repository")
+        # Repository custody is independent of machine identity. Several hosts may
+        # share a repository, but aliases or mutable refs cannot duplicate a source.
+        identity = repo["instance"], repo["repository_id"], source["entrypoint"]
+        _require(identity not in seen, "duplicate canonical host source")
         seen.add(identity)
         if host_sources is not None:
             _require(
@@ -241,6 +243,66 @@ def validate_host(host: dict[str, Any], catalogue: dict[str, Any] | None = None)
         validate("source.schema.json", catalogue)
 
 
+def _validate_datasets(app: dict[str, Any]) -> None:
+    """Check declared custody and recovery procedures, without executing them.
+
+    A rebuild declaration does not authorize deletion or establish that data can
+    actually be reconstructed. Native admission and recovery retain those duties.
+    """
+    components, hooks, datasets = app["components"], app["hooks"], app["datasets"]
+    procedures = {
+        "preserve": (
+            ("capture", "capture", "read"),
+            ("restore", "restore", "write"),
+            ("verify_restore", "verify-restore", "read"),
+        ),
+        "rebuild": (
+            ("rebuild", "rebuild", "write"),
+            ("verify_rebuild", "verify-rebuild", "read"),
+        ),
+    }
+    preserved = False
+    for dataset_id, dataset in datasets.items():
+        _require(
+            set(dataset["writers"] + dataset["readers"]) <= set(components),
+            "unknown data consumer",
+        )
+        if dataset["custody"] == "reference":
+            _require(
+                dataset["owner"] != {"kind": "app", "id": app["id"]},
+                "reference dataset cannot name this app as its owner",
+            )
+            continue
+        policy = dataset["recovery"]
+        preserved = preserved or policy == "preserve"
+        for field, role, mode in procedures[policy]:
+            hook = hooks.get(dataset[field])
+            _require(
+                hook is not None and hook["role"] == role and hook["mode"] == mode,
+                "missing/wrong dataset recovery procedure",
+            )
+            assert hook is not None
+            _require(dataset_id in hook["datasets"], "recovery procedure omits its dataset")
+    _require(
+        not preserved or app["lifecycle"]["checkpoint_policy"] != "stateless",
+        "preserved app data is incompatible with a stateless checkpoint policy",
+    )
+    recovery_roles = {
+        role: policy for policy, entries in procedures.items() for _, role, _ in entries
+    }
+    for hook in hooks.values():
+        if hook["role"] not in recovery_roles:
+            continue
+        for dataset_id in hook["datasets"]:
+            dataset = datasets.get(dataset_id)
+            _require(dataset is not None, "unknown hook dataset")
+            assert dataset is not None
+            _require(
+                dataset["custody"] == "app" and dataset["recovery"] == recovery_roles[hook["role"]],
+                "recovery hook crosses dataset custody or recovery policy",
+            )
+
+
 def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -> None:
     validate("source.schema.json", app)
     _require(app["kind"] == "App", "expected app")
@@ -254,22 +316,7 @@ def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -
         _require(entry["readiness_hook"] in hooks, "unknown interface readiness")
     for dependency in app["dependencies"].values():
         _require(set(dependency["consumers"]) <= set(components), "unknown dependency consumer")
-    for dataset in datasets.values():
-        _require(
-            set(dataset["writers"] + dataset["readers"]) <= set(components), "unknown data consumer"
-        )
-        if dataset["kind"] == "owned":
-            for field, role in [
-                ("capture", "capture"),
-                ("restore", "restore"),
-                ("verify", "verify-restore"),
-            ]:
-                _require(
-                    dataset[field] in hooks and hooks[dataset[field]]["role"] == role,
-                    "missing/wrong owned dataset procedure",
-                )
-        if dataset["kind"] == "reference":
-            _require(dataset["owner"] is not None, "reference dataset owner missing")
+    _validate_datasets(app)
     for binding in app["secret_bindings"].values():
         if app["repository_secrets"] is None or catalogue is None:
             raise ContractError("missing secret catalogue")
@@ -336,12 +383,95 @@ def validate_cli(value: dict[str, Any]) -> None:
     validate("cli-output.schema.json", value)
     if value["ok"] != (value["problem"] is None):
         raise ContractError("CLI success/problem mismatch")
-    if value["state"] in ("accepted", "paused", "unknown") and value["complete"]:
-        raise ContractError("incomplete work marked complete")
-    if value["state"] in ("rejected", "unknown") and value["ok"]:
-        raise ContractError("rejected/unknown work marked successful")
-    if value["state"] == "complete" and (not value["complete"] or not value["ok"]):
-        raise ContractError("complete state mismatch")
+    state = value["state"]
+    unsuccessful = {"failed", "cancelled", "quarantined", "rejected", "unknown"}
+    if value["ok"] != (state not in unsuccessful):
+        raise ContractError("CLI outcome/success mismatch")
+    terminal = {
+        "observed",
+        "planned",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "quarantined",
+        "rejected",
+    }
+    if value["complete"] != (state in terminal):
+        raise ContractError("CLI outcome/completion mismatch")
+
+    result = value["result"]
+    operation = result if isinstance(result, dict) and result.get("kind") == "Operation" else None
+    owner_states = {
+        "accepted",
+        "running",
+        "waiting",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "quarantined",
+    }
+    if state in owner_states and operation is None:
+        raise ContractError("execution outcome requires owner Operation")
+    if state == "planned" and (not isinstance(result, dict) or result.get("kind") != "Plan"):
+        raise ContractError("planned outcome requires Plan")
+    if isinstance(result, dict) and result.get("kind") == "Plan":
+        _require(state == "planned", "CLI plan must be presented for review")
+        validate_plan(result)
+    if state == "observed" and result is None:
+        raise ContractError("observed outcome requires result")
+    if operation is not None:
+        _require(state == operation["state"], "CLI/owner execution state mismatch")
+        _require(value["request_id"] == operation["request_id"], "CLI/owner request mismatch")
+        _require(
+            operation["witness"]["owner"] == operation["owner"],
+            "CLI/owner witness identity mismatch",
+        )
+        _require(
+            state != "succeeded" or operation["effect_certainty"] == "known",
+            "successful operation has unverified effects",
+        )
+        if value["problem"] is not None:
+            _require(
+                value["problem"]["owner"] == operation["owner"]
+                and value["problem"]["resource"] == operation["subject"]["resource"],
+                "CLI problem/operation identity mismatch",
+            )
+
+    delivery = value.get("delivery")
+    if delivery is not None:
+        _require(value["request_id"] == delivery["request_id"], "CLI/delivery request mismatch")
+        if value["problem"] is not None:
+            _require(
+                value["problem"]["owner"] == delivery["owner"]
+                and value["problem"]["resource"] == delivery["resource"],
+                "CLI problem/delivery identity mismatch",
+            )
+        if operation is not None:
+            _require(
+                delivery["state"] == "accepted"
+                and delivery["owner"] == operation["owner"]
+                and delivery["plan_digest"] == operation["plan_digest"]
+                and delivery["subject_digest"] == digest(operation["subject"])
+                and delivery["action"] == operation["subject"]["action"]
+                and delivery["resource"] == operation["subject"]["resource"],
+                "CLI/delivery acceptance binding mismatch",
+            )
+        else:
+            _require(
+                (delivery["state"], state)
+                in {
+                    ("prepared", "planned"),
+                    ("prepared", "paused"),
+                    ("acceptance_unknown", "unknown"),
+                    ("rejected", "rejected"),
+                },
+                "CLI/delivery acceptance state mismatch",
+            )
+    if value["problem"] is not None and value["problem"]["code"] == "ACCEPTANCE_UNKNOWN":
+        _require(
+            state == "unknown" and operation is None and value["request_id"] is not None,
+            "unknown acceptance requires original request and no owner outcome",
+        )
 
 
 def validate_plan(value: dict[str, Any]) -> None:
@@ -354,6 +484,23 @@ def validate_plan(value: dict[str, Any]) -> None:
     steps = [v["step"] for v in value["effects"]]
     if len(set(steps)) != len(steps):
         raise ContractError("duplicate effect step")
+    # Bind the administrator-visible scope to the exact owner/resource checks.
+    # These finite sets avoid rescanning every precondition for every effect.
+    preconditions = {
+        canonical([item["owner"], item["resource"]]) for item in value["preconditions"]
+    }
+    if len(preconditions) != len(value["preconditions"]):
+        raise ContractError("duplicate resource precondition")
+    if canonical([value["owner"], value["subject"]["resource"]]) not in preconditions:
+        raise ContractError("subject lacks resource precondition")
+    inputs = set(value["input_digests"])
+    for effect in value["effects"]:
+        if canonical([effect["executor"], effect["resource"]]) not in preconditions:
+            raise ContractError("effect lacks resource precondition")
+        if effect["input_digest"] not in inputs:
+            raise ContractError("effect input outside reviewed plan")
+    if "none-needed" in value["recovery"] and len(value["recovery"]) != 1:
+        raise ContractError("conflicting recovery procedures")
     from datetime import datetime
 
     if datetime.fromisoformat(value["expires_at"].replace("Z", "+00:00")) <= datetime.fromisoformat(

@@ -706,7 +706,7 @@
       "type": "object",
       "properties": {
         "action": {
-          "const": "host.harvest"
+          "const": "host.capture-changes"
         },
         "resource": {
           "type": "object",
@@ -727,7 +727,7 @@
           "additionalProperties": false
         },
         "arguments": {
-          "$ref": "actions.schema.json#/$defs/host.harvest"
+          "$ref": "actions.schema.json#/$defs/host.capture-changes"
         }
       },
       "required": [
@@ -741,7 +741,7 @@
       "type": "object",
       "properties": {
         "action": {
-          "const": "host.clone-sync"
+          "const": "host.source-update"
         },
         "resource": {
           "type": "object",
@@ -762,7 +762,7 @@
           "additionalProperties": false
         },
         "arguments": {
-          "$ref": "actions.schema.json#/$defs/host.clone-sync"
+          "$ref": "actions.schema.json#/$defs/host.source-update"
         }
       },
       "required": [
@@ -1207,7 +1207,8 @@
       "required": [
         "release_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Activate an exact reviewed application release on its approved host. Activation uses the existing application identity and data custody; publishing source alone does not deploy it."
     },
     "app.upgrade": {
       "type": "object",
@@ -1222,31 +1223,36 @@
       "required": [
         "release_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Change an application to an exact reviewed release. The plan must disclose availability and data/schema consequences; returning to the previous executable does not by itself reverse data changes."
     },
     "app.repair": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Re-establish the already accepted application configuration. Repair does not silently adopt newer source, replace data from a backup, or resolve a different interrupted operation."
     },
     "app.undeploy": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Make the application inactive by removing its managed execution while retaining persistent data and its recovery obligations. This is not permission to delete application data or backups."
     },
     "app.backup": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Capture and publish an application recovery checkpoint using its declared data procedures. A successful capture is distinct from evidence that restoration has been tested."
     },
     "app.backup-check": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Check the selected application backup material through its configured capability. Integrity checking does not itself demonstrate a successful isolated restore drill."
     },
     "app.restart": {
       "type": "object",
@@ -1267,7 +1273,8 @@
       "required": [
         "components"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Restart only the named components of the accepted application release. Persistent data remains under its existing custody; normal application writes may resume."
     },
     "app.maintenance-run": {
       "type": "object",
@@ -1282,7 +1289,8 @@
       "required": [
         "task"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Run one declared application maintenance task with its exact approved scope. The plan explains any data changes or downtime; a task name does not authorize arbitrary host commands."
     },
     "app.secrets-adopt": {
       "type": "object",
@@ -1297,7 +1305,8 @@
       "required": [
         "bundle_receipt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Adopt the exact published secret generation identified by its bundle receipt for this application. Publishing a secret and switching a consumer to it are separate operations."
     },
     "app.restore": {
       "type": "object",
@@ -1312,7 +1321,8 @@
       "required": [
         "checkpoint"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Restore application data from the explicitly selected checkpoint. The plan must identify replacement scope, possible loss of later writes and production admission; this is not a synonym for restarting or repairing configuration."
     },
     "app.drill": {
       "type": "object",
@@ -1327,7 +1337,8 @@
       "required": [
         "checkpoint"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Test restoration of the selected checkpoint in isolation from production writers. A drill supplies recovery evidence and does not activate the restored copy as the production application."
     },
     "app.recover": {
       "type": "object",
@@ -1363,7 +1374,8 @@
         "disposition",
         "checkpoint"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Resolve the named interrupted or quarantined operation using an explicit disposition and any selected checkpoint. Preserve confirmed effects and reconcile uncertainty; recovery is not a fresh attempt with forgotten request identity."
     },
     "app.cleanup": {
       "type": "object",
@@ -1391,7 +1403,8 @@
         "inventory_digest",
         "candidates"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Reclaim only the exact candidates in the reviewed inventory under the current protected-reference checks. Rebuildability or inactivity alone does not authorize removal of data, backups or accepted recovery material."
     },
     "app.retire": {
       "type": "object",
@@ -1406,7 +1419,8 @@
       "required": [
         "retention_receipt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "End management of this application only with explicit retention and custody evidence. Retirement is separate from temporary inactivity and does not imply erasing retained data."
     },
     "app.relocate": {
       "type": "object",
@@ -1434,7 +1448,8 @@
         "checkpoint",
         "placement_generation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Move the same application identity and its data to the selected host through a fenced ownership handoff. Source and destination must not become concurrent production writers; changing placement text alone does not move the application."
     },
     "host.apply": {
       "type": "object",
@@ -1507,7 +1522,8 @@
       "required": [
         "source"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Apply an exact reviewed host source snapshot to its managed scope while preserving unmanaged state. This changes accepted host configuration; publishing that snapshot does not apply it."
     },
     "host.runtime-install": {
       "type": "object",
@@ -1535,19 +1551,22 @@
         "tool_release",
         "tools"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Install the exact reviewed management-tool release through the protected host owner. Tool installation is separate from application deployment and must preserve accepted work and independent recovery."
     },
     "host.reboot": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Reboot the selected host after admitting the exact disruption and recovery plan for its affected work. A dropped connection is not evidence that reboot completed."
     },
     "host.sleep": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Put the selected host to sleep after its affected work is made safe. Sleeping is a power state, not evidence of an unhealthy machine or failed application."
     },
     "host.wake": {
       "type": "object",
@@ -1562,9 +1581,10 @@
       "required": [
         "target"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Ask an approved relay to wake the named host. Dispatching a wake request does not prove that the host is awake, reachable or ready to serve applications."
     },
-    "host.harvest": {
+    "host.capture-changes": {
       "type": "object",
       "properties": {
         "base": {
@@ -1590,9 +1610,10 @@
         "base",
         "paths"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Capture selected live host changes against the named source base as a reviewable source proposal. Capturing a proposal neither publishes it nor adopts it as accepted configuration."
     },
-    "host.clone-sync": {
+    "host.source-update": {
       "type": "object",
       "properties": {
         "source_id": {
@@ -1612,7 +1633,8 @@
         "source_id",
         "commit"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Update the named managed source checkout to an exact commit with its custody checks. Updating source does not apply host policy, activate an application or discard unpublished human work."
     },
     "host.secrets-adopt": {
       "type": "object",
@@ -1627,7 +1649,8 @@
       "required": [
         "bundle_receipt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Adopt the exact published secret generation identified by its bundle receipt for the host. Consumer adoption remains distinct from publishing or rotating the secret value."
     },
     "host.recover": {
       "type": "object",
@@ -1649,7 +1672,8 @@
         "operation_id",
         "disposition"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Resolve the named interrupted host operation with an explicit disposition, retaining confirmed outcomes and unresolved custody. Do not replace the original request merely because its reply was lost."
     },
     "host.retire": {
       "type": "object",
@@ -1677,7 +1701,8 @@
         "resources",
         "retention_receipt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Retire only the named host resources after their retention and replacement custody is established. This does not authorize bulk deletion of unrelated or unmanaged resources."
     },
     "source.publish": {
       "type": "object",
@@ -1772,7 +1797,8 @@
         "base",
         "proposal"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Publish the exact reviewed source proposal against its named base through the authorized repository publisher. Publication changes source history; it does not activate that source on any host or application."
     },
     "dns.reconcile": {
       "type": "object",
@@ -1853,7 +1879,8 @@
       "required": [
         "changeset"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Apply the exact reviewed DNS changeset conditionally within the granted scope. Preserve unowned records and distinguish provider acceptance from independently observed effective DNS state."
     },
     "publisher.publish": {
       "type": "object",
@@ -1948,7 +1975,8 @@
         "candidate",
         "expected_previous"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Publish the exact secret-bundle candidate against its expected predecessor. Publication alone neither rotates an issuer value nor confirms that consumers have adopted the new generation."
     },
     "publisher.recover": {
       "type": "object",
@@ -1969,7 +1997,8 @@
         "publication_id",
         "candidate_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Resolve the exact interrupted secret publication using its publication identity and candidate digest. A lost reply does not authorize publishing a different candidate."
     },
     "recovery.publish": {
       "type": "object",
@@ -2050,13 +2079,15 @@
       "required": [
         "capture"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Publish the selected recovery capture under its existing custody and completeness checks. Published source recovery material is not proof that application data or external accounts can be restored."
     },
     "backend.check": {
       "type": "object",
       "properties": {},
       "required": [],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Check the selected backup backend through its enrolled implementation. This does not initialize an unknown repository, restore an application or demonstrate a restore drill."
     },
     "backend.prune": {
       "type": "object",
@@ -2071,7 +2102,8 @@
       "required": [
         "retention_receipt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Remove only backup material authorized by the exact retention evidence and current protected references. Retention policy is not permission to delete the sole viable recovery copy."
     },
     "adapter.execute": {
       "type": "object",
@@ -2180,7 +2212,8 @@
         "input",
         "input_schema_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Execute the exact declared adapter action and input through a receiving-owner-approved artifact, configuration and scope. This is an advanced capability boundary, not a general shell or source-controlled enrollment mechanism."
     },
     "backend.enroll": {
       "type": "object",
@@ -2268,7 +2301,8 @@
         "mode",
         "candidate"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Explicitly attach a known backup repository or initialize the selected new one under the reviewed mode. Unknown initialization outcomes require reconciliation rather than another initialization attempt."
     }
   }
 }

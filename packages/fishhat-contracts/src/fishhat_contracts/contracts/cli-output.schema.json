@@ -7,21 +7,29 @@
       "const": "deployment-ops/cli/v1"
     },
     "ok": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Whether the stage named by state succeeded or was accepted without a reported problem. For observed, this means the record was read and validated; the contained task may still be active, failed, unknown or incomplete. Execution labels use the separate owner Operation outcome. A test command must derive its exit status from its test result, not from successful observation of that result."
     },
     "state": {
       "enum": [
         "observed",
         "planned",
         "accepted",
-        "complete",
+        "running",
+        "waiting",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "quarantined",
         "paused",
         "rejected",
         "unknown"
-      ]
+      ],
+      "description": "Accepted, running, waiting, succeeded, failed, cancelled and quarantined require an Operation result and exactly match its owner-reported execution state. Observed reports a completed read or non-Operation result without asserting execution success. Planned requires a completed Plan response. Paused describes an interrupted client workflow. Unknown describes uncertainty, never a proved rejection or failure."
     },
     "complete": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Whether the stage named by state is terminal. For observed or planned, only this observation or plan preparation is complete: an enclosed workflow, test or report has its own outcome, and pagination can still require more responses. For an Operation, terminal does not imply success, rollback, release of holds or completion of a separate recovery operation."
     },
     "request_id": {
       "anyOf": [
@@ -33,7 +41,8 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "description": "The original request identity, matching both the Operation result and any Delivery reference. Reconnection or uncertainty never supplies a replacement identity."
     },
     "location": {
       "type": "string",
@@ -181,5 +190,6 @@
     "result",
     "problem"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "description": "Human and machine result envelope. Acceptance, execution progress, terminal outcome, and certainty stay distinct. A successful command response or accepted request is not evidence that requested work has completed."
 }

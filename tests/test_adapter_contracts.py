@@ -14,7 +14,7 @@ from fishhat_adapters import (
 )
 from fishhat_contracts.validation import SCHEMAS, ContractError, digest, validate
 
-from tests.adapter_support import SCOPE, D, descriptors, request, runtime_registry
+from tests.adapter_support import SCOPE, D, descriptors, observation, request, runtime_registry
 
 CHECK_PURPOSE = {
     "purpose": "public-contract",
@@ -126,6 +126,18 @@ def test_control_records_keep_their_strict_encoding():
 
     with pytest.raises(ContractError):
         canonical({"cpu": 0.5})
+
+
+def test_adapter_health_result_does_not_stand_in_for_check_capability():
+    value = observation()
+    value["health_check"] = "unsupported"
+    validate("adapter.schema.json", value, "Observation")
+    value["health"] = "healthy"
+    with pytest.raises(ContractError):
+        validate("adapter.schema.json", value, "Observation")
+    value["health"] = "unsupported"
+    with pytest.raises(ContractError):
+        validate("adapter.schema.json", value, "Observation")
 
 
 def test_unknown_runtime_implementation_is_not_a_schema_enum():

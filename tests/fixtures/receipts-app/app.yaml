@@ -35,7 +35,8 @@ interfaces:
 dependencies: {}
 datasets:
   state:
-    kind: owned
+    custody: app
+    recovery: preserve
     native_format: sqlite-receipts-v1
     writers:
     - server
@@ -44,7 +45,9 @@ datasets:
     grant: receipts-state
     capture: capture
     restore: restore
-    verify: verify-restore
+    verify_restore: verify-restore
+    rebuild: null
+    verify_rebuild: null
     owner: null
 hooks:
   health:

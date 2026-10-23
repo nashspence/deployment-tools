@@ -24,6 +24,9 @@
         ]
       }
     },
+    "summary": "Restart the web component of demo-app using its accepted release.",
+    "data_consequences": "Keep stored application data; normal writes may resume after restart.",
+    "recovery_limits": "Inspect the accepted operation before retrying; restart does not undo writes.",
     "created_at": "2026-10-17T00:00:00Z",
     "expires_at": "2026-10-17T01:00:00Z",
     "input_digests": [
@@ -53,6 +56,11 @@
           "id": "58735bda-2152-5b96-9fcf-5a1ffd14872e",
           "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
         },
+        "resource": {
+          "kind": "app",
+          "id": "demo-app"
+        },
+        "summary": "Restart the web component; leave other components running.",
         "action": "admitted-restart",
         "input_digest": "sha256:f60fa8fdf1458e0573e731e274de6789c98a7955a8d39e20b31adb8c3063f9d1",
         "reconciliation": "inspect-runtime"
@@ -64,7 +72,7 @@
       "native-reconcile"
     ],
     "blockers": [],
-    "digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+    "digest": "sha256:fc81195590e088e4b305f7836d0a1a81a709f9562b1ee35653c96b09104ed6ae",
     "witness": {
       "format": "deployment-ops/witness/v1",
       "id": "5018df02-0aaa-5c56-90ff-5afcd81bf3f6",
@@ -74,7 +82,7 @@
         "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
       },
       "kind": "plan",
-      "subject_digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+      "subject_digest": "sha256:fc81195590e088e4b305f7836d0a1a81a709f9562b1ee35653c96b09104ed6ae",
       "workflow_id": null,
       "generation": 0,
       "state": "planned",
@@ -82,7 +90,7 @@
       "evidence_digests": [],
       "created_at": "2026-10-17T00:00:00Z",
       "key_id": "test-owner",
-      "signature": "pEt7q/hphYeCSgNznErl6I76fpdaKkCs580PCHy+wP5qBAsnT9of/FyzZuFm12wNwSE9h1vlXlQQBRTO+CDsAw=="
+      "signature": "5dDbLUB+IER3vpTOaIsSwyUY7op8hr1jyrzW+FBByAg3rpadWD4cigHIf7qEclPvrJpG+6OuHf9qzKOhyUG9Cg=="
     }
   }
 }

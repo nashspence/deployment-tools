@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from fishhat_client.submission import prepare_delivery, submit_once
 from fishhat_client.workspace import check_closeout, validate_session
-from fishhat_contracts.validation import ContractError, canonical, validate
+from fishhat_contracts.validation import ContractError, canonical, digest, validate
 from fishhat_owner.journal import Journal
 from fishhat_reporting.reports import (
     comment_match,
@@ -35,6 +35,20 @@ CHECK_PURPOSE = {
     "relationship": "candidate",
     "reason": "Synthetic adapters and local SQLite state test optional reporting isolation, immutable records and pagination; no running report API or forge publication is qualified.",
     "claims": [],
+}
+
+CHECK_CLASS_PURPOSE = {
+    "Noninterference": {
+        "purpose": "implementation",
+        "authority": [
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/client-records.schema.json",
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/tracking-records.schema.json",
+        ],
+        "scope": "offline submission, owner journal and reporting reference models",
+        "relationship": "candidate",
+        "reason": "Injected transport and local state exercise exact request binding, separate acceptance and execution outcomes, and reporting noninterference; no authenticated native owner is qualified.",
+        "claims": [],
+    }
 }
 
 
@@ -502,13 +516,34 @@ class OptionalIndex(unittest.TestCase):
 class Noninterference(unittest.TestCase):
     def setUp(self):
         self.template = load("examples/session/receipt-export.json")["deliveries"][0]
+        self.operation = load("examples/operation.json")
+        self.template.update(
+            owner=copy.deepcopy(self.operation["owner"]),
+            plan_digest=self.operation["plan_digest"],
+            subject_digest=digest(self.operation["subject"]),
+            action=self.operation["subject"]["action"],
+            resource=copy.deepcopy(self.operation["subject"]["resource"]),
+            expected_generation=self.operation["generation"],
+        )
+
+    def receipt(self, delivery, state="accepted"):
+        # The injected transport represents authentication. Editing this fixture
+        # supplies decoded reference data, not a newly verified signed receipt.
+        operation = copy.deepcopy(self.operation)
+        operation["request_id"] = delivery["request_id"]
+        operation["state"] = state
+        if state == "succeeded":
+            operation["effect_certainty"] = "known"
+        return operation
 
     def test_no_files_required(self):
         with patch("pathlib.Path.open", side_effect=OSError("read-only client home")):
             d = prepare_delivery(self.template)
-            r = submit_once(d, lambda x: {"request_id": x["request_id"], "state": "accepted"})
+            r = submit_once(d, self.receipt)
         self.assertEqual(r["exit_code"], 0)
         self.assertEqual(r["tracking"], "not-attempted")
+        self.assertEqual(d["state"], "prepared")
+        self.assertEqual(r["delivery"]["state"], "accepted")
 
     def test_no_tracking_import_dependency(self):
         tree = ast.parse(
@@ -527,8 +562,104 @@ class Noninterference(unittest.TestCase):
     def test_tracking_unavailable_cannot_be_called_by_submission(self):
         with patch("fishhat_reporting.reports.report", side_effect=AssertionError("must not run")):
             d = prepare_delivery(self.template)
-            r = submit_once(d, lambda x: {"request_id": x["request_id"], "state": "accepted"})
+            r = submit_once(d, self.receipt)
         self.assertEqual(r["exit_code"], 0)
+
+    def test_running_and_waiting_are_execution_not_delivery_states(self):
+        for state in ("running", "waiting"):
+            with self.subTest(state=state):
+                d = prepare_delivery(self.template)
+                r = submit_once(d, lambda x, state=state: self.receipt(x, state))
+                self.assertEqual(r["delivery"]["state"], "accepted")
+                self.assertEqual(r["owner_receipt"]["state"], state)
+                self.assertEqual(r["exit_code"], 0)
+                validate("client-records.schema.json", r["delivery"], "Delivery")
+
+    def test_unsuccessful_owner_outcomes_are_accepted_without_success_exit(self):
+        for state in ("failed", "cancelled", "quarantined"):
+            with self.subTest(state=state):
+                d = prepare_delivery(self.template)
+                receipt = self.receipt(d, state)
+                receipt["effect_certainty"] = "unknown"
+                receipt["holds"] = [str(uuid.uuid4())]
+                r = submit_once(d, lambda _, receipt=receipt: receipt)
+                self.assertEqual(r["exit_code"], 1)
+                self.assertEqual(r["delivery"]["state"], "accepted")
+                self.assertEqual(r["owner_receipt"], receipt)
+                validate("client-records.schema.json", r["delivery"], "Delivery")
+
+    def test_successful_execution_stays_in_owner_receipt(self):
+        d = prepare_delivery(self.template)
+        r = submit_once(d, lambda x: self.receipt(x, "succeeded"))
+        self.assertEqual(r["exit_code"], 0)
+        self.assertEqual(r["delivery"]["state"], "accepted")
+        self.assertEqual(r["owner_receipt"]["state"], "succeeded")
+        self.assertEqual(r["owner_receipt"]["effect_certainty"], "known")
+
+    def test_missing_or_partial_receipt_does_not_prove_acceptance_or_rejection(self):
+        for form in ("missing", "empty", "partial"):
+            with self.subTest(form=form):
+                d = prepare_delivery(self.template)
+                receipt = {
+                    "missing": None,
+                    "empty": {},
+                    "partial": {"request_id": d["request_id"], "state": "accepted"},
+                }[form]
+                r = submit_once(d, lambda _, receipt=receipt: receipt)
+                self.assertEqual(r["exit_code"], 8)
+                self.assertEqual(r["delivery"]["state"], "acceptance_unknown")
+                self.assertEqual(r["delivery"]["request_id"], d["request_id"])
+                self.assertIsNone(r["owner_receipt"])
+
+    def test_owner_reply_cannot_substitute_the_request_or_reviewed_inputs(self):
+        changes = (
+            (("request_id",), str(uuid.uuid4())),
+            (("owner", "id"), str(uuid.uuid4())),
+            (("owner", "epoch"), str(uuid.uuid4())),
+            (("plan_digest",), "sha256:" + "f" * 64),
+            (("subject", "resource", "id"), "another-app"),
+            (("subject", "arguments", "components"), ["another-component"]),
+            (("witness", "owner", "id"), str(uuid.uuid4())),
+        )
+        for path, replacement in changes:
+            with self.subTest(path=path):
+                d = prepare_delivery(self.template)
+                receipt = self.receipt(d)
+                target = receipt
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] = replacement
+                r = submit_once(d, lambda _, receipt=receipt: receipt)
+                self.assertEqual(r["exit_code"], 8)
+                self.assertEqual(r["delivery"]["state"], "acceptance_unknown")
+                self.assertEqual(r["delivery"]["request_id"], d["request_id"])
+                self.assertIsNone(r["owner_receipt"])
+
+    def test_unknown_effect_cannot_be_reported_as_success(self):
+        d = prepare_delivery(self.template)
+        receipt = self.receipt(d, "succeeded")
+        receipt["effect_certainty"] = "unknown"
+        r = submit_once(d, lambda _: receipt)
+        self.assertEqual(r["exit_code"], 8)
+        self.assertEqual(r["delivery"]["state"], "acceptance_unknown")
+        self.assertIsNone(r["owner_receipt"])
+
+    def test_delivery_rejects_execution_states_and_old_preparation_labels(self):
+        for state in (
+            "reserved",
+            "attempting",
+            "paused",
+            "running",
+            "waiting",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "quarantined",
+        ):
+            d = prepare_delivery(self.template)
+            d["state"] = state
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                validate("client-records.schema.json", d, "Delivery")
 
     def test_timeout_same_id_no_retry(self):
         d = prepare_delivery(self.template)

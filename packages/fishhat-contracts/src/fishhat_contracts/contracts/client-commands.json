@@ -3,87 +3,109 @@
   "commands": [
     {
       "name": "info",
-      "scope": "local-observe"
+      "scope": "local-observe",
+      "description": "Describe this client and its implemented capabilities; this is not a live domain health check."
     },
     {
       "name": "source status",
-      "scope": "local-observe"
+      "scope": "local-observe",
+      "description": "Inspect local source changes and publication state without changing a checkout or contacting an owner."
     },
     {
-      "name": "source sync",
-      "scope": "explicit-fetch"
+      "name": "source fetch",
+      "scope": "explicit-fetch",
+      "description": "Fetch explicitly selected remote source history without advancing the working branch or activating it."
     },
     {
-      "name": "source advance",
-      "scope": "checked-fast-forward"
+      "name": "source fast-forward",
+      "scope": "checked-fast-forward",
+      "description": "Advance the selected source branch only when a checked fast-forward preserves local work; do not merge, reset or activate it implicitly."
     },
     {
       "name": "source worktree",
-      "scope": "local-proposal"
+      "scope": "local-proposal",
+      "description": "Prepare a separate local worktree for a source proposal while preserving existing branches, worktrees and unpublished changes."
     },
     {
       "name": "source publish",
-      "scope": "owner-publisher"
+      "scope": "owner-publisher",
+      "description": "Ask the authorized source publisher to publish an exact proposal; host and application activation remains separate."
     },
     {
       "name": "source recover",
-      "scope": "explicit-native-recovery"
+      "scope": "explicit-native-recovery",
+      "description": "Recover source into fresh staging from the selected recovery material; this does not restore application data, enroll owners or activate services."
     },
     {
       "name": "test",
-      "scope": "trusted-code"
+      "scope": "trusted-code",
+      "description": "Run only the explicitly trusted selected test suite and report its actual execution class and missing prerequisites."
     },
     {
       "name": "workspace open",
-      "scope": "local-register"
+      "scope": "local-register",
+      "description": "Register a local working context for selected domain source; registration grants no remote permission."
     },
     {
       "name": "workspace check",
-      "scope": "local-observe"
+      "scope": "local-observe",
+      "description": "Inspect local work, unresolved requests and preservation obligations without deleting or closing them."
     },
     {
       "name": "workspace export",
-      "scope": "explicit-private-export"
+      "scope": "explicit-private-export",
+      "description": "Explicitly export private working evidence and custody references; exported observations are not new owner authority."
     },
     {
       "name": "workspace close",
-      "scope": "preservation-check-no-delete"
+      "scope": "preservation-check-no-delete",
+      "description": "Check that local work and unresolved remote requests remain accounted for; closing does not delete files or cancel accepted owner work."
     },
     {
       "name": "receipts export",
-      "scope": "private-evidence"
+      "scope": "private-evidence",
+      "description": "Export selected private evidence for later inspection or transfer; no execution or authority is granted."
     },
     {
       "name": "receipts import",
-      "scope": "untrusted-evidence"
+      "scope": "untrusted-evidence",
+      "description": "Import evidence as untrusted reported material until its independent owner identity and provenance are verified."
     },
     {
       "name": "workflow resume",
-      "scope": "reauthorized-owner-work"
+      "scope": "reauthorized-owner-work",
+      "description": "Continue the exact recorded workflow after current owner authorization and reconciliation; do not silently create replacement work."
     },
     {
       "name": "tracking record",
-      "scope": "best-effort-metadata-only"
+      "scope": "best-effort-metadata-only",
+      "description": "Separately record best-effort metadata after execution; reporting failure never changes owner acceptance or execution outcomes."
     },
     {
       "name": "tracking check",
-      "scope": "optional-integration-diagnostic"
+      "scope": "optional-integration-diagnostic",
+      "description": "Diagnose the optional reporting integration without making it a prerequisite for management or recovery."
     },
     {
       "name": "tracking show",
-      "scope": "reported-data-only"
+      "scope": "reported-data-only",
+      "description": "Show reported history with its provenance; a report is not a fresh authoritative owner observation."
     },
     {
       "name": "host resources",
-      "scope": "owner-observe"
+      "scope": "owner-observe",
+      "description": "Observe the selected host capacity and reservations through its authorized owner; a quota maximum is not a physical reservation."
     },
     {
       "name": "app resources",
-      "scope": "owner-observe"
+      "scope": "owner-observe",
+      "description": "Observe the selected application resource use and protection through its authorized owner."
     },
     {
       "name": "app cleanup",
-      "scope": "owner-exact-plan"
+      "scope": "owner-exact-plan",
+      "description": "Prepare and apply only an exact owner-authorized cleanup plan for eligible material while retaining protected data and recovery references."
     }
-  ]
+  ],
+  "description": "Proposed administrator-facing workflows. Domain context selects known hosts, applications and source; it is not a central authority. These declarations do not claim that the scaffold implements native operations."
 }

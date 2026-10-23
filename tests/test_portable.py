@@ -26,7 +26,7 @@ from fishhat_client.workspace import (
     validate_session,
     validate_suite,
 )
-from fishhat_contracts.validation import ContractError, strict_yaml, validate
+from fishhat_contracts.validation import ContractError, digest, strict_yaml, validate, validate_cli
 from fishhat_owner.commands import FORMS, parse_command
 
 from tests.support import fixture_path
@@ -40,6 +40,19 @@ CHECK_PURPOSE = {
     "relationship": "candidate",
     "reason": "Synthetic sessions, closeout, merge, owner grammar and wheel experiments exercise reference helpers, not end-to-end execution of declared CLI forms.",
     "claims": [],
+}
+
+CHECK_CLASS_PURPOSE = {
+    "CliOutcomes": {
+        "purpose": "public-contract",
+        "authority": [
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/cli-output.schema.json"
+        ],
+        "scope": "decoded CLI and owner receipt reference data",
+        "relationship": "candidate",
+        "reason": "Contradictory acceptance, execution, completion and identity claims are rejected by local validation; transport authentication and native outcomes are not qualified.",
+        "claims": [],
+    }
 }
 
 
@@ -191,11 +204,16 @@ class Portable(unittest.TestCase):
 
     def test_merge_cannot_assert_new_state(self):
         b = copy.deepcopy(self.receipts)
-        b["deliveries"][0]["state"] = "succeeded"
+        b["deliveries"][0]["state"] = "accepted"
         self.assertEqual(
             merge_exports(self.receipts, b)["deliveries"][0]["state"],
             self.receipts["deliveries"][0]["state"],
         )
+
+    def test_import_cannot_mix_execution_outcome_into_delivery(self):
+        self.receipts["deliveries"][0]["state"] = "succeeded"
+        with self.assertRaises(ContractError):
+            validate_export(self.receipts)
 
     def test_epoch_is_distinct_identity(self):
         b = copy.deepcopy(self.receipts)
@@ -267,6 +285,165 @@ class Portable(unittest.TestCase):
         x["services_restored"] = True
         with self.assertRaises(ContractError):
             validate("client-records.schema.json", x, "SourceRecovery")
+
+
+class CliOutcomes(unittest.TestCase):
+    def result(self, state):
+        value = load("examples/cli-accepted.json")
+        value["state"] = state
+        value["result"]["state"] = state
+        value["complete"] = state in ("succeeded", "failed", "cancelled", "quarantined")
+        if state == "succeeded":
+            value["result"]["effect_certainty"] = "known"
+        if state in ("failed", "cancelled", "quarantined"):
+            value["ok"] = False
+            value["problem"] = load("examples/cli-unknown.json")["problem"]
+            value["problem"]["code"] = {
+                "failed": "CHECK_FAILED",
+                "cancelled": "CANCELLED",
+                "quarantined": "EFFECT_UNKNOWN",
+            }[state]
+            value["result"]["effect_certainty"] = "unknown"
+            value["result"]["holds"] = [value["request_id"]]
+        return value
+
+    def delivery(self, value):
+        delivery = load("examples/session/receipt-export.json")["deliveries"][0]
+        operation = value["result"]
+        delivery.update(
+            request_id=value["request_id"],
+            owner=copy.deepcopy(operation["owner"]),
+            plan_digest=operation["plan_digest"],
+            subject_digest=digest(operation["subject"]),
+            action=operation["subject"]["action"],
+            resource=copy.deepcopy(operation["subject"]["resource"]),
+            state="accepted",
+        )
+        return delivery
+
+    def test_owner_execution_states_and_terminal_outcomes_are_distinct(self):
+        for state in (
+            "accepted",
+            "running",
+            "waiting",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "quarantined",
+        ):
+            with self.subTest(state=state):
+                value = self.result(state)
+                value["delivery"] = self.delivery(value)
+                validate_cli(value)
+                self.assertEqual(value["delivery"]["state"], "accepted")
+                if state in ("failed", "cancelled", "quarantined"):
+                    self.assertTrue(value["complete"])
+                    self.assertFalse(value["ok"])
+                    self.assertTrue(value["result"]["holds"])
+
+    def test_acknowledged_work_cannot_claim_completion(self):
+        for state in ("accepted", "running", "waiting"):
+            value = self.result(state)
+            value["complete"] = True
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_failed_cancelled_and_quarantined_work_cannot_claim_success(self):
+        for state in ("failed", "cancelled", "quarantined"):
+            value = self.result(state)
+            value["ok"] = True
+            value["problem"] = None
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_envelope_cannot_disagree_with_owner_execution_outcome(self):
+        for state in ("accepted", "running", "waiting", "failed", "cancelled", "quarantined"):
+            value = self.result("succeeded")
+            value["result"]["state"] = state
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_success_requires_verified_effects_and_matching_request(self):
+        for field, replacement in (
+            ("effect_certainty", "unknown"),
+            ("request_id", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+        ):
+            value = self.result("succeeded")
+            value["result"][field] = replacement
+            with self.subTest(field=field), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_terminal_success_cannot_use_generic_complete_state(self):
+        value = self.result("succeeded")
+        value["state"] = "complete"
+        with self.assertRaises(ContractError):
+            validate_cli(value)
+
+    def test_execution_outcome_needs_owner_evidence(self):
+        for state in (
+            "accepted",
+            "running",
+            "waiting",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "quarantined",
+        ):
+            value = self.result(state)
+            value["result"] = None
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_delivery_cannot_replace_owner_epoch_request_or_reviewed_plan(self):
+        for field, replacement in (
+            ("request_id", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+            ("plan_digest", "sha256:" + "f" * 64),
+            ("subject_digest", "sha256:" + "f" * 64),
+            ("state", "rejected"),
+        ):
+            value = self.result("accepted")
+            value["delivery"] = self.delivery(value)
+            value["delivery"][field] = replacement
+            with self.subTest(field=field), self.assertRaises(ContractError):
+                validate_cli(value)
+        value = self.result("accepted")
+        value["delivery"] = self.delivery(value)
+        value["delivery"]["owner"]["epoch"] = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+        with self.assertRaises(ContractError):
+            validate_cli(value)
+
+    def test_unknown_acceptance_keeps_original_request_without_owner_outcome(self):
+        value = load("examples/cli-unknown.json")
+        validate_cli(value)
+        value["request_id"] = None
+        with self.assertRaises(ContractError):
+            validate_cli(value)
+
+    def test_problem_cannot_refer_to_another_owner_or_resource(self):
+        for field, replacement in (
+            (
+                "owner",
+                {
+                    **load("examples/operation.json")["owner"],
+                    "epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                },
+            ),
+            ("resource", {"kind": "app", "id": "another-app"}),
+        ):
+            value = self.result("failed")
+            value["problem"][field] = replacement
+            with self.subTest(field=field), self.assertRaises(ContractError):
+                validate_cli(value)
+
+    def test_read_and_plan_results_have_their_own_completed_response(self):
+        value = self.result("accepted")
+        for state, result in (
+            ("planned", load("examples/owner-response.json")["result"]),
+            ("observed", load("examples/session/info.json")),
+        ):
+            with self.subTest(state=state):
+                value.update(state=state, result=result, complete=True, request_id=None)
+                validate_cli(value)
 
 
 class DirectOwner(unittest.TestCase):

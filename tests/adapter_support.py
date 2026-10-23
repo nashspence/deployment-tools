@@ -95,6 +95,7 @@ def observation(admission_generation: int = 0) -> dict:
         "coverage": "complete",
         "activity": "inactive",
         "health": "unknown",
+        "health_check": "supported",
         "quiescence": "verified",
         "continuation": None,
         "instance": "native-demo",

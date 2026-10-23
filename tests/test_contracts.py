@@ -78,6 +78,9 @@ def plan():
         "id": uid("plan"),
         "owner": OWNER,
         "subject": SUBJECT,
+        "summary": "Restart the web component of demo-app using its accepted release.",
+        "data_consequences": "Keep stored application data; normal writes may resume after restart.",
+        "recovery_limits": "Inspect the accepted operation before retrying; restart does not undo writes.",
         "created_at": "2026-10-17T00:00:00Z",
         "expires_at": "2026-10-17T01:00:00Z",
         "input_digests": [digest(SUBJECT)],
@@ -94,6 +97,8 @@ def plan():
             {
                 "step": "restart",
                 "executor": OWNER,
+                "resource": SUBJECT["resource"],
+                "summary": "Restart the web component; leave other components running.",
                 "action": "admitted-restart",
                 "input_digest": digest(SUBJECT),
                 "reconciliation": "inspect-runtime",
@@ -226,6 +231,73 @@ class Sources(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_domain(self.domain)
 
+    def test_shared_repository_has_independent_host_entrypoints(self):
+        first = self.domain["sources"]["host-node-a"]
+        second = self.domain["sources"]["host-node-b"]
+        second["repository"] = copy.deepcopy(first["repository"])
+        second["url"] = first["url"]
+        first["entrypoint"] = "hosts/node-a/host.yaml"
+        second["entrypoint"] = "hosts/node-b/host.yaml"
+        validate_domain(self.domain)
+
+    def test_branch_change_cannot_duplicate_host_identity(self):
+        first = self.domain["sources"]["host-node-a"]
+        second = self.domain["sources"]["host-node-b"]
+        second["repository"] = copy.deepcopy(first["repository"])
+        second["url"] = first["url"]
+        second["ref"] = "refs/heads/proposal"
+        with self.assertRaisesRegex(ContractError, "duplicate canonical host source"):
+            validate_domain(self.domain)
+
+    def test_host_operating_mode_is_an_expectation(self):
+        host = self.domain["hosts"]["node-a"]
+        for mode in ("always-on", "on-demand"):
+            with self.subTest(mode=mode):
+                host["operating_mode"] = mode
+                validate_domain(self.domain)
+        for observed in ("temporarily-offline", "sleeping", "unreachable"):
+            with self.subTest(observed=observed), self.assertRaises(ContractError):
+                host["operating_mode"] = observed
+                validate_domain(self.domain)
+
+    def test_old_availability_field_is_rejected(self):
+        host = self.domain["hosts"]["node-a"]
+        host["availability"] = host.pop("operating_mode")
+        with self.assertRaises(ContractError):
+            validate_domain(self.domain)
+
+    def test_domain_source_name_and_reference_share_identifier_bound(self):
+        name = "a" * 24
+        self.domain["sources"][name] = self.domain["sources"].pop("host-node-a")
+        self.domain["hosts"]["node-a"]["source"] = name
+        validate_domain(self.domain)
+        for unreachable_name in ("a" * 25, "trailing-"):
+            invalid = copy.deepcopy(self.domain)
+            invalid["sources"][unreachable_name] = copy.deepcopy(invalid["sources"][name])
+            with self.subTest(name=unreachable_name), self.assertRaises(ContractError):
+                validate_domain(invalid)
+        referenced_maps = [
+            (self.app, (field,))
+            for field in ("components", "datasets", "hooks", "interfaces", "maintenance")
+        ] + [
+            (self.host, ("app_accounts",)),
+            (self.host, ("grants",)),
+            (self.host, ("concerns", "base", "services")),
+        ]
+        for source, path in referenced_maps:
+            for label in ("a" * 24, "a" * 25, "trailing-"):
+                candidate = copy.deepcopy(source)
+                collection = candidate
+                for part in path:
+                    collection = collection[part]
+                collection[label] = copy.deepcopy(next(iter(collection.values())))
+                with self.subTest(kind=source["kind"], path=path, label=label):
+                    if label == "a" * 24:
+                        validate("source.schema.json", candidate)
+                    else:
+                        with self.assertRaises(ContractError):
+                            validate("source.schema.json", candidate)
+
     def test_host_identity(self):
         with self.assertRaises(ContractError):
             validate_domain(self.domain, {"node-a": {"id": "wrong"}})
@@ -301,6 +373,90 @@ class Sources(unittest.TestCase):
 
     def test_acyclic(self):
         require_acyclic({"a": ["b"], "b": []})
+
+
+class Observations(unittest.TestCase):
+    def setUp(self):
+        self.observation = {
+            "resource": {"kind": "host", "id": "node-a"},
+            "owner": OWNER,
+            "time": "2026-10-17T00:00:00Z",
+            "origin": "owner-confirmed",
+            "reachability": "reachable",
+            "power_state": "awake",
+            "activity": "active",
+            "health_check": "supported",
+            "health": "healthy",
+            "protection": "unknown",
+            "generation": 0,
+            "source": None,
+            "release_digest": None,
+            "summary": "Synthetic host observation",
+            "witness": None,
+        }
+
+    def check(self):
+        validate("records.schema.json", self.observation, "Observation")
+
+    def test_reachable_host_can_be_unhealthy(self):
+        self.observation["health"] = "unhealthy"
+        self.check()
+
+    def test_unreachable_host_preserves_unknown_power_and_health(self):
+        self.observation.update(
+            origin="caller-reported",
+            reachability="unreachable",
+            power_state="unknown",
+            activity="unknown",
+            health_check="unknown",
+            health="unknown",
+        )
+        self.check()
+
+    def test_sleep_and_power_off_are_distinct_from_health(self):
+        self.observation.update(reachability="unreachable", activity="inactive", health="unknown")
+        for power in ("sleeping", "off"):
+            with self.subTest(power=power):
+                self.observation["power_state"] = power
+                self.check()
+
+    def test_connection_and_power_states_are_not_health_results(self):
+        for state in ("unreachable", "sleeping", "unsupported"):
+            with self.subTest(state=state), self.assertRaises(ContractError):
+                self.observation["health"] = state
+                self.check()
+
+    def test_unavailable_health_check_cannot_claim_health(self):
+        for support in ("unsupported", "unknown"):
+            self.observation["health_check"] = support
+            self.observation["health"] = "unknown"
+            self.check()
+            for result in ("healthy", "unhealthy"):
+                with self.subTest(support=support, result=result), self.assertRaises(ContractError):
+                    self.observation["health"] = result
+                    self.check()
+
+    def test_application_activity_is_not_machine_power(self):
+        self.observation["resource"] = {"kind": "app", "id": "demo-app"}
+        self.observation["power_state"] = "not-applicable"
+        self.observation["activity"] = "inactive"
+        self.check()
+        for power in ("awake", "sleeping", "off", "unknown"):
+            with self.subTest(power=power), self.assertRaises(ContractError):
+                self.observation["power_state"] = power
+                self.check()
+
+    def test_host_power_cannot_be_not_applicable(self):
+        self.observation["power_state"] = "not-applicable"
+        with self.assertRaises(ContractError):
+            self.check()
+
+    def test_observation_dimensions_are_explicit(self):
+        for field in ("reachability", "power_state", "health_check"):
+            incomplete = copy.deepcopy(self.observation)
+            del incomplete[field]
+            with self.subTest(field=field), self.assertRaises(ContractError):
+                validate("records.schema.json", incomplete, "Observation")
 
 
 class Transport(unittest.TestCase):
@@ -680,6 +836,16 @@ CHECK_CLASS_PURPOSE = {
         "scope": "offline source-schema and cross-reference candidates",
         "relationship": "candidate",
         "reason": "Source schema structure is exercised through local validators; cross-reference helper expectations need independently reviewed rule-level bindings before sufficient public-contract proof.",
+        "claims": [],
+    },
+    "Observations": {
+        "purpose": "public-contract",
+        "authority": [
+            "packages/fishhat-contracts/src/fishhat_contracts/contracts/records.schema.json#/$defs/Observation"
+        ],
+        "scope": "offline observation dimensions and schema rejection cases",
+        "relationship": "candidate",
+        "reason": "Schema cases distinguish reachability, power, activity, check support, and health. They do not establish native observation accuracy or authenticate reported evidence.",
         "claims": [],
     },
 }

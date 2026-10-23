@@ -40,7 +40,7 @@
           "minProperties": 1,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -70,7 +70,8 @@
                   "repository_id",
                   "name"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Canonical repository identity for custody and retrieval; one repository may contain several independently identified resources."
               },
               "url": {
                 "type": "string",
@@ -88,7 +89,8 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 240,
-                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$"
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f])[^/]+(?:/[^/]+)*$",
+                "description": "Path identifying this resource definition within its repository. A branch or tag selects a revision without creating another host identity."
               }
             },
             "required": [
@@ -98,14 +100,15 @@
               "entrypoint"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Named source documents containing proposed configuration. A repository may hold several host or app entrypoints; publication does not admit or activate them."
         },
         "hosts": {
           "type": "object",
           "minProperties": 1,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -114,7 +117,8 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 24,
-                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$",
+                "description": "Source definition for this named host, identified by canonical repository and entrypoint rather than a repository alias or mutable ref."
               },
               "host_ops_alias": {
                 "type": "string",
@@ -135,12 +139,12 @@
                   }
                 ]
               },
-              "availability": {
+              "operating_mode": {
                 "enum": [
                   "always-on",
-                  "on-demand",
-                  "temporarily-offline"
-                ]
+                  "on-demand"
+                ],
+                "description": "Intended operating pattern for this host. Observations report current reachability and power separately; a missed response does not change this expectation."
               },
               "wake_relay": {
                 "anyOf": [
@@ -160,7 +164,7 @@
               "source",
               "host_ops_alias",
               "app_ops_alias",
-              "availability",
+              "operating_mode",
               "wake_relay"
             ],
             "additionalProperties": false
@@ -171,7 +175,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -180,24 +184,28 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 24,
-                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$",
+                "description": "Source definition for this application, separate from its admitted release, running components, and durable data."
               },
               "host": {
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 24,
-                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$",
+                "description": "Declared placement for the application. Editing this selection proposes a move; admission and activation require separately authorized owner work."
               },
               "placement_generation": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 9007199254740991
+                "maximum": 9007199254740991,
+                "description": "Expected placement generation used to detect stale placement decisions. Editing source does not advance an owner's accepted generation."
               },
               "boundary_digest": {
                 "type": "string",
                 "minLength": 71,
                 "maxLength": 71,
-                "pattern": "^sha256:[0-9a-f]{64}$"
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "description": "Digest of the exact declared application boundary to be reviewed and checked during admission."
               },
               "security_control": {
                 "type": "boolean"
@@ -218,7 +226,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -274,7 +282,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -323,7 +331,8 @@
         "providers",
         "backup_backends"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An independently administered collection of hosts and applications. Domain identity is separate from DNS naming, Git custody, and the permissions enforced by each receiving owner."
     },
     "Host": {
       "type": "object",
@@ -731,7 +740,7 @@
                 "minProperties": 0,
                 "maxProperties": 256,
                 "propertyNames": {
-                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                  "$ref": "common.schema.json#/$defs/Id"
                 },
                 "additionalProperties": {
                   "type": "object",
@@ -785,7 +794,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -831,7 +840,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -987,7 +996,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "string",
@@ -1038,7 +1047,8 @@
         "receipt_public_keys",
         "resources"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A source definition for one computer and its managed configuration. Its named identity is independent of its source repository and current address or reachability; accepted work remains with its local owner."
     },
     "App": {
       "type": "object",
@@ -1081,7 +1091,7 @@
           "minProperties": 1,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -1123,7 +1133,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -1279,17 +1289,25 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "kind": {
+              "custody": {
                 "enum": [
-                  "owned",
-                  "reference",
-                  "rebuildable"
-                ]
+                  "app",
+                  "reference"
+                ],
+                "description": "Who is responsible for recovery of this dataset: this application, or the explicitly named external owner."
+              },
+              "recovery": {
+                "enum": [
+                  "preserve",
+                  "rebuild",
+                  "external"
+                ],
+                "description": "Declared recovery policy, separate from custody and storage lifetime. Preserve requires capture and restore; rebuild requires reconstruction and verification; external delegates recovery to the named owner. A declaration is neither recovery proof nor permission to delete data."
               },
               "native_format": {
                 "type": "string",
@@ -1352,7 +1370,7 @@
                   }
                 ]
               },
-              "verify": {
+              "verify_restore": {
                 "anyOf": [
                   {
                     "type": "string",
@@ -1363,7 +1381,8 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "description": "Read-only verification hook for restoring a preserved dataset."
               },
               "owner": {
                 "anyOf": [
@@ -1401,21 +1420,139 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "description": "Resource responsible for a referenced dataset. Datasets managed by this application use null because the enclosing application owns their recovery."
+              },
+              "rebuild": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Declared write hook that reconstructs a dataset for which this app is responsible from retained inputs. Invoking it requires separately authorized owner work."
+              },
+              "verify_rebuild": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24,
+                    "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Read-only hook that verifies reconstructed data before it is accepted as usable."
               }
             },
             "required": [
-              "kind",
+              "custody",
+              "recovery",
               "native_format",
               "writers",
               "readers",
               "grant",
               "capture",
               "restore",
-              "verify",
-              "owner"
+              "verify_restore",
+              "owner",
+              "rebuild",
+              "verify_rebuild"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "properties": {
+                  "custody": {
+                    "const": "app"
+                  },
+                  "recovery": {
+                    "const": "preserve"
+                  },
+                  "owner": {
+                    "type": "null"
+                  },
+                  "capture": {
+                    "type": "string"
+                  },
+                  "restore": {
+                    "type": "string"
+                  },
+                  "verify_restore": {
+                    "type": "string"
+                  },
+                  "rebuild": {
+                    "type": "null"
+                  },
+                  "verify_rebuild": {
+                    "type": "null"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "custody": {
+                    "const": "app"
+                  },
+                  "recovery": {
+                    "const": "rebuild"
+                  },
+                  "owner": {
+                    "type": "null"
+                  },
+                  "capture": {
+                    "type": "null"
+                  },
+                  "restore": {
+                    "type": "null"
+                  },
+                  "verify_restore": {
+                    "type": "null"
+                  },
+                  "rebuild": {
+                    "type": "string"
+                  },
+                  "verify_rebuild": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "custody": {
+                    "const": "reference"
+                  },
+                  "recovery": {
+                    "const": "external"
+                  },
+                  "owner": {
+                    "type": "object"
+                  },
+                  "capture": {
+                    "type": "null"
+                  },
+                  "restore": {
+                    "type": "null"
+                  },
+                  "verify_restore": {
+                    "type": "null"
+                  },
+                  "rebuild": {
+                    "type": "null"
+                  },
+                  "verify_rebuild": {
+                    "type": "null"
+                  }
+                }
+              }
+            ]
           }
         },
         "hooks": {
@@ -1423,7 +1560,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -1447,7 +1584,9 @@
                   "transition-verify",
                   "capture",
                   "restore",
-                  "verify-restore"
+                  "verify-restore",
+                  "rebuild",
+                  "verify-rebuild"
                 ]
               },
               "argv": {
@@ -1705,7 +1844,7 @@
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
-            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            "$ref": "common.schema.json#/$defs/Id"
           },
           "additionalProperties": {
             "type": "object",
@@ -1823,7 +1962,8 @@
         "protection",
         "resources"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A source definition for one independently operated application, including its components, interfaces, and data responsibilities. Placement belongs to the Domain; a source revision, admitted release, running component, and dataset are distinct objects."
     },
     "RepoSecrets": {
       "type": "object",

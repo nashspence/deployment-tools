@@ -42,7 +42,8 @@ interfaces:
 dependencies: {}
 datasets:
   state:
-    kind: owned
+    custody: app
+    recovery: preserve
     native_format: synthetic-sql-and-files-v1
     writers:
     - database
@@ -51,7 +52,9 @@ datasets:
     grant: demo-app-data
     capture: capture
     restore: restore
-    verify: verify-restore
+    verify_restore: verify-restore
+    rebuild: null
+    verify_rebuild: null
     owner: null
 hooks:
   health:

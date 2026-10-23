@@ -32,13 +32,13 @@ hosts:
     source: host-node-a
     host_ops_alias: node-a-host
     app_ops_alias: node-a-app
-    availability: always-on
+    operating_mode: always-on
     wake_relay: null
   node-b:
     source: host-node-b
     host_ops_alias: node-b-host
     app_ops_alias: node-b-app
-    availability: on-demand
+    operating_mode: on-demand
     wake_relay: node-a
 apps:
   demo-app:
