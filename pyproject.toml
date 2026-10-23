@@ -8,7 +8,7 @@ dev = [
   "types-psutil>=7,<8",
   "alembic>=1.18,<2",
   "SQLAlchemy>=2.0,<3",
-  "setuptools==84.0.0",
+  "setuptools==84.1.0",
   "pip-audit>=2.10,<3",
   "reuse>=6,<7",
   "packaging>=26,<27",
