@@ -89,6 +89,24 @@ def main() -> None:
             timeout=15,
         )
         assert rejected.returncode == 2
+        if "bootstrap-source" in info["roles"]:
+            provider = args.component.removesuffix("-bootstrap")
+            source = (args.fixtures / "bootstrap" / (provider + "-source.json")).read_bytes()
+            validated = subprocess.run(
+                [str(executable), "validate-source", "--json"],
+                input=source,
+                capture_output=True,
+                check=True,
+                timeout=15,
+            )
+            assert json.loads(validated.stdout) == {
+                "status": "valid",
+                "scope": "local-source-description-only",
+            }
+            rejected = subprocess.run(
+                [str(executable), "recover", "--json"], capture_output=True, timeout=15
+            )
+            assert rejected.returncode == 2
     if args.component == "client":
         from fishhat_client.wire import frame, read_frame
 

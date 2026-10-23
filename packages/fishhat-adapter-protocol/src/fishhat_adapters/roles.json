@@ -378,5 +378,22 @@
       "repeat": "reconcile-before-repeat",
       "admission": "any"
     }
+  },
+  "bootstrap-source": {
+    "recover": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "verify": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    },
+    "reconcile": {
+      "effect": true,
+      "repeat": "reconcile-before-repeat",
+      "admission": "any"
+    }
   }
 }

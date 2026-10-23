@@ -12,19 +12,23 @@ from fishhat_contracts.validation import ContractError, digest, strict_json
 
 def main(package_file: str, argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Installed adapter scaffold; no native dispatch")
-    parser.add_argument("command", choices=("info", "validate", "qualify"))
+    parser.add_argument("command", choices=("info", "validate", "validate-source", "qualify"))
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     result: dict[str, Any]
     try:
         descriptor = strict_json(Path(package_file).with_name("descriptor.json").read_bytes())
         check_descriptor(descriptor)
-        if args.command == "validate":
+        if args.command in {"validate", "validate-source"}:
             data = strict_json(sys.stdin.buffer.read(1048577))
-            check_configuration(
-                descriptor["configuration_schema"], data, digest(descriptor["configuration_schema"])
+            key = "source_schema" if args.command == "validate-source" else "configuration_schema"
+            check_configuration(descriptor[key], data, digest(descriptor[key]))
+            scope = (
+                "local-source-description-only"
+                if args.command == "validate-source"
+                else "local-configuration-only"
             )
-            result = {"status": "valid", "scope": "local-configuration-only"}
+            result = {"status": "valid", "scope": scope}
         elif args.command == "qualify":
             print(
                 json.dumps(
@@ -42,7 +46,10 @@ def main(package_file: str, argv: list[str] | None = None) -> int:
                 "roles": descriptor["roles"],
                 "descriptor_digest": digest(descriptor),
                 "implemented_operations": descriptor["implemented"],
-                "capabilities": ["local-configuration-validation"],
+                "capabilities": [
+                    "local-configuration-validation",
+                    "local-source-description-validation",
+                ],
                 "native_mutations": False,
                 "native_qualified": False,
             }

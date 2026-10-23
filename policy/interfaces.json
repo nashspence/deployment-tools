@@ -47,6 +47,7 @@
             "backup-adapter.schema.json",
             "bootstrap-catalogue.schema.json",
             "bootstrap-recovery.schema.json",
+            "bootstrap-source-adapter.schema.json",
             "build-adapter.schema.json",
             "bundle-manifest.schema.json",
             "capture-adapter.schema.json",
@@ -150,7 +151,7 @@
     "fishhat_adapters": {
       "ROLES": {
         "kind": "data",
-        "sha256": "aec16a3b4c13f9081e5faf966a3f6ed8421a020a7c39d637236bc0b63a27b7bf"
+        "sha256": "ddb367ad5e7351ee83be45c6db183dad9e4f1ac49eb0a2e3795fa3a25d02d3d6"
       },
       "Registry": {
         "bases": [
@@ -232,7 +233,7 @@
     },
     "adapter.schema.json": {
       "id": "https://fishhat.invalid/contracts/adapter.schema.json",
-      "sha256": "5736694baba896811599b195aeda8cddb9d525f526ecf0fd1329b01e8fd2822d"
+      "sha256": "8121c8e155d11c93a37b100ff25d2eba320b75e6cc8a0125807dbbd04296d54a"
     },
     "backup-adapter.schema.json": {
       "id": "https://fishhat.invalid/contracts/backup-adapter.schema.json",
@@ -240,11 +241,15 @@
     },
     "bootstrap-catalogue.schema.json": {
       "id": "https://fishhat.invalid/contracts/bootstrap-catalogue.schema.json",
-      "sha256": "ca3df96bbf51030eed8e9e15ed137188d9dc1eaf4f1f84b1adba4991d0363edf"
+      "sha256": "2f72bca4fd47382a9a5876188df162dce1fa2994c75b58129524e038492af25b"
     },
     "bootstrap-recovery.schema.json": {
       "id": "https://fishhat.invalid/contracts/bootstrap-recovery.schema.json",
-      "sha256": "9a449a248c8bab040b262763fb6e667b47dced22e3260254708512ab6054c7f5"
+      "sha256": "ff527b99b6c15e5098f1ebb98bc43a155a8461e90266d77ce7f0e2da3b111962"
+    },
+    "bootstrap-source-adapter.schema.json": {
+      "id": "https://fishhat.invalid/contracts/bootstrap-source-adapter.schema.json",
+      "sha256": "fb606111afbd74a0dd2be7f6c34e4fc01b51d3128d76a67dba53189bd4b4bbac"
     },
     "build-adapter.schema.json": {
       "id": "https://fishhat.invalid/contracts/build-adapter.schema.json",
@@ -264,7 +269,7 @@
     },
     "client-records.schema.json": {
       "id": "https://fishhat.invalid/contracts/client-records.schema.json",
-      "sha256": "c29e91bd498c5d52a0c47a4f94ee6a87b06b8d95441b9cfb545452635f8a5885"
+      "sha256": "7b25d8d9e7b6aea620c04e8da6caf27a5b31804fd5be8f064802c1d116732f35"
     },
     "common.schema.json": {
       "id": "https://fishhat.invalid/contracts/common.schema.json",
@@ -348,7 +353,7 @@
     },
     "recovery-set.schema.json": {
       "id": "https://fishhat.invalid/contracts/recovery-set.schema.json",
-      "sha256": "026243f9a4b6857b47aad3ed3fb7229387302df0637b84e8e3ca290d48799189"
+      "sha256": "a32d1d9e9567d0390a37ddcaebf2bda0e76fc78ec4e524809dacb508fd7f22bf"
     },
     "report-adapter.schema.json": {
       "id": "https://fishhat.invalid/contracts/report-adapter.schema.json",

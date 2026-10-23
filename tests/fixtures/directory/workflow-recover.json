@@ -2,8 +2,8 @@
   "format": "domain-ops-directory/workflow/v2",
   "intent": "recover",
   "steps": [
-    "Use independently retained source bundles or the pinned public Forgejo/restic bootstrap to recover fishhat and the domain repository into fresh private staging.",
-    "The bootstrap helper restores Git only. Obtain the native Python/tool/dependency bundle from its separately recorded backup path; verify it before local installation.",
+    "Select an independently retained recovery catalogue and pinned bootstrap-source adapter kit to recover fishhat and the domain source into fresh private staging; the supplied adapters remain unqualified scaffolds.",
+    "Source bootstrap materializes Git only and does not activate recovered policy. Independently retain and verify the native Python/tool/dependency installation bundle before installing it.",
     "If source or installation is unavailable, use ordinary SSH to an independently enrolled surviving host-ops/app-ops endpoint for bounded direct inspection and recovery. Destroyed hosts need replacement provisioning.",
     "Keep Git-source recovery distinct from Forgejo database/attachments, encrypted secret generations, app datasets and native issuer recovery. No current directory is required."
   ],

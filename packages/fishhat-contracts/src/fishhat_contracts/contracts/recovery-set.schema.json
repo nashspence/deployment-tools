@@ -15,9 +15,6 @@
     "catalogue_digest": {
       "$ref": "common.schema.json#/$defs/Digest"
     },
-    "helper_commit": {
-      "$ref": "common.schema.json#/$defs/Commit"
-    },
     "native_kit_digest": {
       "$ref": "common.schema.json#/$defs/Digest"
     },
@@ -31,9 +28,6 @@
         "macos-arm64",
         "macos-amd64"
       ]
-    },
-    "bundle_snapshot_path": {
-      "$ref": "common.schema.json#/$defs/AbsolutePath"
     },
     "start_record_hint": {
       "type": "string",
@@ -72,6 +66,9 @@
       "minItems": 0,
       "maxItems": 128,
       "uniqueItems": true
+    },
+    "installation_bundle_path": {
+      "$ref": "common.schema.json#/$defs/AbsolutePath"
     }
   },
   "required": [
@@ -79,11 +76,10 @@
     "id",
     "domain_id",
     "catalogue_digest",
-    "helper_commit",
     "native_kit_digest",
     "installation_bundle_digest",
     "platform",
-    "bundle_snapshot_path",
+    "installation_bundle_path",
     "start_record_hint",
     "owner_rescue_digests",
     "application_closure_digests",

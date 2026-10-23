@@ -30,7 +30,8 @@
           "service",
           "repository",
           "build",
-          "report"
+          "report",
+          "bootstrap-source"
         ]
       },
       "minItems": 1,
@@ -261,7 +262,8 @@
             "service",
             "repository",
             "build",
-            "report"
+            "report",
+            "bootstrap-source"
           ]
         },
         "schema_digest": {

@@ -6,6 +6,33 @@
     "thresholds": "none"
   },
   "operations": {
+    "bootstrap.catalogue": {
+      "capacity": [
+        "oversized records or catalogues reject before source selection"
+      ],
+      "extent": "All S sources in the catalogue; no prefix selection or silent truncation",
+      "id": "bootstrap.catalogue",
+      "limits": [
+        [
+          "record_bytes",
+          1048576
+        ],
+        [
+          "sources",
+          256
+        ]
+      ],
+      "proofs": [
+        "tests/test_bootstrap.py::test_catalogue_extent_and_source_visits"
+      ],
+      "qualification": "reference-model",
+      "sources": {
+        "packages/fishhat-client/src/fishhat_client/bootstrap.py": "ddc52947c94b7daf9518dfb94dc78a07aa9b78d1e9b00291ef9f10fe78b2ee36",
+        "tests/test_bootstrap.py": "8b3d2c2e863c51632e4bb7dea3e3775be6f0b1e6c019939a876cf6bf4b29443f"
+      },
+      "symbol": "fishhat_client.bootstrap:validate_catalogue",
+      "work": "O(B + S) bounded reference record validation and one source identity pass"
+    },
     "directory.load": {
       "capacity": [],
       "extent": "complete-document-or-rejection",
@@ -26,7 +53,7 @@
       "qualification": "reference-model",
       "sources": {
         "some-implementations/fishhat/applications/directory/src/fishhat_directory/projection.py": "94a39d8fd9d82f63721d78f6f2e4fcbfcf57aeff4f00b1c256c0ebb84d8eb3f3",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_directory.projection:load_directory",
       "work": "O(input_bytes)-bounded-parser-depth"
@@ -43,7 +70,7 @@
       "qualification": "reference-model",
       "sources": {
         "fishhat/owner-support/src/fishhat_owner/journal.py": "3683b50821bfb6205e2c5414c4cefcdb49bce7a2c89051ce58cac1e0d6a241d2",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_owner.journal:Journal.submit",
       "work": "O(retained_requests)-reference-scan"
@@ -69,7 +96,7 @@
       "qualification": "reference-model",
       "sources": {
         "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_reporting.store:EventStore.events",
       "work": "O(log(retained_events)+page_items^2*event_bytes)"
@@ -89,7 +116,7 @@
       "qualification": "reference-model",
       "sources": {
         "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_reporting.store:EventStore.put",
       "work": "O(retained_events*log(retained_events)+correction_depth*(log(retained_events)+event_bytes))-reference-scan"
@@ -110,7 +137,7 @@
       "qualification": "reference-model",
       "sources": {
         "some-implementations/fishhat/applications/receipts/src/fishhat_reporting/store.py": "219bc2a64296dcadfd0f3fceb52bf4010f6879042e097e3a611881b9f7ad2caf",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_reporting.store:EventStore.workflows",
       "work": "O(retained_events*log(retained_events))-reference-grouping"
@@ -131,7 +158,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/fishhat-client/src/fishhat_client/wire.py": "2e8e26926f39bf53954769d9a46f87b99b7963287850297f0bb8aadbb6233e81",
-        "tests/test_engineering.py": "b1f137bd086aac6196bc87d9eb896bce3b9cec31aea993d9e8f2d84c29165537"
+        "tests/test_engineering.py": "ad7be996eddc32907f4d65e74daac3f3743b49f6a770cc39169dd24b97252aed"
       },
       "symbol": "fishhat_client.wire:read_frame",
       "work": "O(frame_bytes)"

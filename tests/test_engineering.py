@@ -317,6 +317,7 @@ def test_workflow_pagination_preserves_logical_extent(tmp_path):
 def test_operation_owned_bounds_are_discovered_and_never_claim_native_qualification():
     found = declarations()
     assert set(found) == {
+        "bootstrap.catalogue",
         "wire.read-frame",
         "directory.load",
         "journal.submit",

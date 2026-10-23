@@ -86,7 +86,7 @@ distribution = "fishhat-client"
 path = "packages/fishhat-client"
 module = "fishhat_client"
 role = "portable-client"
-internal_dependencies = ["fishhat-contracts"]
+internal_dependencies = ["fishhat-adapter-protocol", "fishhat-contracts"]
 
 [[components]]
 id = "contracts"
@@ -173,6 +173,22 @@ id = "forgejo-issues-adapter"
 distribution = "a-fishhat-forgejo-issues-adapter"
 path = "some-implementations/fishhat/reporting/forgejo-issues"
 module = "a_fishhat_forgejo_issues_adapter"
+role = "adapter-implementation"
+internal_dependencies = ["fishhat-adapter-support"]
+
+[[components]]
+id = "forgejo-restic-bootstrap"
+distribution = "a-fishhat-forgejo-restic-bootstrap"
+path = "some-implementations/fishhat/bootstrap-source/forgejo-restic"
+module = "a_fishhat_forgejo_restic_bootstrap"
+role = "adapter-implementation"
+internal_dependencies = ["fishhat-adapter-support"]
+
+[[components]]
+id = "git-bundle-bootstrap"
+distribution = "a-fishhat-git-bundle-bootstrap"
+path = "some-implementations/fishhat/bootstrap-source/git-bundle"
+module = "a_fishhat_git_bundle_bootstrap"
 role = "adapter-implementation"
 internal_dependencies = ["fishhat-adapter-support"]
 

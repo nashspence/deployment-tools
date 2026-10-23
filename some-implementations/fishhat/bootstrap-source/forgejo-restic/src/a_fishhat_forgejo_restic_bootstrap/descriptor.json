@@ -1,0 +1,70 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "fishhat.forgejo-restic",
+  "roles": [
+    "bootstrap-source"
+  ],
+  "entrypoint": "bin/a-fishhat-forgejo-restic-bootstrap",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "repository_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      },
+      "credential_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "repository_handle",
+      "credential_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {
+      "restic_repository_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "snapshot_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "bare_repository_path": {
+        "type": "string",
+        "minLength": 6,
+        "maxLength": 512,
+        "pattern": "^/(?!\\.{1,2}(?:/|$))(?!.*(?:/\\.\\.?)(?:/|$))(?!.*//)(?!.*[\\\\\\u0000-\\u001f*?\\[\\]{}])[^/]+(?:/[^/]+)*\\.git$"
+      },
+      "capture_consistency": {
+        "enum": [
+          "forgejo-stopped",
+          "verified-frozen-export"
+        ]
+      }
+    },
+    "required": [
+      "restic_repository_id",
+      "snapshot_id",
+      "bare_repository_path",
+      "capture_consistency"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format": "deployment-ops/bootstrap-catalogue/v1",
+  "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
+  "created_at": "2026-10-17T06:00:00Z",
+  "kit_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sources": [
+    {
+      "source_id": "domain",
+      "ref": "refs/heads/main",
+      "commit": "1111111111111111111111111111111111111111",
+      "adapter": {
+        "implementation": "fishhat.git-bundle",
+        "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "descriptor_digest": "sha256:fedec0747890c002d330630b68a7e2e494b61e7604fe1e04430b25774bdb61ca",
+        "configuration_digest": "sha256:6a609f6a9b32d303d3df8e174e088dce83f80bc40fc0c3684481aaa0932b6863",
+        "source_schema_digest": "sha256:a408ecd3405dc8db016e2bcd5c16adfb835aa1a586cf9c285bbf59a5192f2f4f"
+      },
+      "capture": {
+        "digest": "sha256:946fa6445744e86ae38e3792badc8ff76a1898aa46c79072eab716e2d1d77dc5",
+        "media_type": "application/json",
+        "size_bytes": 184
+      },
+      "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "file_count": 18,
+      "total_bytes": 32768
+    }
+  ],
+  "publication_state": "independently-verified"
+}

@@ -1,0 +1,6 @@
+{
+  "restic_repository_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "snapshot_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "bare_repository_path": "/recovery/bootstrap/repos/domain.git",
+  "capture_consistency": "verified-frozen-export"
+}

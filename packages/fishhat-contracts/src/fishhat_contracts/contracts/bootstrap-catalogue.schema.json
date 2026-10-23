@@ -12,25 +12,8 @@
     "created_at": {
       "$ref": "common.schema.json#/$defs/Time"
     },
-    "capture_consistency": {
-      "enum": [
-        "forgejo-stopped",
-        "verified-frozen-export"
-      ]
-    },
-    "restic_repository_id": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
-    },
-    "snapshot_id": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
-    },
     "kit_manifest_digest": {
       "$ref": "common.schema.json#/$defs/Digest"
-    },
-    "profile_generation": {
-      "$ref": "common.schema.json#/$defs/UUID"
     },
     "sources": {
       "type": "array",
@@ -42,73 +25,44 @@
           "source_id": {
             "$ref": "common.schema.json#/$defs/Entry"
           },
-          "repository": {
-            "type": "object",
-            "properties": {
-              "instance": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-              },
-              "repository_id": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 9007199254740991
-              },
-              "name": {
-                "type": "string",
-                "minLength": 3,
-                "maxLength": 160,
-                "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
-              }
-            },
-            "required": [
-              "instance",
-              "repository_id",
-              "name"
-            ],
-            "additionalProperties": false
-          },
-          "bare_repository_path": {
-            "$ref": "common.schema.json#/$defs/AbsolutePath"
-          },
-          "branch": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 128
+          "ref": {
+            "$ref": "bootstrap-recovery.schema.json#/$defs/GitRef"
           },
           "commit": {
             "$ref": "common.schema.json#/$defs/Commit"
+          },
+          "adapter": {
+            "$ref": "bootstrap-recovery.schema.json#/$defs/AdapterBinding"
+          },
+          "capture": {
+            "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "tree_digest": {
             "$ref": "common.schema.json#/$defs/Digest"
           },
           "file_count": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 0,
             "maximum": 1000000
           },
           "total_bytes": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 0,
             "maximum": 9007199254740991
           }
         },
         "required": [
           "source_id",
-          "repository",
-          "bare_repository_path",
-          "branch",
+          "ref",
           "commit",
+          "adapter",
+          "capture",
           "tree_digest",
           "file_count",
           "total_bytes"
         ],
         "additionalProperties": false
       }
-    },
-    "full_service_checkpoint_ref": {
-      "$ref": "common.schema.json#/$defs/Entry"
     },
     "publication_state": {
       "enum": [
@@ -121,13 +75,8 @@
     "format",
     "domain_id",
     "created_at",
-    "capture_consistency",
-    "restic_repository_id",
-    "snapshot_id",
     "kit_manifest_digest",
-    "profile_generation",
     "sources",
-    "full_service_checkpoint_ref",
     "publication_state"
   ],
   "additionalProperties": false

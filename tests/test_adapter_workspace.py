@@ -18,6 +18,7 @@ CHECK_PURPOSE = {
 
 # Explicit maintained contrasts. This does not assert that two unqualified scaffolds are native support.
 CONTRASTS = {
+    "bootstrap-source": {"forgejo-restic", "git-bundle"},
     "runtime": {"podman-quadlet", "docker-compose", "systemd-native"},
     "compute": {"systemd-cgroup", "delegated-cgroup"},
     "storage": {"xfs-project", "ext4-filesystem"},

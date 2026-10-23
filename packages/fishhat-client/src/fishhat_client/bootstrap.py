@@ -1,156 +1,180 @@
-"""Read-only calling-contract model for the pinned public bootstrap.
+"""Bounded, provider-neutral source-bootstrap record and handoff models.
 
-This module never fetches, decrypts, restores or executes the upstream script.
-It cannot certify real filesystem permissions, code trust or backend evidence.
+These functions do not fetch, decrypt, restore, authorize, load an implementation,
+or execute native code. Independently trusted catalogue/kit digests are caller
+inputs, not values discovered from the candidate records. Artifact bytes, staging
+permissions, native verification and effect reconciliation need native evidence.
 """
 
 from __future__ import annotations
 
+import copy
 from typing import Any
-from urllib.parse import urlsplit
 
-from fishhat_contracts.validation import ContractError, validate
+from fishhat_adapters import check_configuration, check_descriptor, check_request
+from fishhat_contracts.bounds import Bounds, bounds
+from fishhat_contracts.validation import MAX_BYTES, ContractError, canonical, digest, validate
 
-from fishhat_client.workspace import clean_path, valid_branch
+from fishhat_client.workspace import clean_path, valid_branch, within
+
+
+def _bounded(value: dict[str, Any]) -> None:
+    if len(canonical(value)) > MAX_BYTES:
+        raise ContractError("bootstrap record capacity")
+
+
+def _ref(value: str) -> None:
+    branch = value.removeprefix("refs/heads/")
+    if not value.startswith("refs/heads/") or any(p.endswith(".lock") for p in branch.split("/")):
+        raise ContractError("literal Git branch ref required")
+    valid_branch(branch)
 
 
 def validate_selection(selection: dict[str, Any]) -> dict[str, Any]:
+    _bounded(selection)
     validate("bootstrap-recovery.schema.json", selection)
-    p = clean_path(selection["bare_repository_path"], absolute=True)
     root = clean_path(selection["recovery_root"], absolute=True)
-    if any(c in p for c in "*?[]{}") or not p.endswith(".git"):
-        raise ContractError("literal bare repository path required")
     if (
         root in ("/workspace", "/var", "/etc", "/home", "/tmp", "/recovery")
         or len(root.split("/")) < 4
     ):
         raise ContractError("dedicated fresh staging root required")
-    if p == root or p.startswith(root + "/") or root.startswith(p + "/"):
-        raise ContractError("source path and staging identity overlap")
-    valid_branch(selection["branch"])
+    _ref(selection["ref"])
     return selection
 
 
-def prepare_invocation(
-    selection: dict[str, Any],
-    *,
-    script: str,
-    tool_bin: str,
-    restic_repository: str,
-    password_file: str,
-    backend_env: dict[str, str] | None = None,
-) -> dict[str, Any]:
-    """Construct private argv/env; caller MUST NOT publish env or secret values."""
-    validate_selection(selection)
-    for path in (script, tool_bin, password_file):
-        clean_path(path, absolute=True)
-    # Backend selection is explicit. Metadata-only; permissions and locks need native proof.
-    if restic_repository.startswith("/"):
-        local = clean_path(restic_repository, absolute=True)
-        if any(c in local for c in "*?[]{}") or len(local.split("/")) < 4:
-            raise ContractError("dedicated literal local backup copy required")
-        root = selection["recovery_root"]
-        if local == root or local.startswith(root + "/") or root.startswith(local + "/"):
-            raise ContractError("backup source/staging overlap")
-        allowed = set()
-    elif restic_repository.startswith("s3:https://"):
-        uri = urlsplit(restic_repository[3:])
-        if not uri.hostname or uri.username or uri.password or uri.query or uri.fragment:
-            raise ContractError("backend URI must not embed credentials or mutable options")
-        allowed = {
-            "AWS_ACCESS_KEY_ID",
-            "AWS_SECRET_ACCESS_KEY",
-            "AWS_SESSION_TOKEN",
-            "AWS_DEFAULT_REGION",
-        }
-    else:
-        raise ContractError("unqualified backend profile")
-    env = dict(backend_env or {})
-    if not set(env) <= allowed or any(not isinstance(v, str) or "\x00" in v for v in env.values()):
-        raise ContractError("unapproved backend environment")
-    root = selection["recovery_root"]
-    env.update(
-        {
-            "PATH": tool_bin,
-            "HOME": root + "/home",
-            "TMPDIR": root + "/tmp",
-            "INSTALL_DEPS": "0",
-            "DOWNLOAD_BOOTSTRAP_TOOLS": "0",
-            "VERIFY_ONLY": "1",
-            "FORCE_CHECKOUT": "0",
-            "RESTIC_REPOSITORY": restic_repository,
-            "RESTIC_PASSWORD_FILE": password_file,
-            "SNAPSHOT": selection["snapshot_id"],
-            "FORGEJO_REPO_PATH": selection["bare_repository_path"],
-            "BRANCH": selection["branch"],
-            "WORK_DIR": root,
-            "RESTORE_ROOT": root + "/bare-restore",
-            "RESTIC_CACHE_DIR": root + "/restic-cache",
-            "CLONE_DIR": root + "/never-auto-checkout",
-            "GIT_CONFIG_NOSYSTEM": "1",
-            "GIT_CONFIG_GLOBAL": "/dev/null",
-            "GIT_CONFIG_SYSTEM": "/dev/null",
-            "GIT_CONFIG_COUNT": "1",
-            "GIT_CONFIG_KEY_0": "core.hooksPath",
-            "GIT_CONFIG_VALUE_0": "/dev/null",
-            "GIT_NO_REPLACE_OBJECTS": "1",
-            "GIT_TERMINAL_PROMPT": "0",
-            "GIT_LFS_SKIP_SMUDGE": "1",
-        }
+@bounds(
+    Bounds(
+        id="bootstrap.catalogue",
+        work="O(B + S) bounded reference record validation and one source identity pass",
+        extent="All S sources in the catalogue; no prefix selection or silent truncation",
+        limits=(("record_bytes", MAX_BYTES), ("sources", 256)),
+        capacity=("oversized records or catalogues reject before source selection",),
+        proofs=("tests/test_bootstrap.py::test_catalogue_extent_and_source_visits",),
     )
-    return {
-        "argv": [tool_bin + "/bash", script],
-        "env": env,
-        "required_native_checks": [
-            "independently verify script and all kit artifact bytes",
-            "create/freeze private fresh staging with no symlink or live-path collision",
-            "validate protected profile and secret-file ownership; no inherited environment",
-            "verify actual backend ID/snapshot/path/ref consistency before and after restore",
-            "cleanup private scratch on all outcomes; never log the environment",
-            "inspect recovered config, refs and required objects before controlled import",
-        ],
-    }
-
-
+)
 def validate_catalogue(
     catalogue: dict[str, Any],
     *,
     selection: dict[str, Any] | None = None,
     require_published: bool = False,
 ) -> dict[str, Any]:
+    _bounded(catalogue)
     validate("bootstrap-catalogue.schema.json", catalogue)
     if require_published and catalogue["publication_state"] != "independently-verified":
         raise ContractError("candidate is not independently retrievable recovery evidence")
-    paths = set()
     ids = set()
-    repos = set()
+    matched = None
     for item in catalogue["sources"]:
-        path = clean_path(item["bare_repository_path"], absolute=True)
-        valid_branch(item["branch"])
-        identity = (item["repository"]["instance"], item["repository"]["repository_id"])
-        if (
-            not path.endswith(".git")
-            or any(c in path for c in "*?[]{}")
-            or path in paths
-            or item["source_id"] in ids
-            or identity in repos
-        ):
+        _ref(item["ref"])
+        if item["source_id"] in ids:
             raise ContractError("ambiguous recovery source")
-        paths.add(path)
         ids.add(item["source_id"])
-        repos.add(identity)
+        if selection is not None and item["source_id"] == selection.get("source_id"):
+            matched = item
     if selection is not None:
         validate_selection(selection)
-        for k in ("domain_id", "snapshot_id", "restic_repository_id", "kit_manifest_digest"):
-            if catalogue[k] != selection[k]:
-                raise ContractError("selection/catalogue mismatch")
-        matches = [
-            x for x in catalogue["sources"] if x["repository"] == selection["source_identity"]
-        ]
-        if len(matches) != 1 or (
-            matches[0]["branch"],
-            matches[0]["commit"],
-            matches[0]["bare_repository_path"],
-        ) != (selection["branch"], selection["expected_commit"], selection["bare_repository_path"]):
-            raise ContractError("source ref/path not in recovery catalogue")
+        if digest(catalogue) != selection["catalogue_digest"] or any(
+            catalogue[k] != selection[k] for k in ("domain_id", "kit_manifest_digest")
+        ):
+            raise ContractError("selection/catalogue mismatch")
+        if matched is None or any(
+            matched[a] != selection[b]
+            for a, b in (
+                ("ref", "ref"),
+                ("commit", "expected_commit"),
+                ("adapter", "adapter"),
+                ("capture", "capture"),
+            )
+        ):
+            raise ContractError("selected source not in recovery catalogue")
     return catalogue
+
+
+def prepare_request(
+    selection: dict[str, Any],
+    catalogue: dict[str, Any],
+    *,
+    installation: dict[str, Any],
+    descriptor: dict[str, Any],
+    configuration: dict[str, Any],
+    source: dict[str, Any],
+    scope: dict[str, Any],
+    trusted_catalogue_digest: str,
+    trusted_kit_digest: str,
+) -> dict[str, Any]:
+    """Check pinned records and construct a request, never an execution permission.
+
+    The caller supplies an authenticated authority scope. This model does not
+    enroll an adapter or recover an owner journal; an executor still has to
+    establish its own authorization, verify installed bytes and reconcile effects.
+    """
+    validate_catalogue(catalogue, selection=selection, require_published=True)
+    if (
+        selection["catalogue_digest"] != trusted_catalogue_digest
+        or selection["kit_manifest_digest"] != trusted_kit_digest
+    ):
+        raise ContractError("independent recovery pins mismatch")
+    _bounded(descriptor)
+    _bounded(installation)
+    check_descriptor(descriptor)
+    validate("adapter.schema.json", installation, "Installation")
+    binding = selection["adapter"]
+    if (
+        "bootstrap-source" not in descriptor["roles"]
+        or descriptor["id"] != binding["implementation"]
+        or installation["implementation"] != descriptor["id"]
+        or not installation["enabled"]
+        or installation["artifact"]["digest"] != binding["installation_digest"]
+        or installation["descriptor_digest"] != binding["descriptor_digest"]
+        or digest(descriptor) != binding["descriptor_digest"]
+    ):
+        raise ContractError("bootstrap adapter binding mismatch")
+    _bounded(configuration)
+    if digest(configuration) != binding["configuration_digest"]:
+        raise ContractError("bootstrap configuration mismatch")
+    check_configuration(
+        descriptor["configuration_schema"],
+        configuration,
+        digest(descriptor["configuration_schema"]),
+    )
+    _bounded(source)
+    check_configuration(descriptor["source_schema"], source, binding["source_schema_digest"])
+    capture = selection["capture"]
+    if (
+        capture["media_type"] != "application/json"
+        or capture["digest"] != digest(source)
+        or capture["size_bytes"] != len(canonical(source))
+    ):
+        raise ContractError("bootstrap capture identity mismatch")
+    request = {
+        "contract": "fishhat.bootstrap-source",
+        "method": "recover",
+        "input": {"scope": copy.deepcopy(scope), "selection": copy.deepcopy(selection)},
+    }
+    check_request("bootstrap-source", request)
+    if scope["kind"] != "repository" or scope["handle"] != selection["source_id"]:
+        raise ContractError("bootstrap source scope mismatch")
+    return request
+
+
+def validate_receipt(receipt: dict[str, Any], selection: dict[str, Any]) -> dict[str, Any]:
+    """Check receipt correlation, not native success or independently authenticated evidence."""
+    validate_selection(selection)
+    _bounded(receipt)
+    validate("client-records.schema.json", receipt, "SourceRecovery")
+    if receipt["selection_digest"] != digest(selection) or any(
+        receipt[a] != selection[b]
+        for a, b in (
+            ("domain_id", "domain_id"),
+            ("source_id", "source_id"),
+            ("ref", "ref"),
+            ("commit", "expected_commit"),
+        )
+    ):
+        raise ContractError("source recovery receipt identity mismatch")
+    destination = clean_path(receipt["destination"], absolute=True)
+    root = selection["recovery_root"]
+    if destination == root or not within(destination, root):
+        raise ContractError("source recovery output outside staging")
+    return receipt

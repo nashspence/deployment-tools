@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a-fishhat-forgejo-restic-bootstrap"
+version = "0.1.0.dev0"
+description = "forgejo-restic source bootstrap: closed input scaffold; no native execution claim"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["fishhat-adapter-support==0.1.0.dev0"]
+
+[project.scripts]
+a-fishhat-forgejo-restic-bootstrap = "a_fishhat_forgejo_restic_bootstrap.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+a_fishhat_forgejo_restic_bootstrap = ["py.typed", "descriptor.json"]
+
+[tool.uv.sources]
+fishhat-adapter-support = { workspace = true }
+
+[tool.fishhat.component]
+id = "forgejo-restic-bootstrap"
+module = "a_fishhat_forgejo_restic_bootstrap"
+role = "adapter-implementation"
