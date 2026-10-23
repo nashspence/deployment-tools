@@ -1,0 +1,67 @@
+{
+  "format": "deployment-ops/adapter/v1",
+  "id": "fishhat.git-bundle",
+  "roles": [
+    "bootstrap-source"
+  ],
+  "entrypoint": "bin/a-fishhat-git-bundle-bootstrap",
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "bundle_handle": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "required": [
+      "bundle_handle"
+    ],
+    "additionalProperties": false
+  },
+  "component_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "implemented": [],
+  "native_qualified": false,
+  "source_schema": {
+    "type": "object",
+    "properties": {
+      "bundle": {
+        "type": "object",
+        "properties": {
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "media_type": {
+            "const": "application/x-git-bundle"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "digest",
+          "media_type",
+          "size_bytes"
+        ],
+        "additionalProperties": false
+      },
+      "require_self_contained": {
+        "const": true
+      }
+    },
+    "required": [
+      "bundle",
+      "require_self_contained"
+    ],
+    "additionalProperties": false
+  }
+}

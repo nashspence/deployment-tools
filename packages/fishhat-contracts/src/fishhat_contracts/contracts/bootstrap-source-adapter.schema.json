@@ -1,0 +1,417 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fishhat.invalid/contracts/bootstrap-source-adapter.schema.json",
+  "description": "Source-only bootstrap handoff. Native execution requires independently approved kit bytes and private staging; data validation is not authorization. Recovery never activates source policy or restores services. Unknown effects require reconciliation before repetition.",
+  "$defs": {
+    "recover": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "selection": {
+          "$ref": "bootstrap-recovery.schema.json"
+        }
+      },
+      "required": [
+        "scope",
+        "selection"
+      ],
+      "additionalProperties": false
+    },
+    "verify": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "selection": {
+          "$ref": "bootstrap-recovery.schema.json"
+        },
+        "output": {
+          "$ref": "adapter.schema.json#/$defs/Artifact"
+        }
+      },
+      "required": [
+        "scope",
+        "selection",
+        "output"
+      ],
+      "additionalProperties": false
+    },
+    "reconcile": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "attempt": {
+          "$ref": "adapter.schema.json#/$defs/EffectAttempt"
+        }
+      },
+      "required": [
+        "scope",
+        "attempt"
+      ],
+      "additionalProperties": false
+    },
+    "Output": {
+      "type": "object",
+      "properties": {
+        "receipt": {
+          "anyOf": [
+            {
+              "$ref": "client-records.schema.json#/$defs/SourceRecovery"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "receipt"
+      ],
+      "additionalProperties": false
+    },
+    "Response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.bootstrap-source"
+            },
+            "method": {
+              "const": "recover"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            },
+            "effect": {
+              "$ref": "adapter.schema.json#/$defs/EffectResult"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output",
+            "effect"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "output": {
+                    "properties": {
+                      "receipt": {
+                        "$ref": "client-records.schema.json#/$defs/SourceRecovery"
+                      }
+                    },
+                    "required": [
+                      "receipt"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.bootstrap-source"
+            },
+            "method": {
+              "const": "verify"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            },
+            "effect": {
+              "$ref": "adapter.schema.json#/$defs/EffectResult"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output",
+            "effect"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "output": {
+                    "properties": {
+                      "receipt": {
+                        "$ref": "client-records.schema.json#/$defs/SourceRecovery"
+                      }
+                    },
+                    "required": [
+                      "receipt"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.bootstrap-source"
+            },
+            "method": {
+              "const": "reconcile"
+            },
+            "request_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "scope": {
+              "$ref": "#/$defs/Scope"
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unknown"
+              ]
+            },
+            "continuation": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Handle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "proposal": {
+              "anyOf": [
+                {
+                  "$ref": "adapter.schema.json#/$defs/Artifact"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "output": {
+              "$ref": "#/$defs/Output"
+            },
+            "effect": {
+              "$ref": "adapter.schema.json#/$defs/EffectResult"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "request_digest",
+            "scope",
+            "coverage",
+            "continuation",
+            "proposal",
+            "output",
+            "effect"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Scope": {
+      "allOf": [
+        {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "repository"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "fishhat.bootstrap-source"
+        },
+        "method": {
+          "const": "recover"
+        },
+        "input": {
+          "$ref": "#/$defs/recover"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "fishhat.bootstrap-source"
+        },
+        "method": {
+          "const": "verify"
+        },
+        "input": {
+          "$ref": "#/$defs/verify"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "fishhat.bootstrap-source"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "input": {
+          "$ref": "#/$defs/reconcile"
+        }
+      },
+      "required": [
+        "contract",
+        "method",
+        "input"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

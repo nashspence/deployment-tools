@@ -232,7 +232,7 @@ def validate_recovery_set(value: dict[str, Any], bundle: dict[str, Any]) -> dict
     validate_bundle(bundle)
     if value["installation_bundle_digest"] != digest(bundle):
         raise ContractError("recovery install bundle mismatch")
-    clean_path(value["bundle_snapshot_path"])
+    clean_path(value["installation_bundle_path"])
     if value["platform"] != bundle["platform"]:
         raise ContractError("recovery platform mismatch")
     if value["qualified"] and (

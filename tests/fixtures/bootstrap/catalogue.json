@@ -2,41 +2,28 @@
   "format": "deployment-ops/bootstrap-catalogue/v1",
   "domain_id": "a6606aee-cb29-5360-a578-3502f7b0a12a",
   "created_at": "2026-10-17T06:00:00Z",
-  "capture_consistency": "forgejo-stopped",
-  "restic_repository_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-  "snapshot_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
   "kit_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "profile_generation": "37124b5e-8866-4df7-9215-5a58f4e17e35",
   "sources": [
     {
       "source_id": "domain",
-      "repository": {
-        "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
-        "repository_id": 30,
-        "name": "domain/estate-config"
-      },
-      "bare_repository_path": "/recovery/bootstrap/repos/domain.git",
-      "branch": "main",
+      "ref": "refs/heads/main",
       "commit": "1111111111111111111111111111111111111111",
-      "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "file_count": 18,
-      "total_bytes": 32768
-    },
-    {
-      "source_id": "fishhat",
-      "repository": {
-        "instance": "3f781d0c-3e1a-5432-b81d-d1cd214e9958",
-        "repository_id": 31,
-        "name": "tools/fishhat"
+      "adapter": {
+        "implementation": "fishhat.forgejo-restic",
+        "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "descriptor_digest": "sha256:d09915195a13b2ce5e94c6eccde3241f2914b46b34121630f780485827c4b1d3",
+        "configuration_digest": "sha256:0eae6fab2afd04f8c5485ed22106ec804b3f49c8d23465341ad4e293328d7d49",
+        "source_schema_digest": "sha256:3f5236d660efa6a2ddd7b40995bbf3cd67bcaa638c0fae5e4c141e7d7dc286df"
       },
-      "bare_repository_path": "/recovery/bootstrap/repos/fishhat.git",
-      "branch": "main",
-      "commit": "2222222222222222222222222222222222222222",
+      "capture": {
+        "digest": "sha256:1eb53009adbe60d42d3d028b1cc9b0455907c7ef3d2231bcfcd33f82569f13cd",
+        "media_type": "application/json",
+        "size_bytes": 281
+      },
       "tree_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "file_count": 18,
       "total_bytes": 32768
     }
   ],
-  "full_service_checkpoint_ref": "synthetic-forgejo-checkpoint",
-  "publication_state": "candidate"
+  "publication_state": "independently-verified"
 }

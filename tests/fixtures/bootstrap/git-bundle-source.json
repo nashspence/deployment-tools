@@ -1,0 +1,8 @@
+{
+  "bundle": {
+    "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "media_type": "application/x-git-bundle",
+    "size_bytes": 32768
+  },
+  "require_self_contained": true
+}

@@ -475,9 +475,6 @@
         "domain_id": {
           "$ref": "common.schema.json#/$defs/UUID"
         },
-        "source": {
-          "$ref": "common.schema.json#/$defs/Repository"
-        },
         "selection_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
         },
@@ -504,13 +501,18 @@
         },
         "uncommitted_work_restored": {
           "const": false
+        },
+        "source_id": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "ref": {
+          "$ref": "bootstrap-recovery.schema.json#/$defs/GitRef"
         }
       },
       "required": [
         "format",
         "id",
         "domain_id",
-        "source",
         "selection_digest",
         "commit",
         "output_digest",
@@ -519,7 +521,9 @@
         "policy_activated",
         "services_restored",
         "assets_restored",
-        "uncommitted_work_restored"
+        "uncommitted_work_restored",
+        "source_id",
+        "ref"
       ],
       "additionalProperties": false
     }

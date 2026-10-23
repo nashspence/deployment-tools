@@ -5,6 +5,7 @@
     "backup-adapter.schema.json",
     "bootstrap-catalogue.schema.json",
     "bootstrap-recovery.schema.json",
+    "bootstrap-source-adapter.schema.json",
     "build-adapter.schema.json",
     "bundle-manifest.schema.json",
     "capture-adapter.schema.json",
@@ -310,6 +311,14 @@
       "path": "resources/retention-inventory.json",
       "schema": "resource-records.schema.json",
       "definition": "RetentionInventory"
+    },
+    {
+      "path": "bootstrap/git-bundle-catalogue.json",
+      "schema": "bootstrap-catalogue.schema.json"
+    },
+    {
+      "path": "bootstrap/git-bundle-selection.json",
+      "schema": "bootstrap-recovery.schema.json"
     }
   ],
   "semantic_entrypoints": [

@@ -22,6 +22,8 @@ members = [
     "a-fishhat-forgejo-adapter",
     "a-fishhat-forgejo-age-adapter",
     "a-fishhat-forgejo-issues-adapter",
+    "a-fishhat-forgejo-restic-bootstrap",
+    "a-fishhat-git-bundle-bootstrap",
     "a-fishhat-git-ssh-adapter",
     "a-fishhat-homebrew-adapter",
     "a-fishhat-jsonl-adapter",
@@ -232,6 +234,28 @@ requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishha
 name = "a-fishhat-forgejo-issues-adapter"
 version = "0.1.0.dev0"
 source = { editable = "some-implementations/fishhat/reporting/forgejo-issues" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-forgejo-restic-bootstrap"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/bootstrap-source/forgejo-restic" }
+dependencies = [
+    { name = "fishhat-adapter-support" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fishhat-adapter-support", editable = "packages/fishhat-adapter-support" }]
+
+[[package]]
+name = "a-fishhat-git-bundle-bootstrap"
+version = "0.1.0.dev0"
+source = { editable = "some-implementations/fishhat/bootstrap-source/git-bundle" }
 dependencies = [
     { name = "fishhat-adapter-support" },
 ]
@@ -1012,11 +1036,15 @@ name = "fishhat-client"
 version = "0.1.0.dev0"
 source = { editable = "packages/fishhat-client" }
 dependencies = [
+    { name = "fishhat-adapter-protocol" },
     { name = "fishhat-contracts" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "fishhat-contracts", editable = "packages/fishhat-contracts" }]
+requires-dist = [
+    { name = "fishhat-adapter-protocol", editable = "packages/fishhat-adapter-protocol" },
+    { name = "fishhat-contracts", editable = "packages/fishhat-contracts" },
+]
 
 [[package]]
 name = "fishhat-contracts"
