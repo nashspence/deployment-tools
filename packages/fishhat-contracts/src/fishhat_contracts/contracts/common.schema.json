@@ -59,7 +59,8 @@
         "observer",
         "operator",
         "administrator"
-      ]
+      ],
+      "description": "A permission level granted to the authenticated receiving principal for an exact resource scope. One human may hold several roles; a role does not require a separate person, organization or account. A source document or claimed actor cannot grant this role."
     },
     "Owner": {
       "type": "object",
@@ -78,7 +79,8 @@
         "epoch": {
           "type": "string",
           "format": "uuid",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "The current authority generation of this local owner. Restoring owner state changes the authority generation; an old receipt cannot silently authorize new work."
         }
       },
       "required": [
@@ -86,7 +88,8 @@
         "id",
         "epoch"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A local management program responsible for authorizing, remembering and recovering its accepted work. This is not the human administrator, a repository owner, a hosted account or a central domain authority. Human permission comes from the actual receiving principal and its current scoped grant."
     },
     "Resource": {
       "type": "object",
@@ -117,7 +120,8 @@
         "kind",
         "id"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The thing an operation addresses within the named owner or explicit domain context. Its identifier alone conveys neither authority nor global identity."
     },
     "Repository": {
       "type": "object",
@@ -144,7 +148,8 @@
         "repository_id",
         "name"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Canonical custody of source history. One repository may contain several distinct host or app entrypoints; repository identity is not host identity."
     },
     "Source": {
       "type": "object",
@@ -208,7 +213,8 @@
         "entrypoint",
         "closure_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An exact source snapshot and entrypoint used to propose a change. A Git commit or source publication is not evidence that a host or app has accepted or activated it."
     },
     "Handle": {
       "type": "object",

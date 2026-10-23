@@ -38,17 +38,12 @@
         },
         "state": {
           "enum": [
-            "reserved",
-            "attempting",
+            "prepared",
             "acceptance_unknown",
             "accepted",
-            "paused",
-            "rejected",
-            "succeeded",
-            "failed",
-            "cancelled",
-            "quarantined"
-          ]
+            "rejected"
+          ],
+          "description": "Client knowledge of request acceptance only. Prepared means an in-memory request identity exists, with no reservation or persistence claim. Acceptance_unknown means the owner may have accepted it. Accepted means an authenticated owner receipt establishes acceptance, including when execution later fails or is cancelled. Rejected requires an explicit authenticated refusal; a missing or invalid reply cannot establish rejection. Execution progress and outcome belong to the separate owner Operation receipt."
         },
         "domain_id": {
           "$ref": "common.schema.json#/$defs/UUID"
@@ -78,8 +73,8 @@
             "host.reboot",
             "host.sleep",
             "host.wake",
-            "host.harvest",
-            "host.clone-sync",
+            "host.capture-changes",
+            "host.source-update",
             "host.secrets-adopt",
             "host.recover",
             "host.retire",
@@ -119,7 +114,7 @@
         "expected_generation"
       ],
       "additionalProperties": false,
-      "description": "In-memory/client-supplied delivery reference. Persistence is optional; this is not an owner acceptance record."
+      "description": "In-memory/client-supplied request delivery reference. Persistence is optional. Acceptance knowledge is separate from owner execution state, and imported client data is not owner acceptance evidence."
     },
     "Closeout": {
       "type": "object",

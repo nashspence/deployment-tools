@@ -72,7 +72,9 @@
         "transition-verify",
         "capture",
         "restore",
-        "verify-restore"
+        "verify-restore",
+        "rebuild",
+        "verify-rebuild"
       ]
     },
     "dataset_handles": {

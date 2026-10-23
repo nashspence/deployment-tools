@@ -420,9 +420,9 @@
           "enum": [
             "healthy",
             "unhealthy",
-            "unknown",
-            "unsupported"
-          ]
+            "unknown"
+          ],
+          "description": "The observed result of a supported health check; unknown does not imply failure."
         },
         "quiescence": {
           "enum": [
@@ -454,6 +454,14 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 9007199254740991
+        },
+        "health_check": {
+          "enum": [
+            "supported",
+            "unsupported",
+            "unknown"
+          ],
+          "description": "Whether this adapter can perform the relevant health check. Unsupported or unknown capability cannot establish healthy or unhealthy."
         }
       },
       "required": [
@@ -468,9 +476,34 @@
         "continuation",
         "instance",
         "installation_digest",
-        "admission_generation"
+        "admission_generation",
+        "health_check"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "health_check": {
+                "enum": [
+                  "unsupported",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "health_check"
+            ]
+          },
+          "then": {
+            "properties": {
+              "health": {
+                "const": "unknown"
+              }
+            }
+          }
+        }
+      ]
     },
     "EffectAttempt": {
       "type": "object",

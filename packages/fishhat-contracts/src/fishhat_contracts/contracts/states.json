@@ -113,11 +113,9 @@
     ]
   },
   "client": [
-    "reserved",
-    "attempting",
+    "prepared",
     "acceptance_unknown",
     "accepted",
-    "paused",
     "rejected"
   ],
   "rules": [
@@ -126,5 +124,20 @@
     "Quarantined work needs a new exact recovery operation.",
     "Transfer requires all participant freeze and commit witnesses.",
     "Replays are checked before new-admission expiry/generation checks."
-  ]
+  ],
+  "owner_meanings": {
+    "accepted": "The local owner has durably accepted responsibility for this exact request. Execution has not been established as complete.",
+    "running": "The owner is executing accepted work. Losing the client connection does not stop it.",
+    "waiting": "Accepted work is waiting for a prerequisite or an owner-controlled continuation. It is not a failed or new request.",
+    "succeeded": "The owner has verified the requested result and its effects. This does not establish unrelated app health or backup recoverability.",
+    "failed": "This operation ended without the requested result. Confirmed or unknown effects and their holds remain until resolved by the owner.",
+    "cancelled": "The owner ended this operation after cancellation. This does not undo effects, prove every participant stopped, or release retained holds.",
+    "quarantined": "This operation has ended with unresolved conditions that block further changes. A new exact recovery operation must resolve them; retrying as fresh work is unsafe."
+  },
+  "client_meanings": {
+    "prepared": "A local request identity is ready to send. No owner acceptance, reservation or durable client storage is implied.",
+    "acceptance_unknown": "The request may have been accepted. Query or reconcile the original owner and request identity.",
+    "accepted": "Owner evidence establishes acceptance. Consult the separate Operation receipt for progress and outcome.",
+    "rejected": "An authenticated owner response explicitly refused acceptance. A timeout or unreadable response is not rejection."
+  }
 }

@@ -11,7 +11,8 @@
         "{tool}",
         "help"
       ],
-      "use_case": "static-help"
+      "use_case": "static-help",
+      "description": "Explain available commands without contacting optional services."
     },
     {
       "name": "info",
@@ -20,7 +21,8 @@
         "info",
         "--json"
       ],
-      "use_case": "discover"
+      "use_case": "discover",
+      "description": "Identify the local management program and its capabilities, not the human administrator or application health."
     },
     {
       "name": "status",
@@ -29,7 +31,8 @@
         "status",
         "--json"
       ],
-      "use_case": "observe"
+      "use_case": "observe",
+      "description": "Observe managed resources with separate intent, activity, health, reachability and power meanings; retain timestamp and provenance."
     },
     {
       "name": "list",
@@ -40,7 +43,8 @@
         "--active",
         "--json"
       ],
-      "use_case": "operation.list"
+      "use_case": "operation.list",
+      "description": "Find active work accepted by this local owner even when the initiating client has disappeared."
     },
     {
       "name": "show",
@@ -52,7 +56,8 @@
         "{uuid}",
         "--json"
       ],
-      "use_case": "operation.get"
+      "use_case": "operation.get",
+      "description": "Inspect the outcome of the exact original request; absence of a reply does not prove absence of work."
     },
     {
       "name": "apply",
@@ -70,7 +75,8 @@
         "{uuid}",
         "--json"
       ],
-      "use_case": "operation.submit"
+      "use_case": "operation.submit",
+      "description": "Submit the exact reviewed plan and digest using the current owner authority generation and original request identity; acknowledgement means accepted responsibility, not completed execution."
     },
     {
       "name": "plan-stdin",
@@ -80,7 +86,8 @@
         "--subject-stdin",
         "--json"
       ],
-      "use_case": "plan.prepare"
+      "use_case": "plan.prepare",
+      "description": "Prepare a reviewable plan from the exact supplied action and resource, including affected scope, disruption, data consequences and recovery limits."
     },
     {
       "name": "app-check",
@@ -91,7 +98,8 @@
         "{id}",
         "--json"
       ],
-      "use_case": "check"
+      "use_case": "check",
+      "description": "Observe the selected application; checking does not silently repair it or adopt new source."
     },
     {
       "name": "app-restart",
@@ -103,7 +111,8 @@
         "--plan",
         "--json"
       ],
-      "use_case": "plan.prepare"
+      "use_case": "plan.prepare",
+      "description": "Plan a restart of the selected application under its already accepted release."
     },
     {
       "name": "app-repair",
@@ -115,7 +124,8 @@
         "--plan",
         "--json"
       ],
-      "use_case": "plan.prepare"
+      "use_case": "plan.prepare",
+      "description": "Plan restoration of accepted application configuration without silently upgrading or replacing data."
     },
     {
       "name": "app-backup",
@@ -127,7 +137,8 @@
         "--plan",
         "--json"
       ],
-      "use_case": "plan.prepare"
+      "use_case": "plan.prepare",
+      "description": "Plan a recovery capture; capture success and restore-drill evidence remain distinct."
     },
     {
       "name": "cancel",
@@ -143,7 +154,8 @@
         "{uuid}",
         "--json"
       ],
-      "use_case": "operation.cancel"
+      "use_case": "operation.cancel",
+      "description": "Request cancellation of the exact operation. Confirmed effects remain and unknown effects must be reconciled; cancellation does not promise rollback or release holds."
     },
     {
       "name": "show-epoch",
@@ -157,7 +169,8 @@
         "{uuid}",
         "--json"
       ],
-      "use_case": "operation.get"
+      "use_case": "operation.get",
+      "description": "Resolve the original request against the exact owner authority generation."
     },
     {
       "name": "list-page",
@@ -170,7 +183,8 @@
         "{cursor}",
         "--json"
       ],
-      "use_case": "operation.list"
+      "use_case": "operation.list",
+      "description": "Continue observing active owner work without dropping requests outside the current page."
     },
     {
       "name": "resources",
@@ -180,7 +194,8 @@
         "{id}",
         "--json"
       ],
-      "use_case": "resources.observe"
+      "use_case": "resources.observe",
+      "description": "Observe the exact resource usage, capacity and reservations through this owner."
     },
     {
       "name": "cleanup-plan",
@@ -191,7 +206,8 @@
         "--plan",
         "--json"
       ],
-      "use_case": "plan.prepare"
+      "use_case": "plan.prepare",
+      "description": "Plan exact eligible reclamation while preserving application data and protected recovery references."
     }
   ],
   "parser": "bounded tokens; no shell evaluation",

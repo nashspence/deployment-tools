@@ -11,13 +11,13 @@ import uuid
 from collections.abc import Callable
 from typing import Any
 
-from fishhat_contracts.validation import ContractError, validate
+from fishhat_contracts.validation import ContractError, digest, validate
 
 
 def prepare_delivery(template: dict[str, Any], request_id: str | None = None) -> dict[str, Any]:
     value = copy.deepcopy(template)
     value["request_id"] = request_id or str(uuid.uuid4())
-    value["state"] = "reserved"  # in-memory prepared; no persistence claim
+    value["state"] = "prepared"  # in-memory identity; no reservation or persistence claim
     validate("client-records.schema.json", value, "Delivery")
     return value
 
@@ -25,43 +25,55 @@ def prepare_delivery(template: dict[str, Any], request_id: str | None = None) ->
 def submit_once(
     delivery: dict[str, Any], owner_transport: Callable[[dict[str, Any]], object]
 ) -> dict[str, Any]:
-    """At most one call; no recording hook can become an admission dependency."""
+    """Submit once and keep acceptance separate from the owner's execution result.
+
+    Exit 0 means the owner accepted the request or reported success, not that
+    accepted/running/waiting work is complete. Exit 1 reports failed, cancelled
+    or quarantined work; retained effects and holds still belong to the owner.
+    Exit 8 means acceptance is unknown, never rejected or safe to submit anew.
+
+    The injected transport must authenticate the owner and verify its evidence.
+    This model checks the decoded Operation's shape and exact delivery bindings;
+    those checks are not authentication or native execution qualification.
+    """
     validate("client-records.schema.json", delivery, "Delivery")
     value = copy.deepcopy(delivery)
-    if value["state"] != "reserved":
+    if value["state"] != "prepared":
         raise ContractError("new submission needs prepared identity; reconcile unknown work")
     value["state"] = "acceptance_unknown"
+    unknown = {
+        "exit_code": 8,
+        "delivery": value,
+        "owner_receipt": None,
+        "tracking": "not-attempted",
+    }
     try:
         receipt = owner_transport(copy.deepcopy(value))
     except (TimeoutError, ConnectionError):
-        return {
-            "exit_code": 8,
-            "delivery": value,
-            "owner_receipt": None,
-            "tracking": "not-attempted",
-        }
-    # Native transport must authenticate/validate the full owner envelope first.
-    if not isinstance(receipt, dict) or receipt.get("request_id") != value["request_id"]:
-        return {
-            "exit_code": 8,
-            "delivery": value,
-            "owner_receipt": None,
-            "tracking": "not-attempted",
-        }
-    if receipt.get("state") in (
-        "accepted",
-        "running",
-        "waiting",
-        "succeeded",
-        "failed",
-        "cancelled",
-        "quarantined",
+        return unknown
+    try:
+        validate("records.schema.json", receipt, "Operation")
+    except ContractError:
+        return unknown
+    if not isinstance(receipt, dict):
+        return unknown
+    bindings = (
+        receipt["request_id"] == value["request_id"],
+        receipt["owner"] == value["owner"],
+        receipt["plan_digest"] == value["plan_digest"],
+        digest(receipt["subject"]) == value["subject_digest"],
+        receipt["subject"]["action"] == value["action"],
+        receipt["subject"]["resource"] == value["resource"],
+        receipt["witness"]["owner"] == receipt["owner"],
+    )
+    if not all(bindings) or (
+        receipt["state"] == "succeeded" and receipt["effect_certainty"] != "known"
     ):
-        value["state"] = receipt["state"]
-        return {
-            "exit_code": 0,
-            "delivery": value,
-            "owner_receipt": receipt,
-            "tracking": "not-attempted",
-        }
-    raise ContractError("owner response requires explicit native error mapping")
+        return unknown
+    value["state"] = "accepted"
+    return {
+        "exit_code": 1 if receipt["state"] in ("failed", "cancelled", "quarantined") else 0,
+        "delivery": value,
+        "owner_receipt": copy.deepcopy(receipt),
+        "tracking": "not-attempted",
+    }

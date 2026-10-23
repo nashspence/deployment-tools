@@ -20,7 +20,7 @@
       ]
     }
   },
-  "plan_digest": "sha256:dca99e94bc3c939d0f9809d486a0bdbbeed6f5742c9c7948fc4a1361a5a6651f",
+  "plan_digest": "sha256:fc81195590e088e4b305f7836d0a1a81a709f9562b1ee35653c96b09104ed6ae",
   "generation": 0,
   "state": "accepted",
   "effect_certainty": "none",
@@ -40,7 +40,7 @@
       "epoch": "37de5c4a-33ee-55a5-adff-564fd3748ac8"
     },
     "kind": "acceptance",
-    "subject_digest": "sha256:d34cd7232d370086bada92706547de03ad65ee4fe095bca485ed287df3117ba3",
+    "subject_digest": "sha256:49cd88a34bf890ae4fb6296c7d2a8406f3271d5955576b6994d39f0df91b8f39",
     "workflow_id": null,
     "generation": 0,
     "state": "accepted",
@@ -48,6 +48,6 @@
     "evidence_digests": [],
     "created_at": "2026-10-17T00:00:00Z",
     "key_id": "test-owner",
-    "signature": "bko8xzQ9Jn5o0/I2xuj8DClqSNGrp5pc3aR0SpOKRMj3bVX6T+j19IqKFQpcVYQXVUdOqYfHWfcblq76+YhGDg=="
+    "signature": "a3mF9dIuhxamrN5pZC1796KtI6wv+Yw63hxo88Yk2n4YoosbNEKYKFiuv0l7m3p+5C6e4EU0jcwjnMTQBDCdAQ=="
   }
 }

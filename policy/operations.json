@@ -346,26 +346,10 @@
       ]
     },
     {
-      "id": "action:host.clone-sync",
+      "id": "action:host.capture-changes",
       "implementation": null,
       "recovery": "required",
-      "schema": "actions.schema.json#/$defs/host.clone-sync",
-      "status": "unimplemented",
-      "surface": "declared-action",
-      "tests": {
-        "failure": [],
-        "recovery": [],
-        "success": []
-      },
-      "tools": [
-        "host-ops"
-      ]
-    },
-    {
-      "id": "action:host.harvest",
-      "implementation": null,
-      "recovery": "required",
-      "schema": "actions.schema.json#/$defs/host.harvest",
+      "schema": "actions.schema.json#/$defs/host.capture-changes",
       "status": "unimplemented",
       "surface": "declared-action",
       "tests": {
@@ -462,6 +446,22 @@
       "implementation": null,
       "recovery": "required",
       "schema": "actions.schema.json#/$defs/host.sleep",
+      "status": "unimplemented",
+      "surface": "declared-action",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops"
+      ]
+    },
+    {
+      "id": "action:host.source-update",
+      "implementation": null,
+      "recovery": "required",
+      "schema": "actions.schema.json#/$defs/host.source-update",
       "status": "unimplemented",
       "surface": "declared-action",
       "tests": {
@@ -797,7 +797,22 @@
       ]
     },
     {
-      "id": "client:source advance",
+      "id": "client:source fast-forward",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-client-command",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "domain-ops"
+      ]
+    },
+    {
+      "id": "client:source fetch",
       "implementation": null,
       "recovery": "required",
       "status": "unimplemented",
@@ -843,21 +858,6 @@
     },
     {
       "id": "client:source status",
-      "implementation": null,
-      "recovery": "required",
-      "status": "unimplemented",
-      "surface": "declared-client-command",
-      "tests": {
-        "failure": [],
-        "recovery": [],
-        "success": []
-      },
-      "tools": [
-        "domain-ops"
-      ]
-    },
-    {
-      "id": "client:source sync",
       "implementation": null,
       "recovery": "required",
       "status": "unimplemented",
@@ -1602,12 +1602,12 @@
     "fishhat/domain-ops/src/fishhat_domain/cli.py": "c8e1242a73f5a670e836a35cbb92ffffab44496aff92d198ea80ab14e3279a57",
     "fishhat/host-ops/pyproject.toml": "936f41b03649731c9c78d07cff3fe97934cf36c984e8dc15688b8c32cfc518b5",
     "fishhat/host-ops/src/fishhat_host/cli.py": "d8457ca822e6d01be0b1301fb439ef9f5ed74b6224aca2d85feb189dadeb611c",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/actions.json": "7452670545d5dacd12cf19819a458fe9f67115c78a336ed45e58edacb109b7aa",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/client-commands.json": "dc1b7882bf188d9c55f1d9d68d37dcc5bfb21edd31c74ae57410dfe257d670d4",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/owner-cli.json": "ad14c28e59b3bf357cc2a2135639d1009fa4962687c09637abf250fc390979b0",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/actions.json": "149b200dbe9dfdd3e693f95ebc7dbb966d9f25f1cdf67c1ad91ab22437a81e58",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/client-commands.json": "a8e2c6238b3942b68c82a7ea21c5d01540dbedf468518d4495fdbd4337ea878e",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/owner-cli.json": "d6df9224079e494390dc229af409c4f200e77e583613d0f984a03a33e7126cfd",
     "packages/fishhat-contracts/src/fishhat_contracts/contracts/ssh-methods.json": "00315ae70e895d4583ccad459ae39c4054adef70a7906e5cc84e3a1b390f8053",
     "policy/components.toml": "d83506dc63602aec3932e1ac35244efca0db494a38a5d4cd9ec94c68476b235c",
-    "policy/interfaces.json": "0f5ea14e17d7b1b4034cab59c3da1b91927be5e0dd2dc220c118fc5b77e0d30a",
+    "policy/interfaces.json": "e0b8a1ce7c04a410f850bb5ddf2b0f3d37fd0aa8cac07976a20b84e55a089588",
     "policy/operation-coverage.toml": "9fdd2320914eaf5ae615e199a73169afe0451c6826e164a30652550b4070ca92",
     "release.toml": "d53f1d09e5900fc08ed71dbf7321674a9460b5d029a8f863b2b012819c99f743",
     "some-implementations/fishhat/backup/restic/pyproject.toml": "b48bf1976c6a4c0231bf6208d6d07ebc5d5ca56c923effb9c880d8c87f37d438",

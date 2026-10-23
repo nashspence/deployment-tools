@@ -360,6 +360,17 @@
                 "minLength": 1,
                 "maxLength": 24,
                 "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "resource": {
+                "$ref": "common.schema.json#/$defs/Resource",
+                "description": "The exact resource changed by this effect under its executor. Each executor/resource pair must have a corresponding plan precondition; multiple changed resources require separate effect entries."
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "\\S",
+                "description": "Explain this specific effect in administrator language. The executor, resource and input digest define its scope; this text is bound by the plan digest."
               }
             },
             "required": [
@@ -367,7 +378,9 @@
               "executor",
               "action",
               "input_digest",
-              "reconciliation"
+              "reconciliation",
+              "resource",
+              "summary"
             ],
             "additionalProperties": false
           },
@@ -375,12 +388,14 @@
           "maxItems": 256
         },
         "checkpoint_required": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether execution requires the plan-specific recovery checkpoint. A checkpoint requirement is not evidence that a checkpoint exists or has passed a restore drill."
         },
         "interruption": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 1024
+          "maxLength": 1024,
+          "description": "Expected disruption to the named resources and their dependants, including planned downtime. A client disconnect alone does not stop work already accepted by a local owner."
         },
         "recovery": {
           "type": "array",
@@ -394,7 +409,8 @@
           },
           "minItems": 1,
           "maxItems": 4,
-          "uniqueItems": true
+          "uniqueItems": true,
+          "description": "Candidate recovery procedures for this exact plan. This list neither executes recovery nor guarantees automatic undo. none-needed is exclusive."
         },
         "blockers": {
           "type": "array",
@@ -404,7 +420,8 @@
             "maxLength": 512
           },
           "minItems": 0,
-          "maxItems": 256
+          "maxItems": 256,
+          "description": "Known reasons this proposal cannot currently be admitted. A blocked plan remains available for inspection and explanation."
         },
         "digest": {
           "type": "string",
@@ -550,6 +567,27 @@
             "signature"
           ],
           "additionalProperties": false
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S",
+          "description": "The intended outcome in administrator language, naming the application, host or other resource affected. It describes a proposed change, not a completed result."
+        },
+        "data_consequences": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S",
+          "description": "Explain which persistent data is preserved, modified, replaced or removed, including possible loss of writes after a selected recovery point. State when normal application writes may resume; do not promise preservation merely because execution can be retried."
+        },
+        "recovery_limits": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S",
+          "description": "Explain what can be resumed or restored after interruption and what requires another explicit decision. Name irreversible effects or first-write limits where applicable. Cancellation and returning to an earlier software release do not imply that data is rolled back."
         }
       },
       "required": [
@@ -568,9 +606,13 @@
         "recovery",
         "blockers",
         "digest",
-        "witness"
+        "witness",
+        "summary",
+        "data_consequences",
+        "recovery_limits"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A reviewable proposal for exact owner-authorized work. Human consequences and exact effect targets are part of its digest. Preparing, reviewing or publishing this plan does not accept or execute it."
     },
     "Operation": {
       "type": "object",
@@ -933,7 +975,8 @@
         "witness",
         "result_handle"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An exact request accepted by a local management program. Its execution state and effect certainty answer different questions; failed, cancelled or quarantined work can still retain effects and resource holds. The human caller can disconnect without erasing the accepted responsibility."
     },
     "Event": {
       "type": "object",
@@ -976,6 +1019,7 @@
     },
     "Observation": {
       "type": "object",
+      "description": "An observation of a named resource with explicit provenance and time. Operating intent, reachability, power, activity, health-check support, health, and data protection remain separate facts. An observation is never permission to change or delete the resource.",
       "properties": {
         "resource": {
           "type": "object",
@@ -1045,24 +1089,50 @@
             "owner-confirmed",
             "cached-owner",
             "caller-reported"
-          ]
+          ],
+          "description": "Evidence provenance. A cached observation retains its original observation time and values; reading it again does not make it current owner evidence."
+        },
+        "reachability": {
+          "enum": [
+            "reachable",
+            "unreachable",
+            "unknown"
+          ],
+          "description": "Observed ability to contact the resource through its selected management path. Unreachable does not establish failed health, stopped activity, or a powered-off host."
+        },
+        "power_state": {
+          "enum": [
+            "awake",
+            "sleeping",
+            "off",
+            "unknown",
+            "not-applicable"
+          ],
+          "description": "Observed host power state, using independent evidence when the host cannot reply. Application and other non-host resources use not-applicable; an inactive application does not imply its host is off."
         },
         "activity": {
           "enum": [
             "active",
             "inactive",
             "unknown"
-          ]
+          ],
+          "description": "Observed execution activity, separate from desired activity, host power, and health."
+        },
+        "health_check": {
+          "enum": [
+            "supported",
+            "unsupported",
+            "unknown"
+          ],
+          "description": "Whether a health check is supported for this resource. An unsupported or unknown check cannot supply a healthy or unhealthy result."
         },
         "health": {
           "enum": [
             "healthy",
             "unhealthy",
-            "unknown",
-            "unsupported",
-            "unreachable",
-            "sleeping"
-          ]
+            "unknown"
+          ],
+          "description": "Reported result of a supported health check. Unknown preserves absence of evidence; sleep, disconnection, and missing check support are separate dimensions."
         },
         "protection": {
           "enum": [
@@ -1318,7 +1388,10 @@
         "owner",
         "time",
         "origin",
+        "reachability",
+        "power_state",
         "activity",
+        "health_check",
         "health",
         "protection",
         "generation",
@@ -1326,6 +1399,59 @@
         "release_digest",
         "summary",
         "witness"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "kind": {
+                    "const": "host"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "power_state": {
+                "enum": [
+                  "awake",
+                  "sleeping",
+                  "off",
+                  "unknown"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "power_state": {
+                "const": "not-applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "health_check": {
+                "enum": [
+                  "unsupported",
+                  "unknown"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "health": {
+                "const": "unknown"
+              }
+            }
+          }
+        }
       ],
       "additionalProperties": false
     },
@@ -1813,7 +1939,8 @@
         "holds",
         "recovery_digests"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A finite procedure coordinating exact participant operations while each local owner retains authority and accepted state. A workflow is not a permanent central controller or an authorization supplied by an optional tracker."
     },
     "Hold": {
       "type": "object",
@@ -2072,7 +2199,8 @@
         "release_condition",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An owner-enforced restriction protecting a resource while accepted work or unresolved effects retain custody. Only its release condition and owner evidence permit release; elapsed time or a cancellation request does not establish that condition."
     },
     "Checkpoint": {
       "type": "object",
@@ -2370,7 +2498,8 @@
         "restore_tested_at",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A specific recoverable application state with exact data, release and secret-generation references. Capture verification and tested restoration are separate evidence; a source commit alone is not an application checkpoint."
     },
     "Release": {
       "type": "object",
@@ -2547,7 +2676,8 @@
         "native_input_digest",
         "adapter_artifact_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An immutable closure of the exact software, settings, bindings, secret receipts and recovery inputs selected for one application instance. A release existing in source or storage does not prove owner admission or current activation."
     },
     "Problem": {
       "type": "object",
@@ -2683,7 +2813,8 @@
         "resource",
         "evidence"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An actionable account of what is known and the permitted next step for the named owner/resource. Preserve uncertainty and exact request identity; a failure summary must not imply that earlier effects were undone."
     },
     "Info": {
       "type": "object",
@@ -3069,7 +3200,8 @@
         "owner",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Reviewable changes to source against an exact base. The proposal preserves live edits for review; it is distinct from publication, accepted configuration and activated application state."
     },
     "Grant": {
       "type": "object",
@@ -3367,7 +3499,8 @@
         "state",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A scoped commitment made by the local host owner to an application. Application source may refer to an approved grant but cannot grant itself new host authority."
     },
     "Binding": {
       "type": "object",
@@ -3676,7 +3809,8 @@
         "state",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An explicit connection between a provider interface and its consumer, with exact generation and compatibility evidence. Naming a dependency alone does not prove this connection is active."
     },
     "Drain": {
       "type": "object",
@@ -4161,7 +4295,8 @@
         "scope",
         "witness"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Evidence that the previous writer has been prevented from writing in the named scope. Loss of contact, DNS withdrawal or removal of a caller credential alone is not such evidence."
     }
   }
 }

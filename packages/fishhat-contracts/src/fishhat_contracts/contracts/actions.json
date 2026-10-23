@@ -202,22 +202,22 @@
       "requires_plan": true
     },
     {
-      "name": "host.harvest",
+      "name": "host.capture-changes",
       "owner": "host-ops",
       "minimum_role": "operator",
       "resource_kind": "host",
       "arguments_schema": {
-        "$ref": "actions.schema.json#/$defs/host.harvest"
+        "$ref": "actions.schema.json#/$defs/host.capture-changes"
       },
       "requires_plan": true
     },
     {
-      "name": "host.clone-sync",
+      "name": "host.source-update",
       "owner": "host-ops",
       "minimum_role": "administrator",
       "resource_kind": "host",
       "arguments_schema": {
-        "$ref": "actions.schema.json#/$defs/host.clone-sync"
+        "$ref": "actions.schema.json#/$defs/host.source-update"
       },
       "requires_plan": true
     },
