@@ -7,7 +7,15 @@ import pytest
 from fishhat_contracts.validation import ContractError
 from fishhat_owner.adapter_state import AdapterCoordinator
 
-from tests.adapter_support import OWNER, binding, identifier, observation, request, runtime_registry
+from tests.adapter_support import (
+    OWNER,
+    binding,
+    identifier,
+    observation,
+    request,
+    runtime_registry,
+    runtime_sources,
+)
 
 CHECK_PURPOSE = {
     "purpose": "implementation",
@@ -25,7 +33,7 @@ def coordinator(commit=None):
     c = AdapterCoordinator(
         OWNER, registry, commit or (lambda value: commits.append(copy.deepcopy(value)))
     )
-    c.bind(binding(), owner_approved=True)
+    c.bind(binding(), **runtime_sources(registry), owner_approved=True)
     c.prove_quiescent("demo", observation(c.state["bindings"]["demo"]["admission_generation"]))
     c.open_admission("demo", owner_approved=True)
     return c, commits
@@ -35,6 +43,7 @@ def prepare(c, number=10):
     return c.prepare(
         "demo",
         request(),
+        **runtime_sources(c.registry),
         operation_id=identifier(8),
         effect_id=identifier(9),
         attempt_id=identifier(number),
@@ -118,6 +127,7 @@ def test_attempt_identity_replay_preserves_actual_status():
         c.prepare(
             "demo",
             changed,
+            **runtime_sources(c.registry),
             operation_id=identifier(8),
             effect_id=identifier(9),
             attempt_id=identifier(10),
@@ -179,6 +189,7 @@ def test_closing_admission_does_not_disable_containment_effects():
     attempt = c.prepare(
         "demo",
         request("deactivate"),
+        **runtime_sources(c.registry),
         operation_id=identifier(80),
         effect_id=identifier(81),
         attempt_id=identifier(82),
@@ -198,6 +209,7 @@ def test_prepared_start_can_be_cancelled_but_dispatched_start_cannot():
     next_attempt = c.prepare(
         "demo",
         request(),
+        **runtime_sources(c.registry),
         operation_id=identifier(30),
         effect_id=identifier(31),
         attempt_id=identifier(32),

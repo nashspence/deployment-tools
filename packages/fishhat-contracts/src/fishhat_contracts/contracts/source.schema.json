@@ -371,6 +371,7 @@
         },
         "concerns": {
           "type": "object",
+          "description": "Concern and binding names label declarations; they do not partition native targets. Within one host, each native service unit, package-manager/name target and user named by a group-membership declaration has exactly one declaration. Ordinary files, secret files and artifacts share one absolute destination namespace. Duplicate targets are rejected even when their prescriptions agree; declaration order grants no precedence. Destination paths use canonical absolute spelling without empty, dot or parent segments or a trailing slash. These are lexical source checks; native admission must resolve provider, user and filesystem aliases and reject overlapping writers.",
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
@@ -823,7 +824,8 @@
                 "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
               },
               "runtime_instance": {
-                "$ref": "common.schema.json#/$defs/Id"
+                "$ref": "common.schema.json#/$defs/Id",
+                "description": "Host-approved runtime assignment for this application account. New runtime work requires the application's requested runtime instance and the receiving owner's accepted runtime binding to name this same enrolled instance. This is an admission constraint, not a default that application source can override. Changing source alone neither rebinds accepted work nor alters its recovery authority."
               }
             },
             "required": [
@@ -1066,7 +1068,8 @@
           "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
         },
         "runtime": {
-          "$ref": "adapter.schema.json#/$defs/Selection"
+          "$ref": "adapter.schema.json#/$defs/Selection",
+          "description": "Application-requested runtime selection. Admission joins this request to the host-approved account assignment and the receiving owner's accepted binding, including the enrolled installation and configuration. This request cannot enroll an instance, override the host assignment or implicitly rebind accepted work."
         },
         "purpose": {
           "type": "string",
@@ -1776,6 +1779,7 @@
         },
         "secret_bindings": {
           "type": "object",
+          "description": "Each component and canonical absolute target pair has one secret-delivery declaration, regardless of binding name, secret entry or delivery mode. Different component namespaces may use the same target spelling. Native admission must verify that their actual destinations remain independently scoped.",
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {

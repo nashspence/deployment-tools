@@ -720,6 +720,17 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 256
+        },
+        "policy_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "retention_inventory_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "protection_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         }
       },
       "required": [
@@ -738,9 +749,13 @@
         "items",
         "protected_roots",
         "minimum_age_seconds",
-        "max_objects"
+        "max_objects",
+        "policy_digest",
+        "retention_inventory_digest",
+        "protection_generation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Native inventory bound to the current accepted owner policy and exact retention inventory. protected_roots and protected_by may add protection but cannot replace or subtract owner-derived retention roots. A missing retained native handle prevents cleanup. minimum_age_seconds may impose a stricter age than the accepted unused-candidate grace, never a weaker one."
     },
     "CleanupPlan": {
       "type": "object",
@@ -862,6 +877,17 @@
           },
           "minItems": 0,
           "maxItems": 256
+        },
+        "policy_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "retention_inventory_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "protection_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         }
       },
       "required": [
@@ -876,9 +902,13 @@
         "created_at",
         "expires_at",
         "candidates",
-        "blocked"
+        "blocked",
+        "policy_digest",
+        "retention_inventory_digest",
+        "protection_generation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Exact cleanup proposal bound to the accepted policy, retention inventory and protection generation. protection_digest binds those identities together with the full protected root closure. Before each deletion the owner must revalidate against independently loaded current policy, retention state and native inventory; a reviewed plan cannot override policy or release holds. The native executor must serialize final revalidation and deletion with accepted policy, hold and recovery-reference changes, retaining that exclusion until the native outcome is known. If it cannot maintain exclusion, it must stop and reconcile rather than delete under a stale observation. The pure reference revalidation helper supplies no lock or continuing authorization."
     },
     "CleanupReceipt": {
       "type": "object",
@@ -1539,16 +1569,6 @@
         "complete": {
           "type": "boolean"
         },
-        "prior_releases": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 32
-        },
-        "minimum_prior_age_seconds": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 315360000
-        },
         "releases": {
           "type": "array",
           "items": {
@@ -1665,10 +1685,7 @@
               "cold_demotion_receipt": {
                 "anyOf": [
                   {
-                    "type": "string",
-                    "minLength": 71,
-                    "maxLength": 71,
-                    "pattern": "^sha256:[0-9a-f]{64}$"
+                    "$ref": "resource-records.schema.json#/$defs/ColdDemotionReceipt"
                   },
                   {
                     "type": "null"
@@ -1689,6 +1706,9 @@
             "additionalProperties": false
           },
           "maxItems": 4096
+        },
+        "policy_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
         }
       },
       "required": [
@@ -1699,11 +1719,93 @@
         "protection_generation",
         "observed_at",
         "complete",
-        "prior_releases",
-        "minimum_prior_age_seconds",
-        "releases"
+        "releases",
+        "policy_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Current owner-verified release and custody closure under the exact AcceptedRetentionPolicy digest. protection_generation changes whenever retained references, holds or recovery obligations change. This inventory supplies evidence, never replacement retention policy. Its sole accepted release must match the accepted policy release."
+    },
+    "AcceptedRetentionPolicy": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/resources/v1"
+        },
+        "kind": {
+          "const": "AcceptedRetentionPolicy"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "account": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "release_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "policy": {
+          "$ref": "resources.schema.json#/$defs/RetentionPolicy"
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "owner",
+        "account",
+        "generation",
+        "release_digest",
+        "policy"
+      ],
+      "additionalProperties": false,
+      "description": "Current retention policy read from the receiving owner's accepted state. policy is the exact retention object from the accepted application source, and release_digest identifies that accepted release. The owner changes generation whenever this accepted policy changes. Supplied fields and schema validation do not authorize acceptance or a policy change; callers must obtain this record independently from current owner state, not from the cleanup requester or adapter."
+    },
+    "ColdDemotionReceipt": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/resources/v1"
+        },
+        "kind": {
+          "const": "ColdDemotionReceipt"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "account": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "policy_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "release_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "archive_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "protection_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "owner",
+        "account",
+        "policy_digest",
+        "release_digest",
+        "archive_digest",
+        "protection_generation"
+      ],
+      "additionalProperties": false,
+      "description": "Owner-authenticated authorization to demote the named local recovery closure under the exact accepted policy, archive evidence and protection generation. It never overrides keep-local or any hold. Native owners authenticate its provenance before supplying it to the reference decision model; matching digest fields alone do not authenticate a receipt."
     }
   }
 }

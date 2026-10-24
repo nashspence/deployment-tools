@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fishhat_contracts.validation import ContractError, canonical, digest, validate
 from jsonschema import Draft202012Validator, FormatChecker
@@ -20,6 +20,12 @@ ROLES: dict[str, dict[str, dict[str, Any]]] = json.loads(
 def require(ok: bool, code: str) -> None:
     if not ok:
         raise ContractError(code)
+
+
+def runtime_binding_digest(binding: dict[str, Any]) -> str:
+    """Identify an accepted runtime binding independently of its current admission fence."""
+    validate("adapter.schema.json", binding, "RuntimeBinding")
+    return digest({key: value for key, value in binding.items() if key != "admission_generation"})
 
 
 def check_schema(schema: dict[str, Any]) -> None:
@@ -176,7 +182,53 @@ class Registry:
         require(len(scopes) == len(set(scopes)), "DUPLICATE_SCOPE")
         previous = self._instances.get(instance["id"])
         require(previous is None or previous == instance, "EXPLICIT_REBIND_REQUIRED")
+        self._check_mutation_authority(instance)
         self._instances[instance["id"]] = copy.deepcopy(instance)
+
+    def _check_mutation_authority(self, instance: dict[str, Any]) -> None:
+        """Scan local enrolled facts; native admission still owns alias resolution/exclusion."""
+        claims = {
+            digest(namespace): (grant["scope"], grant["mutation"]["controller"])
+            for old in self._instances.values()
+            if old["id"] != instance["id"]
+            for grant in old["grants"]
+            if grant["mutation"] is not None
+            for namespace in grant["mutation"]["namespaces"]
+        }
+        for grant in instance["grants"]:
+            mutation = grant["mutation"]
+            if mutation is None:
+                continue
+            namespaces = {digest(value) for value in mutation["namespaces"]}
+            controller = mutation["controller"]
+            if controller != instance["id"]:
+                controlling = self._instances.get(controller)
+                require(controlling is not None, "UNKNOWN_MUTATION_CONTROLLER")
+                assert controlling is not None
+                controlling_grant = self._grant(controlling, grant["scope"], "change")
+                controlling_mutation = controlling_grant["mutation"]
+                require(
+                    controlling_mutation["controller"] == controller
+                    and namespaces <= {digest(n) for n in controlling_mutation["namespaces"]},
+                    "MUTATION_DELEGATION_SCOPE",
+                )
+            identity = (grant["scope"], controller)
+            for namespace in namespaces:
+                require(
+                    namespace not in claims or claims[namespace] == identity,
+                    "NATIVE_MUTATION_AUTHORITY_CONFLICT",
+                )
+                claims[namespace] = identity
+
+    @staticmethod
+    def _grant(instance: dict[str, Any], scope: dict[str, Any], access: str) -> dict[str, Any]:
+        grant = next(
+            (g for g in instance["grants"] if g["scope"] == scope and access in g["access"]),
+            None,
+        )
+        require(grant is not None, "SCOPE_NOT_GRANTED")
+        assert grant is not None
+        return cast(dict[str, Any], grant)
 
     def inspect_instance(self, instance_id: str) -> dict[str, Any]:
         instance = self._instances.get(instance_id)
@@ -214,18 +266,39 @@ class Registry:
         owner_approved: bool,
     ) -> dict[str, Any]:
         require(owner_approved, "OPERATION_NOT_AUTHORIZED")
+        instance = self._operation(instance_id, role, method, scope)
+        if ROLES[role][method]["effect"]:
+            require(
+                self._grant(instance, scope, "change")["mutation"]["controller"] == instance_id,
+                "MUTATION_OWNER_REQUIRED",
+            )
+        return copy.deepcopy(instance)
+
+    def inspect_delegation(
+        self, controller: str, instance_id: str, role: str, method: str, scope: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Resolve enrollment data for an owning coordinator; this does not authorize dispatch."""
+        instance = self._operation(instance_id, role, method, scope)
+        require(ROLES[role][method]["effect"], "REQUEST_IS_NOT_EFFECT")
+        mutation = self._grant(instance, scope, "change")["mutation"]
+        require(
+            controller != instance_id and mutation["controller"] == controller,
+            "MUTATION_DELEGATION_SCOPE",
+        )
+        return copy.deepcopy(instance)
+
+    def _operation(
+        self, instance_id: str, role: str, method: str, scope: dict[str, Any]
+    ) -> dict[str, Any]:
         require(role in ROLES and method in ROLES[role], "UNKNOWN_OPERATION")
         instance = self._instances.get(instance_id)
         require(instance is not None and instance["role"] == role, "INSTANCE_ROLE")
         assert instance is not None
         access = "change" if ROLES[role][method]["effect"] else "observe"
-        require(
-            any(g["scope"] == scope and access in g["access"] for g in instance["grants"]),
-            "SCOPE_NOT_GRANTED",
-        )
+        self._grant(instance, scope, access)
         _, descriptor = self._installations[instance["installation_digest"]]
         require(role + "." + method in descriptor["implemented"], "NATIVE_EXECUTOR_UNIMPLEMENTED")
-        return copy.deepcopy(instance)
+        return instance
 
 
 def require_qualification(

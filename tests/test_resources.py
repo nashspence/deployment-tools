@@ -16,7 +16,7 @@ from fishhat_contracts.resources import (
     validate_host_resources,
     validate_requirements,
 )
-from fishhat_contracts.validation import ContractError, strict_yaml, validate_host
+from fishhat_contracts.validation import ContractError, digest, strict_yaml, validate_host
 
 from tests.support import fixture_path
 
@@ -303,9 +303,22 @@ class Capacity(unittest.TestCase):
 class Cleanup(unittest.TestCase):
     def setUp(self):
         self.i = load("examples/resources/cleanup-inventory.json")
+        self.policy = load("examples/resources/accepted-retention-policy.json")
+        self.retention = load("examples/resources/retention-inventory.json")
 
     def plan(self):
-        return plan_cleanup(self.i, now=NOW)
+        return plan_cleanup(
+            self.i, accepted_policy=self.policy, retention_inventory=self.retention, now=NOW
+        )
+
+    def revalidate(self, plan, *, now=NOW):
+        revalidate_cleanup(
+            plan,
+            self.i,
+            accepted_policy=self.policy,
+            retention_inventory=self.retention,
+            now=now,
+        )
 
     def test_expected_candidates(self):
         self.assertEqual(
@@ -395,23 +408,23 @@ class Cleanup(unittest.TestCase):
         self.assertEqual(self.plan()["candidates"], [])
 
     def test_revalidation(self):
-        revalidate_cleanup(self.plan(), self.i, now=NOW)
+        self.revalidate(self.plan())
 
     def test_protection_changed_after_plan(self):
         p = self.plan()
         self.i["items"][5]["protected_by"].append("new-release")
         with self.assertRaises(ContractError):
-            revalidate_cleanup(p, self.i, now=NOW)
+            self.revalidate(p)
 
     def test_native_binding_changed(self):
         p = self.plan()
         self.i["store_binding"] = "sha256:" + "b" * 64
         with self.assertRaises(ContractError):
-            revalidate_cleanup(p, self.i, now=NOW)
+            self.revalidate(p)
 
     def test_expired_plan(self):
         with self.assertRaises(ContractError):
-            revalidate_cleanup(self.plan(), self.i, now="2026-10-19T12:05:01Z")
+            self.revalidate(self.plan(), now="2026-10-19T12:05:01Z")
 
     def test_full_id_no_cascading_image_remove(self):
         self.assertEqual(
@@ -470,10 +483,15 @@ class Pressure(unittest.TestCase):
 class Retention(unittest.TestCase):
     def setUp(self):
         self.i = load("examples/resources/retention-inventory.json")
+        self.policy = load("examples/resources/accepted-retention-policy.json")
         self.old = self.i["releases"][2]
 
     def result(self):
-        return retained_runtime_handles(self.i, now=NOW)
+        return retained_runtime_handles(self.i, accepted_policy=self.policy, now=NOW)
+
+    def approve_archive(self):
+        # Owner-supplied receipt for the exact changed evidence in each synthetic case.
+        self.old["cold_demotion_receipt"]["archive_digest"] = digest(self.old["archive"])
 
     def old_kept(self):
         self.assertIn(self.old["runtime_handles"][0], self.result()["protected_roots"])
@@ -497,6 +515,7 @@ class Retention(unittest.TestCase):
 
     def test_missing_archive_kept(self):
         self.old["archive"] = None
+        self.old["cold_demotion_receipt"] = None
         self.old_kept()
 
     def test_no_demotion_receipt_kept(self):
@@ -505,42 +524,53 @@ class Retention(unittest.TestCase):
 
     def test_unavailable_archive_kept(self):
         self.old["archive"]["retrievable"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_registry_only_not_independent(self):
         self.old["archive"]["independent"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_native_restore_missing(self):
         self.old["archive"]["native_restore_verified"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_secret_closure_missing(self):
         self.old["archive"]["includes_secret_generations"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_source_closure_missing(self):
         self.old["archive"]["includes_source"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_image_closure_missing(self):
         self.old["archive"]["includes_images"] = False
+        self.approve_archive()
         self.old_kept()
 
     def test_expired_verification(self):
         self.old["archive"]["valid_until"] = "2026-10-18T11:00:00Z"
+        self.approve_archive()
         self.old_kept()
 
     def test_future_verification(self):
         self.old["archive"]["verified_at"] = "2026-10-20T11:00:00Z"
+        self.approve_archive()
         self.old_kept()
 
     def test_wrong_closure(self):
         self.old["archive"]["closure_digest"] = "sha256:" + "0" * 64
+        self.approve_archive()
         self.old_kept()
 
     def test_more_predecessors(self):
-        self.i["prior_releases"] = 2
+        self.policy["policy"]["prior_releases"] = 2
+        self.policy["generation"] += 1
+        self.i["policy_digest"] = digest(self.policy)
         self.old_kept()
 
     def test_incomplete_inventory_blocks(self):

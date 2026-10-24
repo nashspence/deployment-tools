@@ -1,20 +1,21 @@
 {
   "protected_roots": [
-    "sha256:05417b84432476fd99c262f6fd6b1b9042f6122731badb672511f978f49d9971",
-    "sha256:b580611e2f3d8721962df7906f2458c1eab23950d3c99487b46b0c96b3a6fec5"
+    "sha256:9553e618ec9ff5907c0c50eb706a6b060f5934433ce493ebf754d6b6abb2d81e",
+    "sha256:c4674c6e4c72a79fadbfeeb55b778055499316271947703e96e2959f5b4ec53a"
   ],
   "reasons": {
-    "sha256:05417b84432476fd99c262f6fd6b1b9042f6122731badb672511f978f49d9971": [
+    "sha256:9553e618ec9ff5907c0c50eb706a6b060f5934433ce493ebf754d6b6abb2d81e": [
       "accepted-target-active-or-inactive",
       "minimum-retention-age"
     ],
-    "sha256:b580611e2f3d8721962df7906f2458c1eab23950d3c99487b46b0c96b3a6fec5": [
+    "sha256:c4674c6e4c72a79fadbfeeb55b778055499316271947703e96e2959f5b4ec53a": [
       "hot-predecessor-count"
     ]
   },
   "cold_demoted_releases": [
     "sha256:8d3b141fc65bf5426f78fb6e1dc4584f64ea2e1f310a4a6fd8bf2ccbc7a5760d"
   ],
+  "policy_digest": "sha256:b7d699c9d756bee391479915cdaf729cef20e5de74db36b0130be4673be78163",
   "protection_generation": 7,
-  "inventory_digest": "sha256:cb1cef3ad3ea649e830912a9b7d455a0acb003fd6b8b2ef393469f44f369898e"
+  "inventory_digest": "sha256:82cee3d0d9a6efe3b4e3068c4083291b8ccaf25ec1af2afc772f2d4c0cc074b3"
 }

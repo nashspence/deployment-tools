@@ -340,7 +340,22 @@ def test_preparation_never_enrolls_or_authorizes_a_native_adapter(provider):
             "role": "bootstrap-source",
             "schema_digest": digest(value["descriptor"]["configuration_schema"]),
             "configuration": value["configuration"],
-            "grants": [{"scope": value["scope"], "access": ["observe", "change"]}],
+            "grants": [
+                {
+                    "scope": value["scope"],
+                    "access": ["observe", "change"],
+                    "mutation": {
+                        "controller": "offline-source",
+                        "namespaces": [
+                            {
+                                "authority": value["scope"]["authority"],
+                                "resource": value["scope"]["handle"],
+                                "facet": "recovery-source",
+                            }
+                        ],
+                    },
+                }
+            ],
             "generation": 1,
         },
         owner_approved=True,

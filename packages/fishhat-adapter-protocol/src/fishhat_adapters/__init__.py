@@ -10,6 +10,7 @@ from .protocol import (
     check_result,
     check_schema,
     require_qualification,
+    runtime_binding_digest,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "check_result",
     "check_schema",
     "require_qualification",
+    "runtime_binding_digest",
 ]

@@ -179,6 +179,51 @@
       ],
       "additionalProperties": false
     },
+    "MutationNamespace": {
+      "description": "One receiving-owner-verified canonical native mutation domain and facet. The receiving owner must resolve aliases and verify that distinct namespaces are actually disjoint, including native effects reached through host concerns and other owners. Different strings, adapter roles, or logical scopes do not establish separation. A resource may have separate lifecycle and resource-envelope facets when their native effects are disjoint.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "$ref": "common.schema.json#/$defs/UUID",
+          "description": "Canonical identity of the native administrative boundary, shared by all controllers that address it. This is not a fresh identity chosen by each adapter or scope owner."
+        },
+        "resource": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "facet": {
+          "$ref": "common.schema.json#/$defs/Id"
+        }
+      },
+      "required": [
+        "authority",
+        "resource",
+        "facet"
+      ],
+      "additionalProperties": false
+    },
+    "MutationAuthority": {
+      "description": "Owner-accepted enrollment data, never a request authority token. A controller equal to the enrolled instance owns this scoped mutation boundary; another controller must already own the same scope and cover every listed native namespace. Delegates execute only through that controller's owning boundary and inherit its accepted binding, admission, holds, durable attempt and resource policies. Independent controllers may not overlap. Native interpretation must confine every request target and side effect to these verified domains; local record comparisons are not native qualification.",
+      "type": "object",
+      "properties": {
+        "controller": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "$ref": "adapter.schema.json#/$defs/MutationNamespace"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "controller",
+        "namespaces"
+      ],
+      "additionalProperties": false
+    },
     "Grant": {
       "type": "object",
       "properties": {
@@ -196,13 +241,51 @@
           "minItems": 1,
           "maxItems": 2,
           "uniqueItems": true
+        },
+        "mutation": {
+          "anyOf": [
+            {
+              "$ref": "adapter.schema.json#/$defs/MutationAuthority"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
         "scope",
-        "access"
+        "access",
+        "mutation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "access": {
+                "contains": {
+                  "const": "change"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mutation": {
+                "$ref": "adapter.schema.json#/$defs/MutationAuthority"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "mutation": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "Installation": {
       "type": "object",
@@ -301,6 +384,7 @@
       "additionalProperties": false
     },
     "RuntimeBinding": {
+      "description": "An owner-accepted runtime identity. Its stable binding digest is digest(canonical JSON of this record with only admission_generation omitted); every other field participates. Host app assignment, App runtime selection and this instance must agree at new admission. Source drift requires an explicit owner rebind and never retargets accepted work. Admission generation is a mutable cessation fence and is not deployment identity. Active bindings require instance_digest. A binding without that pin is retained under inhibition solely to preserve accepted work and uncertainty: it remains readable, cancellable before dispatch and settleable after dispatch, but cannot admit new work, open admission or authorize dispatch. The owner must never infer or backfill its missing authority from current enrollment.",
       "type": "object",
       "properties": {
         "subject": {
@@ -333,6 +417,10 @@
         },
         "instance_generation": {
           "$ref": "adapter.schema.json#/$defs/Generation"
+        },
+        "instance_digest": {
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "Digest of the exact accepted runtime Instance, including configuration, generation and mutation grants. Required at bind, preparation, admission opening and dispatch; the current scope must also retain change access and name this instance as its own mutation controller. The field is structurally optional only so inhibited bindings retain custody of accepted work without inventing authority."
         }
       },
       "required": [
@@ -361,7 +449,8 @@
           "$ref": "common.schema.json#/$defs/Digest"
         },
         "binding_digest": {
-          "$ref": "common.schema.json#/$defs/Digest"
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "The stable RuntimeBinding digest, computed over its canonical JSON with only admission_generation omitted. The receiving runtime owner must match it to the accepted binding before preparing a new effect."
         },
         "projection_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
@@ -505,6 +594,36 @@
         }
       ]
     },
+    "RuntimeControl": {
+      "description": "Durable owner-authored control for a delegated service lifecycle attempt. This record is retained with the original attempt, not accepted as dispatch authority from a request. Starts and oneshots require open admission; stops require closed admission. The service handle must equal an enrolled lifecycle namespace resource under the accepted runtime controller.",
+      "type": "object",
+      "properties": {
+        "binding_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "executor_instance_digest": {
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "Digest of the exact accepted service Instance including configuration, generation and scoped mutation grants. Dispatch must match the currently enrolled executor; executor loss or replacement does not erase the retained attempt."
+        },
+        "activity": {
+          "enum": [
+            "running",
+            "stopped",
+            "oneshot-complete"
+          ]
+        },
+        "service": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "binding_digest",
+        "executor_instance_digest",
+        "activity",
+        "service"
+      ],
+      "additionalProperties": false
+    },
     "EffectAttempt": {
       "type": "object",
       "properties": {
@@ -545,6 +664,10 @@
         },
         "scope": {
           "$ref": "adapter.schema.json#/$defs/Scope"
+        },
+        "runtime_control": {
+          "$ref": "adapter.schema.json#/$defs/RuntimeControl",
+          "description": "Present only for a service lifecycle effect delegated to a runtime owner. Its absence never grants a service executor runtime dispatch authority; direct runtime and other independently owned effects retain their original attempt representation."
         },
         "input_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
@@ -604,7 +727,19 @@
         "outcome",
         "native_task"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "dependentSchemas": {
+        "runtime_control": {
+          "properties": {
+            "contract": {
+              "const": "fishhat.service"
+            },
+            "method": {
+              "const": "set-activity"
+            }
+          }
+        }
+      }
     },
     "EffectResult": {
       "type": "object",

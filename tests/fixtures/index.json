@@ -308,6 +308,11 @@
       "schema": "ssh-response.schema.json"
     },
     {
+      "path": "resources/accepted-retention-policy.json",
+      "schema": "resource-records.schema.json",
+      "definition": "AcceptedRetentionPolicy"
+    },
+    {
       "path": "resources/retention-inventory.json",
       "schema": "resource-records.schema.json",
       "definition": "RetentionInventory"

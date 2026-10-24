@@ -200,4 +200,10 @@ adapter_instances:
       access:
       - observe
       - change
+      mutation:
+        controller: quadlet
+        namespaces:
+        - authority: 00000000-0000-4000-8000-000000000001
+          resource: app-demo-app
+          facet: lifecycle
     generation: 1

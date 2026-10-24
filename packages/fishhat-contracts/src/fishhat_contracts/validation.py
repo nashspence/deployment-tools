@@ -199,28 +199,56 @@ def validate_domain(
         _require(provider["custodian_host"] in domain["hosts"], "unknown custodian host")
 
 
-def validate_host(host: dict[str, Any], catalogue: dict[str, Any] | None = None) -> None:
-    validate("source.schema.json", host)
-    _require(host["kind"] == "Host", "expected host")
-    units = {}
-    destinations = set()
+def _source_target(value: str) -> str:
+    """Require one lexical absolute spelling without traversing the native filesystem."""
+    _require(
+        value.startswith("/") and all(part not in ("", ".", "..") for part in value[1:].split("/")),
+        "noncanonical source target",
+    )
+    return value
+
+
+def _validate_host_concerns(host: dict[str, Any], catalogue: dict[str, Any] | None) -> None:
+    services: set[str] = set()
+    units: set[str] = set()
+    destinations: set[str] = set()
+    packages: set[tuple[str, str]] = set()
+    membership_users: set[str] = set()
     for concern in host["concerns"].values():
         for key, service in concern["services"].items():
-            _require(key not in units, "duplicate service binding")
-            units[key] = service
+            _require(key not in services, "duplicate service binding")
+            services.add(key)
+            _require(service["unit"] not in units, "duplicate native service target")
+            units.add(service["unit"])
     for concern in host["concerns"].values():
-        for kind in ("files", "secret_files"):
+        for kind in ("files", "secret_files", "artifacts"):
             for entry in concern[kind].values():
-                _require(entry["destination"] not in destinations, "destination collision")
-                destinations.add(entry["destination"])
+                target = _source_target(entry["destination"])
+                _require(target not in destinations, "destination collision")
+                destinations.add(target)
+                if kind == "artifacts":
+                    continue
                 for note in entry["notify"]:
-                    _require(note["service"] in units, "unknown notification service")
+                    _require(note["service"] in services, "unknown notification service")
                 if kind == "secret_files":
                     if host["repository_secrets"] is None or catalogue is None:
                         raise ContractError("missing secret catalogue")
                     _require(entry["entry"] in catalogue["entries"], "unknown host secret entry")
         for pkg in concern["packages"].values():
+            identity = pkg["manager"], pkg["name"]
+            _require(identity not in packages, "duplicate package target")
+            packages.add(identity)
             _require(not (pkg["manager"] == "brew" and pkg["held"]), "brew hold unsupported")
+        for membership in concern["groups"].values():
+            user = membership["user"]
+            _require(user not in membership_users, "duplicate group membership target")
+            membership_users.add(user)
+
+
+def validate_host(host: dict[str, Any], catalogue: dict[str, Any] | None = None) -> None:
+    validate("source.schema.json", host)
+    _require(host["kind"] == "Host", "expected host")
+    _validate_host_concerns(host, catalogue)
     for key, instance in host["adapter_instances"].items():
         _require(key == instance["id"], "adapter instance identity mismatch")
     for app_id, account in host["app_accounts"].items():
@@ -317,11 +345,15 @@ def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -
     for dependency in app["dependencies"].values():
         _require(set(dependency["consumers"]) <= set(components), "unknown dependency consumer")
     _validate_datasets(app)
+    secret_targets: set[tuple[str, str]] = set()
     for binding in app["secret_bindings"].values():
         if app["repository_secrets"] is None or catalogue is None:
             raise ContractError("missing secret catalogue")
         _require(binding["entry"] in catalogue["entries"], "unknown secret entry")
         _require(binding["component"] in components, "unknown secret consumer")
+        target = binding["component"], _source_target(binding["target"])
+        _require(target not in secret_targets, "secret delivery target collision")
+        secret_targets.add(target)
     for hook in hooks.values():
         _require(hook["component"] in components, "unknown hook executor")
         _require(set(hook["datasets"]) <= set(datasets), "unknown hook dataset")
@@ -499,6 +531,9 @@ def validate_plan(value: dict[str, Any]) -> None:
             raise ContractError("effect lacks resource precondition")
         if effect["input_digest"] not in inputs:
             raise ContractError("effect input outside reviewed plan")
+    from .live_change import validate_host_preimages
+
+    validate_host_preimages(value)
     if "none-needed" in value["recovery"] and len(value["recovery"]) != 1:
         raise ContractError("conflicting recovery procedures")
     from datetime import datetime

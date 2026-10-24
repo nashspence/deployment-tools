@@ -444,5 +444,6 @@
       ],
       "additionalProperties": false
     }
-  ]
+  ],
+  "description": "Service identity resolves to an owner-verified native target and mutation facet. Service lifecycle and runtime lifecycle cannot have independent controllers for the same target. A service executor enrolled under a runtime controller must act only through that controller's durable attempt, accepted binding, admission and recovery protections. Direct set-activity, reconcile or generic adapter dispatch cannot supply competing authority. Native target alias resolution and exclusion remain receiving-owner obligations."
 }
