@@ -856,5 +856,6 @@
       ],
       "additionalProperties": false
     }
-  ]
+  ],
+  "description": "An accepted runtime binding is the lifecycle controller for its application scope. Lower-level service executors in that lifecycle namespace are subordinate to this binding; separately scoped host envelope management retains its own authority. New preparation must join the host-approved assignment, application selection and accepted binding. Dispatch and recovery remain pinned to accepted work and must enforce the current admission fence; source edits cannot implicitly rebind them."
 }

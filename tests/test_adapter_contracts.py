@@ -121,6 +121,27 @@ def test_enrollment_does_not_silently_rebind():
         registry.enroll(changed, owner_approved=True)
 
 
+def test_change_grants_require_explicit_native_mutation_authority():
+    _, _, instance = runtime_registry()
+    grant = instance["grants"][0]
+    grant["mutation"] = None
+    with pytest.raises(ContractError):
+        validate("adapter.schema.json", instance, "Instance")
+    del grant["mutation"]
+    with pytest.raises(ContractError):
+        validate("adapter.schema.json", instance, "Instance")
+
+
+def test_observation_grants_cannot_claim_native_mutation_authority():
+    _, _, instance = runtime_registry()
+    grant = instance["grants"][0]
+    grant["access"] = ["observe"]
+    with pytest.raises(ContractError):
+        validate("adapter.schema.json", instance, "Instance")
+    grant["mutation"] = None
+    validate("adapter.schema.json", instance, "Instance")
+
+
 def test_control_records_keep_their_strict_encoding():
     from fishhat_contracts.validation import canonical
 

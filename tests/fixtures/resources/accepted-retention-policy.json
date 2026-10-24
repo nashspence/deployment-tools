@@ -1,0 +1,18 @@
+{
+  "format": "deployment-ops/resources/v1",
+  "kind": "AcceptedRetentionPolicy",
+  "owner": {
+    "tool": "app-ops",
+    "id": "33333333-3333-4333-8333-333333333333",
+    "epoch": "44444444-4444-4444-8444-444444444444"
+  },
+  "account": "app-demo-app",
+  "generation": 1,
+  "release_digest": "sha256:dde30bf5e0d0404007b3d5c91f8a01bb3b1f87a584efd736a925b40f3aa538db",
+  "policy": {
+    "prior_releases": 1,
+    "minimum_prior_age_seconds": 604800,
+    "unused_candidate_grace_seconds": 86400,
+    "cold_archive": "verified-independent-archive"
+  }
+}

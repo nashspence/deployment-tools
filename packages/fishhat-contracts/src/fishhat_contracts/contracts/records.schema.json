@@ -141,6 +141,77 @@
       ],
       "additionalProperties": false
     },
+    "HostPreimage": {
+      "type": "object",
+      "description": "The reviewed three-way comparison for one host.apply effect. The executor owns one deterministic projection of that effect's exact native target scope, including target identity, absence, managed content and relevant metadata. Baseline, live and proposed use that same projection; their digests do not contain native values. The baseline is the state expected from the accepted source under the matching owner/resource precondition. A projection cannot omit a target that the effect may replace. This record does not observe native state, establish capture custody or authorize an effect by itself.",
+      "properties": {
+        "effect_step": {
+          "$ref": "common.schema.json#/$defs/Id",
+          "description": "Exactly one matching Plan.effects step, which supplies the executor, resource and input scope. Step action names cannot exempt an effect from comparison."
+        },
+        "baseline_digest": {
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "Projection of the currently accepted managed state. A target without an accepted baseline is represented by explicit absence in the same projection, not by an invented successful observation."
+        },
+        "live_digest": {
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "Projection actually observed when preparing this review, including administrator edits relative to the accepted baseline. Every disposition is limited to this exact live preimage."
+        },
+        "proposed_digest": {
+          "$ref": "common.schema.json#/$defs/Digest",
+          "description": "Projection that the exact reviewed source and effect would establish. Preserve requires this digest to equal live_digest; retaining different live state cannot be reported as applying the proposed state."
+        },
+        "disposition": {
+          "enum": [
+            "preserve",
+            "capture",
+            "overwrite"
+          ],
+          "description": "Explicit administrator disposition of the reviewed live state. Preserve keeps it and requires the proposed projection to match it. Capture permits replacement only after the executor verifies durable custody of that exact live preimage as a reviewable source proposal or recovery artifact. Overwrite permits replacing the reviewed live preimage without that capture requirement. None permits replacing a later edit, and capture neither publishes nor adopts a source proposal."
+        },
+        "capture_digest": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact retained capture artifact digest, required only for capture. The executor must independently verify that this artifact covers the effect scope and live_digest and remains in its custody before replacement. A digest supplied in a plan is not custody evidence."
+        }
+      },
+      "required": [
+        "effect_step",
+        "baseline_digest",
+        "live_digest",
+        "proposed_digest",
+        "disposition",
+        "capture_digest"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "disposition": {
+            "const": "capture"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "capture_digest": {
+            "$ref": "common.schema.json#/$defs/Digest"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "capture_digest": {
+            "type": "null"
+          }
+        }
+      }
+    },
     "Plan": {
       "type": "object",
       "properties": {
@@ -387,6 +458,15 @@
           "minItems": 1,
           "maxItems": 256
         },
+        "host_preimages": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/HostPreimage"
+          },
+          "minItems": 1,
+          "maxItems": 256,
+          "description": "Required exactly for a host.apply subject and covers every effect step exactly once, including delegated effects and arbitrary executor action names. The plan digest binds every comparison and disposition. Before each native effect, its executor must reobserve the same projection, reject any mismatch with the reviewed live_digest, and maintain exclusion or an equivalent compare-and-apply guarantee through mutation. Earlier offline validation cannot supply that native guarantee."
+        },
         "checkpoint_required": {
           "type": "boolean",
           "description": "Whether execution requires the plan-specific recovery checkpoint. A checkpoint requirement is not evidence that a checkpoint exists or has passed a restore drill."
@@ -612,7 +692,30 @@
         "recovery_limits"
       ],
       "additionalProperties": false,
-      "description": "A reviewable proposal for exact owner-authorized work. Human consequences and exact effect targets are part of its digest. Preparing, reviewing or publishing this plan does not accept or execute it."
+      "if": {
+        "properties": {
+          "subject": {
+            "properties": {
+              "action": {
+                "const": "host.apply"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "host_preimages"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "host_preimages"
+          ]
+        }
+      },
+      "description": "A reviewable proposal for exact owner-authorized work. Human consequences, exact effect targets and host.apply live-change dispositions are part of its digest. Preparing, reviewing or publishing this plan does not accept or execute it."
     },
     "Operation": {
       "type": "object",

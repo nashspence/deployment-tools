@@ -1523,7 +1523,7 @@
         "source"
       ],
       "additionalProperties": false,
-      "description": "Apply an exact reviewed host source snapshot to its managed scope while preserving unmanaged state. This changes accepted host configuration; publishing that snapshot does not apply it."
+      "description": "Apply an exact reviewed host source snapshot to its managed scope while preserving unmanaged state. Review compares the accepted baseline, observed live state and proposed state for every affected scope. A live administrator edit requires an explicit preserve, capture or overwrite disposition bound into the plan; source precedence alone cannot authorize replacement. The executor must revalidate the reviewed live preimage before mutation and stop for renewed review if it changed. This changes accepted host configuration; publishing a snapshot or capturing a proposal does not apply it."
     },
     "host.runtime-install": {
       "type": "object",
@@ -1611,7 +1611,7 @@
         "paths"
       ],
       "additionalProperties": false,
-      "description": "Capture selected live host changes against the named source base as a reviewable source proposal. Capturing a proposal neither publishes it nor adopts it as accepted configuration."
+      "description": "Capture selected live host changes against the named source base as a reviewable source proposal with an exact live preimage. Capturing a proposal neither publishes it nor adopts it as accepted configuration, and grants no permission to overwrite a later live edit. A host.apply capture disposition must retain and verify custody of its exact reviewed preimage before replacement."
     },
     "host.source-update": {
       "type": "object",
@@ -2103,7 +2103,7 @@
         "retention_receipt"
       ],
       "additionalProperties": false,
-      "description": "Remove only backup material authorized by the exact retention evidence and current protected references. Retention policy is not permission to delete the sole viable recovery copy."
+      "description": "Remove only backup material authorized by the exact retention evidence, the current owner-accepted retention policy and current protected references. Revalidate policy identity, holds, accepted work and recovery roots at deletion. A backup adapter, generic adapter action or cleanup plan cannot weaken an accepted keep-local policy or delete the sole viable recovery copy. A policy relaxation requires a separately reviewed owner-accepted change."
     },
     "adapter.execute": {
       "type": "object",
@@ -2213,7 +2213,7 @@
         "input_schema_digest"
       ],
       "additionalProperties": false,
-      "description": "Execute the exact declared adapter action and input through a receiving-owner-approved artifact, configuration and scope. This is an advanced capability boundary, not a general shell or source-controlled enrollment mechanism."
+      "description": "Execute the exact declared adapter action and input through a receiving-owner-approved artifact, configuration and scope. Resolve the actual native targets and mutation facets and enforce the same controlling owner, accepted binding, admission, holds, retention and recovery obligations as the corresponding typed operation. Generic dispatch grants no alternate authority. An executor subordinate to a runtime controller must use that controller's durable attempt and admission path; an adapter identity or scope label alone cannot authorize it. This is an advanced capability boundary, not a general shell or source-controlled enrollment mechanism."
     },
     "backend.enroll": {
       "type": "object",

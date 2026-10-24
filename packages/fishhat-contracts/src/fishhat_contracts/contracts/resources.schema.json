@@ -698,37 +698,7 @@
           "additionalProperties": false
         },
         "retention": {
-          "type": "object",
-          "properties": {
-            "prior_releases": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 16
-            },
-            "minimum_prior_age_seconds": {
-              "type": "integer",
-              "minimum": 86400,
-              "maximum": 31536000
-            },
-            "unused_candidate_grace_seconds": {
-              "type": "integer",
-              "minimum": 3600,
-              "maximum": 2592000
-            },
-            "cold_archive": {
-              "enum": [
-                "keep-local",
-                "verified-independent-archive"
-              ]
-            }
-          },
-          "required": [
-            "prior_releases",
-            "minimum_prior_age_seconds",
-            "unused_candidate_grace_seconds",
-            "cold_archive"
-          ],
-          "additionalProperties": false
+          "$ref": "resources.schema.json#/$defs/RetentionPolicy"
         },
         "automatic_gc": {
           "type": "boolean"
@@ -744,6 +714,40 @@
         "automatic_gc"
       ],
       "additionalProperties": false
+    },
+    "RetentionPolicy": {
+      "type": "object",
+      "properties": {
+        "prior_releases": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        },
+        "minimum_prior_age_seconds": {
+          "type": "integer",
+          "minimum": 86400,
+          "maximum": 31536000
+        },
+        "unused_candidate_grace_seconds": {
+          "type": "integer",
+          "minimum": 3600,
+          "maximum": 2592000
+        },
+        "cold_archive": {
+          "enum": [
+            "keep-local",
+            "verified-independent-archive"
+          ]
+        }
+      },
+      "required": [
+        "prior_releases",
+        "minimum_prior_age_seconds",
+        "unused_candidate_grace_seconds",
+        "cold_archive"
+      ],
+      "additionalProperties": false,
+      "description": "Retention requirements selected from the accepted application source by its local owner. Inventories and cleanup plans derive from this exact policy. keep-local prohibits cold demotion; an explicit cleanup plan or archive receipt cannot override it. Policy changes require separate owner authorization before new retention decisions are prepared."
     }
   }
 }

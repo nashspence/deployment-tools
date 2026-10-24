@@ -350,9 +350,36 @@ def validate_inventory(value: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 
 def plan_cleanup(
-    inventory: dict[str, Any], *, now: str, max_age_seconds: int = 30, ttl_seconds: int = 300
+    inventory: dict[str, Any],
+    *,
+    accepted_policy: dict[str, Any],
+    retention_inventory: dict[str, Any],
+    now: str,
+    max_age_seconds: int = 30,
+    ttl_seconds: int = 300,
 ) -> dict[str, Any]:
+    """Derive protection from current owner inputs, then add native protections.
+
+    The caller obtains accepted_policy and retention_inventory independently from
+    the receiving owner's current state. A requester or adapter cannot supply
+    replacement policy or remove retained roots through the native inventory.
+    """
     items = validate_inventory(inventory)
+    retention = retained_runtime_handles(
+        retention_inventory,
+        accepted_policy=accepted_policy,
+        now=now,
+        max_age_seconds=max_age_seconds,
+    )
+    require(
+        inventory["owner"] == accepted_policy["owner"]
+        and inventory["account"] == accepted_policy["account"]
+        and inventory["policy_digest"] == retention["policy_digest"]
+        and inventory["retention_inventory_digest"] == retention["inventory_digest"]
+        and inventory["protection_generation"] == retention["protection_generation"],
+        "cleanup retention authority changed",
+    )
+    require(set(retention["protected_roots"]) <= set(items), "missing retained native object")
     when = instant(now)
     age = (when - instant(inventory["observed_at"])).total_seconds()
     blockers: list[str] = []
@@ -368,7 +395,7 @@ def plan_cleanup(
         blockers.append("CONTROL_NOT_DURABLE")
     if any(not x["managed"] or x["kind"] == "unknown" for x in items.values()):
         blockers.append("UNOWNED_OR_UNKNOWN_CONTENT")
-    roots = set(inventory["protected_roots"])
+    roots = set(inventory["protected_roots"]) | set(retention["protected_roots"])
     roots |= {
         k for k, v in items.items() if v["running"] or v["protected_by"] or v["kind"] == "volume"
     }
@@ -387,7 +414,11 @@ def plan_cleanup(
         if (
             handle in protected
             or handle in referenced
-            or age_item < inventory["minimum_age_seconds"]
+            or age_item
+            < max(
+                inventory["minimum_age_seconds"],
+                accepted_policy["policy"]["unused_candidate_grace_seconds"],
+            )
             or item["producer_operation"] is None
             or item["producer_state"] != "terminal"
             or item["kind"] in ("volume", "unknown")
@@ -403,7 +434,17 @@ def plan_cleanup(
         "account": inventory["account"],
         "store_binding": inventory["store_binding"],
         "inventory_digest": digest(inventory),
-        "protection_digest": digest(sorted(protected)),
+        "policy_digest": retention["policy_digest"],
+        "retention_inventory_digest": retention["inventory_digest"],
+        "protection_generation": retention["protection_generation"],
+        "protection_digest": digest(
+            {
+                "policy_digest": retention["policy_digest"],
+                "retention_inventory_digest": retention["inventory_digest"],
+                "protection_generation": retention["protection_generation"],
+                "protected_roots": sorted(protected),
+            }
+        ),
         "generation": inventory["generation"],
         "created_at": now,
         "expires_at": (when + timedelta(seconds=ttl_seconds))
@@ -417,7 +458,22 @@ def plan_cleanup(
     return result
 
 
-def revalidate_cleanup(plan: dict[str, Any], inventory: dict[str, Any], *, now: str) -> None:
+def revalidate_cleanup(
+    plan: dict[str, Any],
+    inventory: dict[str, Any],
+    *,
+    accepted_policy: dict[str, Any],
+    retention_inventory: dict[str, Any],
+    now: str,
+) -> None:
+    """Check current bindings while the owner excludes protection changes.
+
+    The native executor serializes this final check and each deletion with
+    accepted policy, hold and recovery-reference changes. It retains that
+    exclusion until the native outcome is known; otherwise it must stop and
+    reconcile. Returning from this pure helper creates no continuing permission
+    or concurrency guard.
+    """
     validate("resource-records.schema.json", plan, "CleanupPlan")
     require(instant(now) < instant(plan["expires_at"]), "cleanup plan expired")
     require(
@@ -428,20 +484,55 @@ def revalidate_cleanup(plan: dict[str, Any], inventory: dict[str, Any], *, now: 
         "cleanup native binding changed",
     )
     require(plan["inventory_digest"] == digest(inventory), "cleanup inventory changed")
-    current = plan_cleanup(inventory, now=now)
+    current = plan_cleanup(
+        inventory,
+        accepted_policy=accepted_policy,
+        retention_inventory=retention_inventory,
+        now=now,
+    )
     require(not current["blocked"], "cleanup now blocked")
+    require(
+        all(
+            plan[key] == current[key]
+            for key in ("policy_digest", "retention_inventory_digest", "protection_generation")
+        ),
+        "cleanup owner protection changed",
+    )
     require(plan["protection_digest"] == current["protection_digest"], "cleanup protection changed")
     require(
-        {x["handle"] for x in plan["candidates"]} <= {x["handle"] for x in current["candidates"]},
+        len({x["handle"] for x in plan["candidates"]}) == len(plan["candidates"]),
+        "duplicate cleanup candidate handle",
+    )
+    require(
+        {(x["handle"], x["kind"], x["native_id"]) for x in plan["candidates"]}
+        <= {(x["handle"], x["kind"], x["native_id"]) for x in current["candidates"]},
         "cleanup candidate no longer safe",
     )
 
 
 def retained_runtime_handles(
-    inventory: dict[str, Any], *, now: str, max_age_seconds: int = 30
+    inventory: dict[str, Any],
+    *,
+    accepted_policy: dict[str, Any],
+    now: str,
+    max_age_seconds: int = 30,
 ) -> dict[str, Any]:
-    """Pure hot/cold retention model; authenticating receipts is the native owner's job."""
+    """Derive retention under current owner policy, never policy from a scan.
+
+    Native owners independently load accepted_policy and authenticate custody
+    evidence and cold-demotion receipts. This pure model checks their exact
+    bindings; it does not authorize policy changes or authenticate provenance.
+    """
+    validate("resource-records.schema.json", accepted_policy, "AcceptedRetentionPolicy")
     validate("resource-records.schema.json", inventory, "RetentionInventory")
+    policy_digest = digest(accepted_policy)
+    require(
+        inventory["owner"] == accepted_policy["owner"]
+        and inventory["account"] == accepted_policy["account"]
+        and inventory["policy_digest"] == policy_digest,
+        "retention policy authority changed",
+    )
+    policy = accepted_policy["policy"]
     require(inventory["complete"], "incomplete retention closure")
     when = instant(now)
     require(
@@ -453,13 +544,18 @@ def retained_runtime_handles(
         len({r["release_digest"] for r in releases}) == len(releases), "duplicate release identity"
     )
     require(sum(bool(r["accepted"]) for r in releases) == 1, "one accepted release required")
+    require(
+        next(r["release_digest"] for r in releases if r["accepted"])
+        == accepted_policy["release_digest"],
+        "accepted retention release changed",
+    )
     require(all(instant(r["verified_at"]) <= when for r in releases), "future release observation")
     prior = sorted(
         (r for r in releases if not r["accepted"]),
         key=lambda r: (r["verified_at"], r["release_digest"]),
         reverse=True,
     )
-    newest = {r["release_digest"] for r in prior[: inventory["prior_releases"]]}
+    newest = {r["release_digest"] for r in prior[: policy["prior_releases"]]}
     protected: dict[str, list[str]] = {}
     demoted: list[str] = []
     for r in releases:
@@ -468,15 +564,25 @@ def retained_runtime_handles(
             reasons.append("accepted-target-active-or-inactive")
         if r["release_digest"] in newest:
             reasons.append("hot-predecessor-count")
-        if (when - instant(r["verified_at"])).total_seconds() < inventory[
-            "minimum_prior_age_seconds"
-        ]:
+        if (when - instant(r["verified_at"])).total_seconds() < policy["minimum_prior_age_seconds"]:
             reasons.append("minimum-retention-age")
         if r["recovery_required"] and not reasons:
             a = r["archive"]
+            receipt = r["cold_demotion_receipt"]
+            if receipt is not None:
+                require(
+                    receipt["owner"] == inventory["owner"]
+                    and receipt["account"] == inventory["account"]
+                    and receipt["policy_digest"] == policy_digest
+                    and receipt["release_digest"] == r["release_digest"]
+                    and receipt["archive_digest"] == digest(a)
+                    and receipt["protection_generation"] == inventory["protection_generation"],
+                    "cold demotion receipt binding changed",
+                )
             cold = bool(
-                a
-                and r["cold_demotion_receipt"]
+                policy["cold_archive"] == "verified-independent-archive"
+                and a
+                and receipt
                 and a["independent"]
                 and a["retrievable"]
                 and a["includes_images"]
@@ -497,6 +603,7 @@ def retained_runtime_handles(
         "protected_roots": sorted(protected),
         "reasons": {k: sorted(set(v)) for k, v in sorted(protected.items())},
         "cold_demoted_releases": sorted(demoted),
+        "policy_digest": policy_digest,
         "protection_generation": inventory["protection_generation"],
         "inventory_digest": digest(inventory),
     }
