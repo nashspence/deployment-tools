@@ -132,7 +132,7 @@ def test_recovery_hook_must_name_the_dataset_it_recovers(recovery, hook):
 def test_recovery_mutation_cannot_claim_read_only_mode(recovery, hook):
     value = application(recovery)
     value["hooks"][hook]["mode"] = "read"
-    with pytest.raises(ContractError, match="dataset recovery procedure"):
+    with pytest.raises(ContractError, match=r"schema source\.schema\.json"):
         check(value)
 
 
@@ -142,7 +142,7 @@ def test_recovery_mutation_cannot_claim_read_only_mode(recovery, hook):
 def test_recovery_verification_cannot_request_write_mode(recovery, hook):
     value = application(recovery)
     value["hooks"][hook]["mode"] = "write"
-    with pytest.raises(ContractError, match="dataset recovery procedure"):
+    with pytest.raises(ContractError, match=r"schema source\.schema\.json"):
         check(value)
 
 

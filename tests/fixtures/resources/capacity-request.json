@@ -17,5 +17,6 @@
       "bytes": 1073741824,
       "inodes": 10000
     }
-  ]
+  ],
+  "bindings_digest": "sha256:2ada754f9bab5a4683b85e1ef843ae57e3c0032b956dc25944a2c9c97c5f7d03"
 }

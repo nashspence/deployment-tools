@@ -50,9 +50,7 @@
           "maximum": 9007199254740991
         },
         "observed_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "boot_id": {
           "type": "string",
@@ -83,21 +81,6 @@
                 "minLength": 1,
                 "maxLength": 24,
                 "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-              },
-              "filesystem_uuid": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-              },
-              "mount_id": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 9007199254740991
-              },
-              "project_id": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 4294967294
               },
               "root": {
                 "type": "string",
@@ -147,14 +130,14 @@
               },
               "enforced": {
                 "type": "boolean"
+              },
+              "storage": {
+                "$ref": "resources.schema.json#/$defs/StorageIdentity"
               }
             },
             "required": [
               "bucket",
               "pool",
-              "filesystem_uuid",
-              "mount_id",
-              "project_id",
               "root",
               "max_bytes",
               "max_inodes",
@@ -164,7 +147,8 @@
               "headroom_inodes",
               "reserved_remaining_bytes",
               "reserved_remaining_inodes",
-              "enforced"
+              "enforced",
+              "storage"
             ],
             "additionalProperties": false
           },
@@ -181,16 +165,6 @@
                 "minLength": 1,
                 "maxLength": 24,
                 "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-              },
-              "filesystem_uuid": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-              },
-              "mount_id": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 9007199254740991
               },
               "available_bytes": {
                 "type": "integer",
@@ -224,24 +198,29 @@
               },
               "qualified": {
                 "type": "boolean"
+              },
+              "storage": {
+                "$ref": "resources.schema.json#/$defs/PoolIdentity"
               }
             },
             "required": [
               "pool",
-              "filesystem_uuid",
-              "mount_id",
               "available_bytes",
               "available_inodes",
               "reserve_bytes",
               "reserve_inodes",
               "reserved_remaining_bytes",
               "reserved_remaining_inodes",
-              "qualified"
+              "qualified",
+              "storage"
             ],
             "additionalProperties": false
           },
           "minItems": 1,
           "maxItems": 16
+        },
+        "control_pool": {
+          "$ref": "resources.schema.json#/$defs/PoolIdentity"
         }
       },
       "required": [
@@ -255,9 +234,11 @@
         "coverage_complete",
         "control_writable",
         "quotas",
-        "pools"
+        "pools",
+        "control_pool"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Accounting by one receiving authority for the exact accepted resource generation and verified adapter bindings. Each quota must join the observed pool identity exactly; canonical capacity domains and allocation handles cannot be counted twice. qualified/enforced are observations whose native evidence the owner must verify, never assertions a source may grant. Admission must independently compare the snapshot to current accepted bindings and freshness before reserving capacity."
     },
     "CapacityRequest": {
       "type": "object",
@@ -334,6 +315,9 @@
           },
           "minItems": 1,
           "maxItems": 4
+        },
+        "bindings_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
         }
       },
       "required": [
@@ -344,9 +328,11 @@
         "resource_generation",
         "estimate",
         "stage",
-        "growth"
+        "growth",
+        "bindings_digest"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Bounded growth under independently loaded, accepted resource authority. bindings_digest pins the canonical owner, account, resource_generation, control_pool, pools sorted by pool and quotas sorted by bucket. Each pool entry contains pool/storage/reserve_bytes/reserve_inodes; each quota contains bucket/pool/storage/root/max_bytes/max_inodes/headroom_bytes/headroom_inodes. The receiving owner derives the expected digest from independently approved resource bindings and policy, never from an untrusted accounting snapshot or caller request. Changing usage counters, reservations and observation time are excluded. A changed owner epoch, adapter instance, scope, incarnation, capacity domain or approved limit requires fresh admission."
     },
     "CapacityReservation": {
       "type": "object",
@@ -424,14 +410,10 @@
           "pattern": "^sha256:[0-9a-f]{64}$"
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "deadline": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "phase": {
           "enum": [
@@ -461,16 +443,6 @@
                   "logs"
                 ]
               },
-              "filesystem_uuid": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-              },
-              "project_id": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 4294967294
-              },
               "remaining_bytes": {
                 "type": "integer",
                 "minimum": 0,
@@ -480,15 +452,17 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 9007199254740991
+              },
+              "storage": {
+                "$ref": "resources.schema.json#/$defs/StorageIdentity"
               }
             },
             "required": [
               "pool",
               "bucket",
-              "filesystem_uuid",
-              "project_id",
               "remaining_bytes",
-              "remaining_inodes"
+              "remaining_inodes",
+              "storage"
             ],
             "additionalProperties": false
           },
@@ -512,7 +486,8 @@
         "phase",
         "claims"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Owner-held capacity claims retain the exact verified allocation and pool identities, including native incarnations. Reconciliation after restore or re-enrollment cannot transfer a live claim to a replacement binding by name. Timeout or uncertain writer cessation does not release claims."
     },
     "CleanupInventory": {
       "type": "object",
@@ -575,9 +550,7 @@
           "maximum": 9007199254740991
         },
         "observed_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "coverage_complete": {
           "type": "boolean"
@@ -622,9 +595,7 @@
                 "type": "boolean"
               },
               "last_used_at": {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "Z$"
+                "$ref": "common.schema.json#/$defs/Time"
               },
               "running": {
                 "type": "boolean"
@@ -823,14 +794,10 @@
           "maximum": 9007199254740991
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "expires_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "candidates": {
           "type": "array",
@@ -964,14 +931,10 @@
           "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
         },
         "started_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "finished_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "items": {
           "type": "array",
@@ -1131,9 +1094,7 @@
           "additionalProperties": false
         },
         "observed_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "origin": {
           "enum": [
@@ -1180,106 +1141,7 @@
                 "type": "object",
                 "properties": {
                   "configured": {
-                    "type": "object",
-                    "properties": {
-                      "cpu_millis": {
-                        "type": "integer",
-                        "minimum": 100,
-                        "maximum": 1024000
-                      },
-                      "cpu_weight": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 10000
-                      },
-                      "memory_high_bytes": {
-                        "type": "integer",
-                        "minimum": 16777216,
-                        "maximum": 9007199254740991
-                      },
-                      "memory_max_bytes": {
-                        "type": "integer",
-                        "minimum": 16777216,
-                        "maximum": 9007199254740991
-                      },
-                      "swap_max_bytes": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 9007199254740991
-                      },
-                      "tasks_max": {
-                        "type": "integer",
-                        "minimum": 32,
-                        "maximum": 1048576
-                      },
-                      "io_weight": {
-                        "anyOf": [
-                          {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 10000
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "io_limits": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "device_id": {
-                              "type": "string",
-                              "minLength": 1,
-                              "maxLength": 24,
-                              "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-                            },
-                            "read_bps": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 9007199254740991
-                            },
-                            "write_bps": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 9007199254740991
-                            }
-                          },
-                          "required": [
-                            "device_id",
-                            "read_bps",
-                            "write_bps"
-                          ],
-                          "additionalProperties": false
-                        },
-                        "minItems": 0,
-                        "maxItems": 16
-                      },
-                      "tmpfs_max_bytes": {
-                        "type": "integer",
-                        "minimum": 1048576,
-                        "maximum": 9007199254740991
-                      },
-                      "tmpfs_max_inodes": {
-                        "type": "integer",
-                        "minimum": 128,
-                        "maximum": 9007199254740991
-                      }
-                    },
-                    "required": [
-                      "cpu_millis",
-                      "cpu_weight",
-                      "memory_high_bytes",
-                      "memory_max_bytes",
-                      "swap_max_bytes",
-                      "tasks_max",
-                      "io_weight",
-                      "io_limits",
-                      "tmpfs_max_bytes",
-                      "tmpfs_max_inodes"
-                    ],
-                    "additionalProperties": false
+                    "$ref": "resources.schema.json#/$defs/ComputeEnvelope"
                   },
                   "effective_memory_max_bytes": {
                     "anyOf": [
@@ -1322,12 +1184,10 @@
                     "minimum": 0,
                     "maximum": 9007199254740991
                   },
-                  "cgroup_path": {
+                  "binding": {
                     "anyOf": [
                       {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 512
+                        "$ref": "resources.schema.json#/$defs/ComputeIdentity"
                       },
                       {
                         "type": "null"
@@ -1341,7 +1201,7 @@
                   "current_memory_bytes",
                   "current_tasks",
                   "oom_events",
-                  "cgroup_path"
+                  "binding"
                 ],
                 "additionalProperties": false
               },
@@ -1363,21 +1223,6 @@
                       "minLength": 1,
                       "maxLength": 24,
                       "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-                    },
-                    "filesystem_uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    },
-                    "mount_id": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 9007199254740991
-                    },
-                    "project_id": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 4294967294
                     },
                     "root": {
                       "type": "string",
@@ -1427,14 +1272,14 @@
                     },
                     "enforced": {
                       "type": "boolean"
+                    },
+                    "storage": {
+                      "$ref": "resources.schema.json#/$defs/StorageIdentity"
                     }
                   },
                   "required": [
                     "bucket",
                     "pool",
-                    "filesystem_uuid",
-                    "mount_id",
-                    "project_id",
                     "root",
                     "max_bytes",
                     "max_inodes",
@@ -1444,7 +1289,8 @@
                     "headroom_inodes",
                     "reserved_remaining_bytes",
                     "reserved_remaining_inodes",
-                    "enforced"
+                    "enforced",
+                    "storage"
                   ],
                   "additionalProperties": false
                 },
@@ -1562,9 +1408,7 @@
           "maximum": 9007199254740991
         },
         "observed_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "complete": {
           "type": "boolean"
@@ -1581,9 +1425,7 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "verified_at": {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "Z$"
+                "$ref": "common.schema.json#/$defs/Time"
               },
               "accepted": {
                 "type": "boolean"
@@ -1634,14 +1476,10 @@
                         "pattern": "^sha256:[0-9a-f]{64}$"
                       },
                       "verified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "pattern": "Z$"
+                        "$ref": "common.schema.json#/$defs/Time"
                       },
                       "valid_until": {
-                        "type": "string",
-                        "format": "date-time",
-                        "pattern": "Z$"
+                        "$ref": "common.schema.json#/$defs/Time"
                       },
                       "independent": {
                         "type": "boolean"

@@ -44,7 +44,7 @@
         "--json"
       ],
       "use_case": "operation.list",
-      "description": "Find active work accepted by this local owner even when the initiating client has disappeared."
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
     },
     {
       "name": "show",
@@ -184,7 +184,7 @@
         "--json"
       ],
       "use_case": "operation.list",
-      "description": "Continue observing active owner work without dropping requests outside the current page."
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
     },
     {
       "name": "resources",
@@ -208,6 +208,288 @@
       ],
       "use_case": "plan.prepare",
       "description": "Plan exact eligible reclamation while preserving application data and protected recovery references."
+    },
+    {
+      "name": "op-list-history",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "op-list-history-page",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "op-list-history-resource",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "op-list-history-resource-page",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "op-list-active-resource",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--active",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "op-list-active-resource-page",
+      "tokens": [
+        "{tool}",
+        "op",
+        "list",
+        "--active",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "operation.list",
+      "description": "Enumerate authorized retained operations with exact optional resource filtering and complete bounded continuation. Active selection preserves unresolved effects and holds even for terminal operations; retained history gaps are explicit. Discover non-effectful prepared capsules through workflow.list."
+    },
+    {
+      "name": "workflow-list-history",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-history-page",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-history-resource",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-history-resource-page",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-active",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--active",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-active-page",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--active",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-active-resource",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--active",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "workflow-list-active-resource-page",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "list",
+        "--active",
+        "--resource-kind",
+        "{kind}",
+        "--resource-id",
+        "{resource}",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "workflow.list",
+      "description": "Enumerate authorized retained owner work, including non-effectful prepared workflows, with exact optional resource filtering and complete bounded continuation. Active selection includes retained uncertainty and recovery custody; history gaps are explicit."
+    },
+    {
+      "name": "status-page",
+      "tokens": [
+        "{tool}",
+        "status",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "observe",
+      "description": "Continue the same authorized observation traversal without treating one page as the complete collection."
+    },
+    {
+      "name": "resources-page",
+      "tokens": [
+        "{tool}",
+        "resources",
+        "{id}",
+        "--cursor",
+        "{cursor}",
+        "--json"
+      ],
+      "use_case": "resources.observe",
+      "description": "Continue the same authorized resource report; preserve its exact resource and cursor scope."
+    },
+    {
+      "name": "workflow-show",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "show",
+        "--workflow-id",
+        "{uuid}",
+        "--owner-epoch",
+        "{uuid}",
+        "--json"
+      ],
+      "use_case": "workflow.get",
+      "description": "Inspect the exact retained owner capsule, including preparation before child operations exist."
+    },
+    {
+      "name": "workflow-prepare",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "prepare",
+        "--proposal-stdin",
+        "--json"
+      ],
+      "use_case": "workflow.prepare",
+      "description": "Validate a closed workflow preparation proposal on stdin and retain a non-effectful owner capsule. Preparation is not acceptance of child effects."
+    },
+    {
+      "name": "workflow-advance",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "advance",
+        "--request-stdin",
+        "--json"
+      ],
+      "use_case": "workflow.advance",
+      "description": "Advance an exact retained capsule using its current owner generation, driver term and verified prerequisites from a closed stdin request."
+    },
+    {
+      "name": "workflow-transfer",
+      "tokens": [
+        "{tool}",
+        "workflow",
+        "transfer",
+        "--request-stdin",
+        "--json"
+      ],
+      "use_case": "workflow.transfer",
+      "description": "Request an exact freeze or commit phase with bounded typed input, current owner generation and original transfer identity; timeout never releases custody."
     }
   ],
   "parser": "bounded tokens; no shell evaluation",

@@ -54,19 +54,18 @@ grants:
 access: []
 receipt_public_keys: {}
 resources:
-  profile: linux-cgroup2-xfs-v1
+  profile: bounded-account-v1
   control:
-    filesystem_uuid: 11111111-1111-4111-8111-111111111111
     root: /var/lib/host-ops
     reserve_bytes: 2147483648
     reserve_inodes: 100000
     emergency_file_bytes: 16777216
     host_memory_reserve_bytes: 2147483648
+    instance: control-storage
+    pool: control-pool
   pools:
     app-disk:
       mount: /srv/ops
-      filesystem_uuid: 22222222-2222-4222-8222-222222222222
-      adapter: xfs-project-v1
       allocation_budget_bytes: 549755813888
       allocation_budget_inodes: 50000000
       host_reserve_bytes: 17179869184
@@ -74,6 +73,8 @@ resources:
       other_writers_max_bytes: 8589934592
       other_writers_max_inodes: 1000000
       overcommit: false
+      instance: workload-storage
+      pool: workload-pool
   accounts:
     app-demo-app:
       subject_kind: app
@@ -90,6 +91,8 @@ resources:
         io_limits: []
         tmpfs_max_bytes: 67108864
         tmpfs_max_inodes: 8192
+        instance: account-compute
+        allocation: app-demo-app
       storage:
         runtime:
           pool: app-disk
@@ -98,6 +101,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: app-demo-app-runtime
         state:
           pool: app-disk
           root: /srv/ops/app-demo-app/state
@@ -105,6 +109,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: app-demo-app-state
         scratch:
           pool: app-disk
           root: /srv/ops/app-demo-app/scratch
@@ -112,6 +117,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: app-demo-app-scratch
         logs:
           pool: app-disk
           root: /srv/ops/app-demo-app/logs
@@ -119,9 +125,9 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: app-demo-app-logs
       automatic_gc: true
-      reason: Synthetic account envelope; qualify workload peaks and native enforcement
-        before use.
+      reason: Synthetic account envelope; qualify workload peaks and native enforcement before use.
     maintainer:
       subject_kind: user
       subject: maintainer
@@ -137,6 +143,8 @@ resources:
         io_limits: []
         tmpfs_max_bytes: 134217728
         tmpfs_max_inodes: 16384
+        instance: account-compute
+        allocation: maintainer
       storage:
         runtime:
           pool: app-disk
@@ -145,6 +153,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: maintainer-runtime
         state:
           pool: app-disk
           root: /srv/ops/maintainer/state
@@ -152,6 +161,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: maintainer-state
         scratch:
           pool: app-disk
           root: /srv/ops/maintainer/scratch
@@ -159,6 +169,7 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: maintainer-scratch
         logs:
           pool: app-disk
           root: /srv/ops/maintainer/logs
@@ -166,9 +177,9 @@ resources:
           max_inodes: 1000000
           headroom_bytes: 268435456
           headroom_inodes: 10000
+          allocation: maintainer-logs
       automatic_gc: false
-      reason: Example enrolled development user; preserve all user source and private
-        work.
+      reason: Example enrolled development user; preserve all user source and private work.
   policy:
     max_snapshot_age_seconds: 30
     scan_interval_seconds: 60
@@ -206,4 +217,88 @@ adapter_instances:
         - authority: 00000000-0000-4000-8000-000000000001
           resource: app-demo-app
           facet: lifecycle
+    generation: 1
+  control-storage:
+    id: control-storage
+    implementation: fishhat.xfs-project
+    installation_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    role: storage
+    schema_digest: sha256:ffcbef897e45a2e3f10566ab70fe062e195cab211dc3a84bd6cb32fd2921a199
+    configuration:
+      pool_handle: control-pool
+      project_handle: control-storage
+    grants:
+    - scope:
+        authority: 00000000-0000-4000-8000-000000000001
+        kind: allocation
+        handle: control-pool
+      access:
+      - observe
+      - change
+      mutation:
+        controller: control-storage
+        namespaces:
+        - authority: 00000000-0000-4000-8000-000000000001
+          resource: control-pool
+          facet: resources
+    generation: 1
+  workload-storage:
+    id: workload-storage
+    implementation: fishhat.xfs-project
+    installation_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    role: storage
+    schema_digest: sha256:ffcbef897e45a2e3f10566ab70fe062e195cab211dc3a84bd6cb32fd2921a199
+    configuration:
+      pool_handle: workload-pool
+      project_handle: workload-storage
+    grants:
+    - scope:
+        authority: 00000000-0000-4000-8000-000000000001
+        kind: allocation
+        handle: workload-pool
+      access:
+      - observe
+      - change
+      mutation:
+        controller: workload-storage
+        namespaces:
+        - authority: 00000000-0000-4000-8000-000000000001
+          resource: workload-pool
+          facet: resources
+    generation: 1
+  account-compute:
+    id: account-compute
+    implementation: fishhat.systemd-cgroup
+    installation_digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    role: compute
+    schema_digest: sha256:d2e91862ade906ee71fd595a761facc532092e6542bdcc1ad19ab9d19890bb96
+    configuration:
+      slice_handle: managed-accounts
+    grants:
+    - scope:
+        authority: 00000000-0000-4000-8000-000000000001
+        kind: allocation
+        handle: app-demo-app
+      access:
+      - observe
+      - change
+      mutation:
+        controller: account-compute
+        namespaces:
+        - authority: 00000000-0000-4000-8000-000000000001
+          resource: app-demo-app
+          facet: resources
+    - scope:
+        authority: 00000000-0000-4000-8000-000000000001
+        kind: allocation
+        handle: maintainer
+      access:
+      - observe
+      - change
+      mutation:
+        controller: account-compute
+        namespaces:
+        - authority: 00000000-0000-4000-8000-000000000001
+          resource: maintainer
+          facet: resources
     generation: 1

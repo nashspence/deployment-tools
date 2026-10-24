@@ -31,8 +31,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     },
     "inventory": {
@@ -58,8 +58,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -85,8 +85,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -112,8 +112,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -144,8 +144,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -171,8 +171,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -198,8 +198,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -220,8 +220,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -242,8 +242,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -264,8 +264,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -291,8 +291,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -313,8 +313,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -340,8 +340,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -357,8 +357,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -374,8 +374,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   },
@@ -391,8 +391,8 @@
       "admission": "any"
     },
     "reconcile": {
-      "effect": true,
-      "repeat": "reconcile-before-repeat",
+      "effect": false,
+      "repeat": "read-only",
       "admission": "any"
     }
   }

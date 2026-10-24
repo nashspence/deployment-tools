@@ -16,9 +16,6 @@
     {
       "bucket": "runtime",
       "pool": "app-disk",
-      "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
-      "mount_id": 81,
-      "project_id": 10001,
       "root": "/srv/ops/app-demo-app/runtime",
       "max_bytes": 8589934592,
       "max_inodes": 1000000,
@@ -28,14 +25,33 @@
       "headroom_inodes": 10000,
       "reserved_remaining_bytes": 0,
       "reserved_remaining_inodes": 0,
-      "enforced": true
+      "enforced": true,
+      "storage": {
+        "pool": {
+          "executor": {
+            "instance": "workload-storage",
+            "role": "storage",
+            "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "configuration_digest": "sha256:e070628de9f04531b37cf99933ef1bbebad076e07c2f0c1f1602758688bfc1d3",
+            "instance_generation": 1,
+            "instance_digest": "sha256:a78cab1d875dc3c31676ef94f392c96ef9d94bf42e9e469d747f5be576660048",
+            "scope": {
+              "authority": "00000000-0000-4000-8000-000000000001",
+              "kind": "allocation",
+              "handle": "workload-pool"
+            }
+          },
+          "handle": "workload-pool",
+          "incarnation": "pool-incarnation-1",
+          "capacity_domain": "capacity-domain-workloads"
+        },
+        "handle": "app-demo-app-runtime",
+        "incarnation": "allocation-incarnation-1"
+      }
     },
     {
       "bucket": "state",
       "pool": "app-disk",
-      "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
-      "mount_id": 81,
-      "project_id": 10002,
       "root": "/srv/ops/app-demo-app/state",
       "max_bytes": 17179869184,
       "max_inodes": 1000000,
@@ -45,14 +61,33 @@
       "headroom_inodes": 10000,
       "reserved_remaining_bytes": 0,
       "reserved_remaining_inodes": 0,
-      "enforced": true
+      "enforced": true,
+      "storage": {
+        "pool": {
+          "executor": {
+            "instance": "workload-storage",
+            "role": "storage",
+            "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "configuration_digest": "sha256:e070628de9f04531b37cf99933ef1bbebad076e07c2f0c1f1602758688bfc1d3",
+            "instance_generation": 1,
+            "instance_digest": "sha256:a78cab1d875dc3c31676ef94f392c96ef9d94bf42e9e469d747f5be576660048",
+            "scope": {
+              "authority": "00000000-0000-4000-8000-000000000001",
+              "kind": "allocation",
+              "handle": "workload-pool"
+            }
+          },
+          "handle": "workload-pool",
+          "incarnation": "pool-incarnation-1",
+          "capacity_domain": "capacity-domain-workloads"
+        },
+        "handle": "app-demo-app-state",
+        "incarnation": "allocation-incarnation-1"
+      }
     },
     {
       "bucket": "scratch",
       "pool": "app-disk",
-      "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
-      "mount_id": 81,
-      "project_id": 10003,
       "root": "/srv/ops/app-demo-app/scratch",
       "max_bytes": 8589934592,
       "max_inodes": 1000000,
@@ -62,14 +97,33 @@
       "headroom_inodes": 10000,
       "reserved_remaining_bytes": 0,
       "reserved_remaining_inodes": 0,
-      "enforced": true
+      "enforced": true,
+      "storage": {
+        "pool": {
+          "executor": {
+            "instance": "workload-storage",
+            "role": "storage",
+            "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "configuration_digest": "sha256:e070628de9f04531b37cf99933ef1bbebad076e07c2f0c1f1602758688bfc1d3",
+            "instance_generation": 1,
+            "instance_digest": "sha256:a78cab1d875dc3c31676ef94f392c96ef9d94bf42e9e469d747f5be576660048",
+            "scope": {
+              "authority": "00000000-0000-4000-8000-000000000001",
+              "kind": "allocation",
+              "handle": "workload-pool"
+            }
+          },
+          "handle": "workload-pool",
+          "incarnation": "pool-incarnation-1",
+          "capacity_domain": "capacity-domain-workloads"
+        },
+        "handle": "app-demo-app-scratch",
+        "incarnation": "allocation-incarnation-1"
+      }
     },
     {
       "bucket": "logs",
       "pool": "app-disk",
-      "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
-      "mount_id": 81,
-      "project_id": 10004,
       "root": "/srv/ops/app-demo-app/logs",
       "max_bytes": 1073741824,
       "max_inodes": 1000000,
@@ -79,21 +133,77 @@
       "headroom_inodes": 10000,
       "reserved_remaining_bytes": 0,
       "reserved_remaining_inodes": 0,
-      "enforced": true
+      "enforced": true,
+      "storage": {
+        "pool": {
+          "executor": {
+            "instance": "workload-storage",
+            "role": "storage",
+            "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "configuration_digest": "sha256:e070628de9f04531b37cf99933ef1bbebad076e07c2f0c1f1602758688bfc1d3",
+            "instance_generation": 1,
+            "instance_digest": "sha256:a78cab1d875dc3c31676ef94f392c96ef9d94bf42e9e469d747f5be576660048",
+            "scope": {
+              "authority": "00000000-0000-4000-8000-000000000001",
+              "kind": "allocation",
+              "handle": "workload-pool"
+            }
+          },
+          "handle": "workload-pool",
+          "incarnation": "pool-incarnation-1",
+          "capacity_domain": "capacity-domain-workloads"
+        },
+        "handle": "app-demo-app-logs",
+        "incarnation": "allocation-incarnation-1"
+      }
     }
   ],
   "pools": [
     {
       "pool": "app-disk",
-      "filesystem_uuid": "22222222-2222-4222-8222-222222222222",
-      "mount_id": 81,
       "available_bytes": 107374182400,
       "available_inodes": 10000000,
       "reserve_bytes": 17179869184,
       "reserve_inodes": 1000000,
       "reserved_remaining_bytes": 0,
       "reserved_remaining_inodes": 0,
-      "qualified": true
+      "qualified": true,
+      "storage": {
+        "executor": {
+          "instance": "workload-storage",
+          "role": "storage",
+          "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "configuration_digest": "sha256:e070628de9f04531b37cf99933ef1bbebad076e07c2f0c1f1602758688bfc1d3",
+          "instance_generation": 1,
+          "instance_digest": "sha256:a78cab1d875dc3c31676ef94f392c96ef9d94bf42e9e469d747f5be576660048",
+          "scope": {
+            "authority": "00000000-0000-4000-8000-000000000001",
+            "kind": "allocation",
+            "handle": "workload-pool"
+          }
+        },
+        "handle": "workload-pool",
+        "incarnation": "pool-incarnation-1",
+        "capacity_domain": "capacity-domain-workloads"
+      }
     }
-  ]
+  ],
+  "control_pool": {
+    "executor": {
+      "instance": "control-storage",
+      "role": "storage",
+      "installation_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "configuration_digest": "sha256:4c9b683b8f90b149638251e8732f761586076e0e5df8fab6e8e77a2e56912f29",
+      "instance_generation": 1,
+      "instance_digest": "sha256:793b77f3b6abed5a583ba006fffd0ca98bfe3f6609e5e342ef44361430109ea6",
+      "scope": {
+        "authority": "00000000-0000-4000-8000-000000000001",
+        "kind": "allocation",
+        "handle": "control-pool"
+      }
+    },
+    "handle": "control-pool",
+    "incarnation": "pool-incarnation-1",
+    "capacity_domain": "capacity-domain-control"
+  }
 }

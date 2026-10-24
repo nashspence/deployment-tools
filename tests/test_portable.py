@@ -454,6 +454,8 @@ class DirectOwner(unittest.TestCase):
             "{id}": "demo-app",
             "{digest}": "sha256:" + "a" * 64,
             "{cursor}": "abc_123",
+            "{kind}": "app",
+            "{resource}": "demo-app",
         }
         for form in FORMS:
             command = " ".join(tokens.get(t, t) for t in form["tokens"])

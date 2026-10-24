@@ -107,9 +107,7 @@
           "uniqueItems": true
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "key_id": {
           "type": "string",
@@ -257,14 +255,10 @@
           "$ref": "actions.schema.json"
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "expires_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "input_digests": {
           "type": "array",
@@ -614,9 +608,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -825,14 +817,10 @@
           ]
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "updated_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "last_event": {
           "type": "integer",
@@ -944,9 +932,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -981,76 +967,7 @@
         "result_handle": {
           "anyOf": [
             {
-              "type": "object",
-              "properties": {
-                "owner": {
-                  "type": "object",
-                  "properties": {
-                    "tool": {
-                      "enum": [
-                        "host-ops",
-                        "app-ops"
-                      ]
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    },
-                    "epoch": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    }
-                  },
-                  "required": [
-                    "tool",
-                    "id",
-                    "epoch"
-                  ],
-                  "additionalProperties": false
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "purpose": {
-                  "enum": [
-                    "content",
-                    "capture",
-                    "restore-input",
-                    "source-proposal",
-                    "native-config",
-                    "secret-candidate"
-                  ]
-                },
-                "operation_id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "digest": {
-                  "type": "string",
-                  "minLength": 71,
-                  "maxLength": 71,
-                  "pattern": "^sha256:[0-9a-f]{64}$"
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 10737418240
-                }
-              },
-              "required": [
-                "owner",
-                "id",
-                "purpose",
-                "operation_id",
-                "digest",
-                "size"
-              ],
-              "additionalProperties": false
+              "$ref": "common.schema.json#/$defs/ResultHandle"
             },
             {
               "type": "null"
@@ -1095,9 +1012,7 @@
           "maximum": 9007199254740991
         },
         "time": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "code": {
           "type": "string",
@@ -1183,9 +1098,7 @@
           "additionalProperties": false
         },
         "time": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "origin": {
           "enum": [
@@ -1446,9 +1359,7 @@
                   "uniqueItems": true
                 },
                 "created_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "Z$"
+                  "$ref": "common.schema.json#/$defs/Time"
                 },
                 "key_id": {
                   "type": "string",
@@ -1807,9 +1718,7 @@
                         "uniqueItems": true
                       },
                       "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "pattern": "Z$"
+                        "$ref": "common.schema.json#/$defs/Time"
                       },
                       "key_id": {
                         "type": "string",
@@ -1966,9 +1875,7 @@
                 "uniqueItems": true
               },
               "created_at": {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "Z$"
+                "$ref": "common.schema.json#/$defs/Time"
               },
               "key_id": {
                 "type": "string",
@@ -2025,6 +1932,15 @@
           "minItems": 0,
           "maxItems": 256,
           "uniqueItems": true
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "The receiving owner replica generation for this workflow capsule, incremented after every durable phase, driver or custody change. It is separate from participant resource generations and driver_term. workflow.advance and workflow.transfer compare this exact local value; replicas may have different generations."
         }
       },
       "required": [
@@ -2040,10 +1956,12 @@
         "participants",
         "prerequisite_witnesses",
         "holds",
-        "recovery_digests"
+        "recovery_digests",
+        "owner",
+        "generation"
       ],
       "additionalProperties": false,
-      "description": "A finite procedure coordinating exact participant operations while each local owner retains authority and accepted state. A workflow is not a permanent central controller or an authorization supplied by an optional tracker."
+      "description": "A finite procedure coordinating exact participant operations while each local owner retains authority and accepted state. A workflow is not a permanent central controller or an authorization supplied by an optional tracker. Each receiving owner retains its own identified, generation-checked capsule before child effects. Preparation records no accepted native operation. An authorized caller can enumerate these capsules without knowing a workflow ID; optional tracking is never required."
     },
     "Hold": {
       "type": "object",
@@ -2255,9 +2173,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -2430,16 +2346,12 @@
           "uniqueItems": true
         },
         "verified_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "restore_tested_at": {
           "anyOf": [
             {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             {
               "type": "null"
@@ -2551,9 +2463,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -3255,9 +3165,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -3554,9 +3462,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -3860,9 +3766,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -4024,9 +3928,7 @@
           ]
         },
         "deadline": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "holds": {
           "type": "array",
@@ -4144,9 +4046,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -4237,9 +4137,7 @@
           "pattern": "^sha256:[0-9a-f]{64}$"
         },
         "observed_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "scope": {
           "type": "string",
@@ -4351,9 +4249,7 @@
               "uniqueItems": true
             },
             "created_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "Z$"
+              "$ref": "common.schema.json#/$defs/Time"
             },
             "key_id": {
               "type": "string",
@@ -4400,6 +4296,272 @@
       ],
       "additionalProperties": false,
       "description": "Evidence that the previous writer has been prevented from writing in the named scope. Loss of contact, DNS withdrawal or removal of a caller credential alone is not such evidence."
+    },
+    "OperationPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record/v1"
+        },
+        "kind": {
+          "const": "OperationPage"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/Operation"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "history_complete": {
+          "type": "boolean",
+          "description": "False explicitly reports that terminal history has been pruned. Active, uncertain and recovery-required work must remain discoverable. Neither page exhaustion nor historical absence proves no earlier effect."
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "owner",
+        "items",
+        "next_cursor",
+        "history_complete"
+      ],
+      "additionalProperties": false,
+      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete."
+    },
+    "WorkflowPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record/v1"
+        },
+        "kind": {
+          "const": "WorkflowPage"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/Workflow"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "history_complete": {
+          "type": "boolean",
+          "description": "False explicitly reports that terminal history has been pruned. Active, uncertain and recovery-required work must remain discoverable. Neither page exhaustion nor historical absence proves no earlier effect."
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "owner",
+        "items",
+        "next_cursor",
+        "history_complete"
+      ],
+      "additionalProperties": false,
+      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete."
+    },
+    "ObservationPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record/v1"
+        },
+        "kind": {
+          "const": "ObservationPage"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/Observation"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false,
+      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete."
+    },
+    "EventPage": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record/v1"
+        },
+        "kind": {
+          "const": "EventPage"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/Event"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "next_cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "gap": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "events",
+        "next_cursor",
+        "gap"
+      ],
+      "additionalProperties": false,
+      "description": "A bounded log page. gap explicitly reports missing retained history; log absence is not proof that an effect did not occur."
+    },
+    "ContentStaging": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record/v1"
+        },
+        "kind": {
+          "const": "ContentStaging"
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "resource": {
+          "$ref": "common.schema.json#/$defs/Resource"
+        },
+        "authenticated_principal": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "purpose": {
+          "enum": [
+            "content",
+            "capture",
+            "restore-input",
+            "source-proposal",
+            "native-config",
+            "secret-candidate"
+          ]
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10737418240
+        },
+        "state": {
+          "enum": [
+            "uploading",
+            "committed",
+            "expired"
+          ]
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10737418240
+        },
+        "created_at": {
+          "$ref": "common.schema.json#/$defs/Time"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Owner-chosen deadline for creating a new plan or admitting a new reference, checked against the owner clock without waiting for collection. Existing accepted work retains its original inputs and replay semantics after this deadline. Null means no admission deadline."
+        },
+        "accepted_references": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "handle": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Handle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "id",
+        "owner",
+        "resource",
+        "authenticated_principal",
+        "purpose",
+        "digest",
+        "size",
+        "state",
+        "offset",
+        "created_at",
+        "expires_at",
+        "accepted_references",
+        "handle"
+      ],
+      "additionalProperties": false,
+      "description": "Durable pre-admission input custody, not accepted execution. content.begin replays the same caller-allocated staging ID only for the same owner epoch, actual principal, resource, purpose, digest and size; changed input conflicts. Uploading has no immutable handle and accepts only complete bounded chunks at an exact offset; repeated bytes at that offset are idempotent, conflicting bytes fail. Commit verifies all declared bytes and digest before exposing an immutable staging-bound handle. All later reads, status and retries reauthorize the actual principal against protected custody. Expiry applies only without accepted references and never authorizes collection of accepted input. A missing/restored owner or expired identity cannot be treated as permission to recreate it silently. A committed handle past its admission deadline may remain retained by earlier accepted work, but cannot authorize a new plan or request. Accepted replay is resolved before new-input expiry checks."
     }
   }
 }

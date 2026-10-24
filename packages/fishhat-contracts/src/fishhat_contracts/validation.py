@@ -10,6 +10,7 @@ import copy
 import hashlib
 import json
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,37 @@ from yaml.events import AliasEvent, DocumentStartEvent
 
 ROOT = Path(__file__).resolve().parent
 MAX_BYTES = 1_048_576
+FORMAT_CHECKER = FormatChecker()
+RFC3339_TIME = re.compile(
+    r"([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
+    r"[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)"
+    r"(?:\.[0-9]+)?([Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
+
+
+@FORMAT_CHECKER.checks("date-time", raises=ValueError)
+def _rfc3339_time(value: Any) -> bool:
+    """Check RFC3339 grammar/calendar, without coercion or an IERS leap-second oracle."""
+    if not isinstance(value, str):
+        return True
+    match = RFC3339_TIME.fullmatch(value)
+    if match is None:
+        return False
+    year, month, day, hour, minute, second = (int(part) for part in match.groups()[:6])
+    # The Gregorian calendar repeats every 400 years. Use an equivalent safe
+    # year so RFC3339's 0000..9999 range and offset shifts do not inherit
+    # datetime's narrower year range. Fractional digits are never converted.
+    point = datetime(2000 + year % 400, month, day, hour, minute, min(second, 59))
+    if second != 60:
+        return True
+    zone = match[7]
+    offset = 0 if zone in {"Z", "z"} else (int(zone[1:3]) * 60 + int(zone[4:6]))
+    if zone.startswith("-"):
+        offset = -offset
+    utc = point - timedelta(minutes=offset)
+    # Syntactic leap-second position only: the UTC end of a calendar month.
+    # No dynamic insertion or negative-leap schedule is asserted here.
+    return utc.hour == 23 and utc.minute == 59 and (utc + timedelta(seconds=1)).day == 1
 
 
 class ContractError(ValueError):
@@ -154,7 +186,7 @@ def validate(schema: str, value: Any, definition: str | None = None) -> None:
     base = SCHEMAS[schema]
     target = base if definition is None else {"$ref": base["$id"] + "#/$defs/" + definition}
     errors = list(
-        Draft202012Validator(target, registry=REGISTRY, format_checker=FormatChecker()).iter_errors(
+        Draft202012Validator(target, registry=REGISTRY, format_checker=FORMAT_CHECKER).iter_errors(
             value
         )
     )
@@ -248,6 +280,8 @@ def _validate_host_concerns(host: dict[str, Any], catalogue: dict[str, Any] | No
 def validate_host(host: dict[str, Any], catalogue: dict[str, Any] | None = None) -> None:
     validate("source.schema.json", host)
     _require(host["kind"] == "Host", "expected host")
+    if catalogue is not None:
+        _validate_secret_catalogue(catalogue)
     _validate_host_concerns(host, catalogue)
     for key, instance in host["adapter_instances"].items():
         _require(key == instance["id"], "adapter instance identity mismatch")
@@ -267,8 +301,12 @@ def validate_host(host: dict[str, Any], catalogue: dict[str, Any] | None = None)
     from fishhat_contracts.resources import validate_host_resources
 
     validate_host_resources(host)
-    if catalogue is not None:
-        validate("source.schema.json", catalogue)
+
+
+def _validate_secret_catalogue(catalogue: dict[str, Any]) -> None:
+    """Validate declarations; the receiving owner separately resolves the approved source."""
+    validate("source.schema.json", catalogue)
+    _require(catalogue["kind"] == "RepoSecrets", "expected secret catalogue")
 
 
 def _validate_datasets(app: dict[str, Any]) -> None:
@@ -334,6 +372,8 @@ def _validate_datasets(app: dict[str, Any]) -> None:
 def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -> None:
     validate("source.schema.json", app)
     _require(app["kind"] == "App", "expected app")
+    if catalogue is not None:
+        _validate_secret_catalogue(catalogue)
     components, hooks, datasets = app["components"], app["hooks"], app["datasets"]
     _require(any(x["role"] == "primary" for x in components.values()), "primary component required")
     units = [canonical(x["native"]) for x in components.values()]
@@ -342,6 +382,11 @@ def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -
         _require(entry["component"] in components, "unknown interface component")
         _require(components[entry["component"]]["role"] == "primary", "nonprimary export")
         _require(entry["readiness_hook"] in hooks, "unknown interface readiness")
+        readiness = hooks[entry["readiness_hook"]]
+        _require(
+            readiness["role"] == "health" and readiness["mode"] == "read",
+            "interface readiness requires read-only health hook",
+        )
     for dependency in app["dependencies"].values():
         _require(set(dependency["consumers"]) <= set(components), "unknown dependency consumer")
     _validate_datasets(app)
@@ -387,8 +432,6 @@ def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -
     from fishhat_contracts.resources import validate_requirements
 
     validate_requirements(app["resources"], app=app)
-    if catalogue is not None:
-        validate("source.schema.json", catalogue)
 
 
 def require_acyclic(edges: dict[str, list[str]]) -> None:
@@ -432,6 +475,9 @@ def validate_cli(value: dict[str, Any]) -> None:
         raise ContractError("CLI outcome/completion mismatch")
 
     result = value["result"]
+    from .handoffs import validate_cli_result
+
+    validate_cli_result(result)
     operation = result if isinstance(result, dict) and result.get("kind") == "Operation" else None
     owner_states = {
         "accepted",
@@ -536,8 +582,6 @@ def validate_plan(value: dict[str, Any]) -> None:
     validate_host_preimages(value)
     if "none-needed" in value["recovery"] and len(value["recovery"]) != 1:
         raise ContractError("conflicting recovery procedures")
-    from datetime import datetime
-
     if datetime.fromisoformat(value["expires_at"].replace("Z", "+00:00")) <= datetime.fromisoformat(
         value["created_at"].replace("Z", "+00:00")
     ):

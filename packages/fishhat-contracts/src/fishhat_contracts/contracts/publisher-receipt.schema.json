@@ -163,76 +163,7 @@
       "additionalProperties": false
     },
     "recovery_handle": {
-      "type": "object",
-      "properties": {
-        "owner": {
-          "type": "object",
-          "properties": {
-            "tool": {
-              "enum": [
-                "host-ops",
-                "app-ops"
-              ]
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "epoch": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            }
-          },
-          "required": [
-            "tool",
-            "id",
-            "epoch"
-          ],
-          "additionalProperties": false
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-        },
-        "purpose": {
-          "enum": [
-            "content",
-            "capture",
-            "restore-input",
-            "source-proposal",
-            "native-config",
-            "secret-candidate"
-          ]
-        },
-        "operation_id": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-        },
-        "digest": {
-          "type": "string",
-          "minLength": 71,
-          "maxLength": 71,
-          "pattern": "^sha256:[0-9a-f]{64}$"
-        },
-        "size": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 10737418240
-        }
-      },
-      "required": [
-        "owner",
-        "id",
-        "purpose",
-        "operation_id",
-        "digest",
-        "size"
-      ],
-      "additionalProperties": false
+      "$ref": "common.schema.json#/$defs/Handle"
     },
     "state": {
       "enum": [
@@ -244,9 +175,7 @@
     "verified_at": {
       "anyOf": [
         {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         {
           "type": "null"
@@ -358,9 +287,7 @@
           "uniqueItems": true
         },
         "created_at": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "Z$"
+          "$ref": "common.schema.json#/$defs/Time"
         },
         "key_id": {
           "type": "string",

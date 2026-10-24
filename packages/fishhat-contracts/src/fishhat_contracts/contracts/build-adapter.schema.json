@@ -72,7 +72,8 @@
         "scope",
         "attempt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Observe and settle the exact original retained mutation attempt without dispatching or repeating a native mutation. Any corrective mutation requires a separately reviewed and authorized effect. The attempt contract and scope must match this request, and its method must name a mutating operation of this role."
     },
     "Output": {
       "type": "object",
@@ -274,7 +275,8 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "request_digest identifies this reconciliation RPC; effect identifies and reports the original mutation attempt from input.attempt. These are different identities. A reconciliation result supplies no authorization to repeat or correct the mutation."
         }
       ]
     }

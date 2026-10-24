@@ -593,41 +593,31 @@
           "type": "object",
           "properties": {
             "owner": {
-              "type": "object",
-              "properties": {
-                "tool": {
-                  "enum": [
-                    "host-ops",
-                    "app-ops"
-                  ]
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "resource": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Resource"
                 },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "epoch": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                {
+                  "type": "null"
                 }
-              },
-              "required": [
-                "tool",
-                "id",
-                "epoch"
-              ],
-              "additionalProperties": false
+              ]
             },
             "active_only": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True includes nonterminal operations and retained recovery obligations, including terminal operations with unresolved effects or holds. False additionally includes retained terminal history. This selection never treats cancellation as release of custody; non-effectful prepared workflow capsules are enumerated through workflow.list."
             },
             "cursor": {
-              "type": [
-                "string",
-                "null"
-              ],
-              "maxLength": 256
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Cursor"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "limit": {
               "type": "integer",
@@ -637,11 +627,13 @@
           },
           "required": [
             "owner",
+            "resource",
             "active_only",
             "cursor",
             "limit"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Enumerate authorized retained operations with optional exact resource filtering and both active and retained terminal history. The owner filters before disclosure. Active selection preserves unresolved effects and holds even for terminal operations. Discover pre-effect prepared workflow capsules through workflow.list. Keep the same filters on continuation."
         }
       },
       "required": [
@@ -738,7 +730,133 @@
           "const": "workflow.prepare"
         },
         "params": {
-          "$ref": "records.schema.json#/$defs/Workflow"
+          "type": "object",
+          "properties": {
+            "expected_owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "workflow_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            "type": {
+              "enum": [
+                "host-drain",
+                "interface-binding",
+                "ingress-publication",
+                "secret-rotation",
+                "checkpoint",
+                "relocation",
+                "source-publication",
+                "dns-change",
+                "secret-publication",
+                "raw-maintenance",
+                "runtime-upgrade"
+              ]
+            },
+            "target_digest": {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            "participants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "object",
+                    "properties": {
+                      "tool": {
+                        "enum": [
+                          "host-ops",
+                          "app-ops"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                      },
+                      "epoch": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                      }
+                    },
+                    "required": [
+                      "tool",
+                      "id",
+                      "epoch"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "resource": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "domain",
+                          "host",
+                          "app",
+                          "source",
+                          "dns",
+                          "recovery",
+                          "publisher",
+                          "backend",
+                          "adapter",
+                          "interface",
+                          "dataset",
+                          "component"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "expected_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "request_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                    },
+                    "minItems": 1,
+                    "maxItems": 256,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "owner",
+                  "resource",
+                  "expected_generation",
+                  "request_ids"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 64
+            }
+          },
+          "required": [
+            "expected_owner",
+            "workflow_id",
+            "type",
+            "target_digest",
+            "participants"
+          ],
+          "additionalProperties": false,
+          "description": "Prepare a non-effectful owner capsule under the actual receiving principal. The owner supplies generation zero, initial driver term, prepared state and phase; caller claims cannot supply observed witnesses or an execution outcome. Repeating the same workflow ID and immutable proposal returns the authorized existing capsule; changed closure conflicts. Every required participant must durably prepare before child effects."
         }
       },
       "required": [
@@ -770,10 +888,14 @@
               "type": "string",
               "format": "uuid",
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
             }
           },
           "required": [
-            "workflow_id"
+            "workflow_id",
+            "owner"
           ],
           "additionalProperties": false
         }
@@ -822,7 +944,8 @@
             "expected_generation": {
               "type": "integer",
               "minimum": 0,
-              "maximum": 9007199254740991
+              "maximum": 9007199254740991,
+              "description": "Exact generation from this receiving owner Workflow record, not a participant resource generation or driver term."
             },
             "witnesses": {
               "type": "array",
@@ -831,6 +954,9 @@
               },
               "minItems": 0,
               "maxItems": 256
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
             }
           },
           "required": [
@@ -838,7 +964,8 @@
             "driver_term",
             "phase",
             "expected_generation",
-            "witnesses"
+            "witnesses",
+            "owner"
           ],
           "additionalProperties": false
         }
@@ -902,6 +1029,14 @@
               },
               "minItems": 0,
               "maxItems": 256
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "expected_generation": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [
@@ -910,9 +1045,12 @@
             "new_principal",
             "transfer_id",
             "phase",
-            "witnesses"
+            "witnesses",
+            "owner",
+            "expected_generation"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Compare the receiving owner capsule generation as well as its driver term. Preserve separately identified freeze/commit retry identity; partial transfer never opens new-driver admission without every required participant witness."
         }
       },
       "required": [
@@ -940,10 +1078,14 @@
         "params": {
           "type": "object",
           "properties": {
-            "operation_id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            "expected_owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "staging_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            "resource": {
+              "$ref": "common.schema.json#/$defs/Resource"
             },
             "purpose": {
               "enum": [
@@ -956,10 +1098,7 @@
               ]
             },
             "digest": {
-              "type": "string",
-              "minLength": 71,
-              "maxLength": 71,
-              "pattern": "^sha256:[0-9a-f]{64}$"
+              "$ref": "common.schema.json#/$defs/Digest"
             },
             "size": {
               "type": "integer",
@@ -968,12 +1107,15 @@
             }
           },
           "required": [
-            "operation_id",
+            "expected_owner",
+            "staging_id",
+            "resource",
             "purpose",
             "digest",
             "size"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Allocate durable bounded staging before a plan exists. The owner binds the actual authenticated principal and exact resource/purpose. The same staging ID is the retry identity; creating or committing bytes does not plan, accept or activate an operation."
         }
       },
       "required": [
@@ -1001,96 +1143,31 @@
         "params": {
           "type": "object",
           "properties": {
-            "handle": {
-              "type": "object",
-              "properties": {
-                "owner": {
-                  "type": "object",
-                  "properties": {
-                    "tool": {
-                      "enum": [
-                        "host-ops",
-                        "app-ops"
-                      ]
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    },
-                    "epoch": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    }
-                  },
-                  "required": [
-                    "tool",
-                    "id",
-                    "epoch"
-                  ],
-                  "additionalProperties": false
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "purpose": {
-                  "enum": [
-                    "content",
-                    "capture",
-                    "restore-input",
-                    "source-proposal",
-                    "native-config",
-                    "secret-candidate"
-                  ]
-                },
-                "operation_id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "digest": {
-                  "type": "string",
-                  "minLength": 71,
-                  "maxLength": 71,
-                  "pattern": "^sha256:[0-9a-f]{64}$"
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 10737418240
-                }
-              },
-              "required": [
-                "owner",
-                "id",
-                "purpose",
-                "operation_id",
-                "digest",
-                "size"
-              ],
-              "additionalProperties": false
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "staging_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
             },
             "offset": {
               "type": "integer",
               "minimum": 0,
-              "maximum": 9007199254740991
+              "maximum": 10737418240
             },
             "base64": {
               "type": "string",
-              "minLength": 0,
               "maxLength": 262144,
               "pattern": "^[A-Za-z0-9+/]*={0,2}$"
             }
           },
           "required": [
-            "handle",
+            "owner",
+            "staging_id",
             "offset",
             "base64"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Append at the exact staging offset after current custody authorization; decode at most 196608 bytes. A repeated offset is byte-identical or a conflict, never an implicit overwrite. No caller filesystem path is accepted."
         }
       },
       "required": [
@@ -1118,83 +1195,19 @@
         "params": {
           "type": "object",
           "properties": {
-            "handle": {
-              "type": "object",
-              "properties": {
-                "owner": {
-                  "type": "object",
-                  "properties": {
-                    "tool": {
-                      "enum": [
-                        "host-ops",
-                        "app-ops"
-                      ]
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    },
-                    "epoch": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    }
-                  },
-                  "required": [
-                    "tool",
-                    "id",
-                    "epoch"
-                  ],
-                  "additionalProperties": false
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "purpose": {
-                  "enum": [
-                    "content",
-                    "capture",
-                    "restore-input",
-                    "source-proposal",
-                    "native-config",
-                    "secret-candidate"
-                  ]
-                },
-                "operation_id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "digest": {
-                  "type": "string",
-                  "minLength": 71,
-                  "maxLength": 71,
-                  "pattern": "^sha256:[0-9a-f]{64}$"
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 10737418240
-                }
-              },
-              "required": [
-                "owner",
-                "id",
-                "purpose",
-                "operation_id",
-                "digest",
-                "size"
-              ],
-              "additionalProperties": false
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "staging_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
             }
           },
           "required": [
-            "handle"
+            "owner",
+            "staging_id"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Verify complete declared size and digest, then durably expose one immutable handle. Same-ID retries return the same committed identity. Commit does not authorize an operation; its exact handle must enter a reviewed plan and be pinned by durable operation admission."
         }
       },
       "required": [
@@ -1223,76 +1236,7 @@
           "type": "object",
           "properties": {
             "handle": {
-              "type": "object",
-              "properties": {
-                "owner": {
-                  "type": "object",
-                  "properties": {
-                    "tool": {
-                      "enum": [
-                        "host-ops",
-                        "app-ops"
-                      ]
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    },
-                    "epoch": {
-                      "type": "string",
-                      "format": "uuid",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                    }
-                  },
-                  "required": [
-                    "tool",
-                    "id",
-                    "epoch"
-                  ],
-                  "additionalProperties": false
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "purpose": {
-                  "enum": [
-                    "content",
-                    "capture",
-                    "restore-input",
-                    "source-proposal",
-                    "native-config",
-                    "secret-candidate"
-                  ]
-                },
-                "operation_id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "digest": {
-                  "type": "string",
-                  "minLength": 71,
-                  "maxLength": 71,
-                  "pattern": "^sha256:[0-9a-f]{64}$"
-                },
-                "size": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 10737418240
-                }
-              },
-              "required": [
-                "owner",
-                "id",
-                "purpose",
-                "operation_id",
-                "digest",
-                "size"
-              ],
-              "additionalProperties": false
+              "$ref": "common.schema.json#/$defs/Handle"
             },
             "offset": {
               "type": "integer",
@@ -1393,6 +1337,111 @@
             "limit"
           ],
           "additionalProperties": false
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "workflow.list"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "resource": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Resource"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "active_only": {
+              "type": "boolean",
+              "description": "True includes nonterminal work and retained recovery obligations, including terminal operations with unresolved effects or holds and prepared, paused, transfer-pending or recovery-required workflow capsules. False additionally includes retained terminal history. This selection never treats cancellation as release of custody."
+            },
+            "cursor": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Cursor"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 128
+            }
+          },
+          "required": [
+            "owner",
+            "resource",
+            "active_only",
+            "cursor",
+            "limit"
+          ],
+          "additionalProperties": false,
+          "description": "Enumerate authorized work with optional exact resource filtering and both active and retained terminal history. The owner filters before disclosure. Active workflows include prepared, paused, transfer-pending and recovery-required capsules even before any child operation exists. Keep the same filters on continuation."
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "content.status"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "staging_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            }
+          },
+          "required": [
+            "owner",
+            "staging_id"
+          ],
+          "additionalProperties": false,
+          "description": "Inspect original durable staging after an uncertain reply under the current authenticated custody scope. Do not allocate a replacement identity or infer absence of accepted effects from missing staging."
         }
       },
       "required": [

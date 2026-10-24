@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from fishhat_contracts.validation import ContractError
+from fishhat_contracts.validation import ContractError, validate
 
 
 def require(ok: bool, code: str) -> None:
@@ -12,16 +12,7 @@ def require(ok: bool, code: str) -> None:
 
 def systemd_compute_settings(compute: dict[str, Any]) -> dict[str, str]:
     """Render ancestor slice controls. Native placement and support are not tested."""
-    from fishhat_contracts.validation import SCHEMAS
-
-    schema = SCHEMAS["resources.schema.json"]["$defs"]["HostResources"]["properties"]["accounts"][
-        "additionalProperties"
-    ]["properties"]["compute"]
-    from jsonschema import Draft202012Validator
-
-    require(
-        not list(Draft202012Validator(schema).iter_errors(compute)), "invalid compute configuration"
-    )
+    validate("resources.schema.json", compute, "ComputeEnvelope")
     require(compute["memory_high_bytes"] <= compute["memory_max_bytes"], "memory high exceeds max")
     whole, tenth = divmod(compute["cpu_millis"], 10)
     quota = str(whole) + ("." + str(tenth) if tenth else "") + "%"

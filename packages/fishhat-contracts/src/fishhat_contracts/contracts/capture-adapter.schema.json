@@ -19,15 +19,20 @@
         },
         "procedure_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
         }
       },
       "required": [
         "scope",
         "dataset",
         "destination",
-        "procedure_digest"
+        "procedure_digest",
+        "binding"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The binding identifies the independently approved capture executor for this scope. procedure_digest pins the reviewed procedure, not the data snapshot. Destination handles must resolve only within the approved target scope and retained operation custody."
     },
     "capture": {
       "type": "object",
@@ -46,15 +51,20 @@
         },
         "procedure_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
         }
       },
       "required": [
         "scope",
         "dataset",
         "destination",
-        "procedure_digest"
+        "procedure_digest",
+        "binding"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The binding identifies the independently approved capture executor for this scope. procedure_digest pins the reviewed procedure, not the data snapshot. Destination handles must resolve only within the approved target scope and retained operation custody."
     },
     "restore": {
       "type": "object",
@@ -73,15 +83,24 @@
         },
         "procedure_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
+        },
+        "snapshot": {
+          "$ref": "adapter.schema.json#/$defs/Snapshot"
         }
       },
       "required": [
         "scope",
         "dataset",
         "destination",
-        "procedure_digest"
+        "procedure_digest",
+        "binding",
+        "snapshot"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The binding identifies the independently approved capture executor for this scope. procedure_digest pins the reviewed procedure, not the data snapshot. Destination handles must resolve only within the approved target scope and retained operation custody. snapshot is the exact selected input, including its producer and immutable artifact closure; dataset must match snapshot.dataset. Replacing that input changes the request identity and requires a newly reviewed request."
     },
     "verify": {
       "type": "object",
@@ -100,15 +119,24 @@
         },
         "procedure_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "binding": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
+        },
+        "snapshot": {
+          "$ref": "adapter.schema.json#/$defs/Snapshot"
         }
       },
       "required": [
         "scope",
         "dataset",
         "destination",
-        "procedure_digest"
+        "procedure_digest",
+        "binding",
+        "snapshot"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The binding identifies the independently approved capture executor for this scope. procedure_digest pins the reviewed procedure, not the data snapshot. Destination handles must resolve only within the approved target scope and retained operation custody. snapshot is the exact selected input, including its producer and immutable artifact closure; dataset must match snapshot.dataset. Replacing that input changes the request identity and requires a newly reviewed request."
     },
     "reconcile": {
       "type": "object",
@@ -124,7 +152,8 @@
         "scope",
         "attempt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Observe and settle the exact original retained mutation attempt without dispatching or repeating a native mutation. Any corrective mutation requires a separately reviewed and authorized effect. The attempt contract and scope must match this request, and its method must name a mutating operation of this role."
     },
     "Output": {
       "type": "object",
@@ -458,7 +487,8 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "request_digest identifies this reconciliation RPC; effect identifies and reports the original mutation attempt from input.attempt. These are different identities. A reconciliation result supplies no authorization to repeat or correct the mutation."
         }
       ]
     }
