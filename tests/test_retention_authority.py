@@ -261,3 +261,30 @@ def test_stricter_native_protection_remains_in_force():
     stricter = deepcopy(inventory)
     stricter["protected_roots"].append(target)
     assert target not in {c["handle"] for c in plan(policy, retention, stricter)["candidates"]}
+
+
+@pytest.mark.parametrize(
+    "first,second,newest",
+    [
+        ("00Z", "00.9Z", 2),
+        ("00.1Z", "00.9Z", 2),
+        ("00.10Z", "00.1Z", 1),
+        ("00Z", "00.000000Z", 1),
+    ],
+    ids=["whole-second", "fraction-order", "equal-fraction", "equal-zero"],
+)
+def test_hot_predecessor_uses_instants_and_digest_ties_before_cleanup(first, second, newest):
+    policy, retention, inventory = inputs()
+    retention["releases"][1]["verified_at"] = "2026-09-01T12:00:" + first
+    retention["releases"][2]["verified_at"] = "2026-09-01T12:00:" + second
+    bind_current(policy, retention, inventory)
+    decision = retained_runtime_handles(retention, accepted_policy=policy, now=NOW)
+    selected = retention["releases"][newest]
+    other = retention["releases"][3 - newest]
+    selected_handle, other_handle = selected["runtime_handles"][0], other["runtime_handles"][0]
+    assert "hot-predecessor-count" in decision["reasons"][selected_handle]
+    assert "hot-predecessor-count" not in decision["reasons"].get(other_handle, [])
+    assert selected["release_digest"] not in decision["cold_demoted_releases"]
+    assert selected_handle not in {
+        c["handle"] for c in plan(policy, retention, inventory)["candidates"]
+    }

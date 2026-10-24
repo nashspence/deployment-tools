@@ -601,10 +601,6 @@
         "binding_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
         },
-        "executor_instance_digest": {
-          "$ref": "common.schema.json#/$defs/Digest",
-          "description": "Digest of the exact accepted service Instance including configuration, generation and scoped mutation grants. Dispatch must match the currently enrolled executor; executor loss or replacement does not erase the retained attempt."
-        },
         "activity": {
           "enum": [
             "running",
@@ -618,7 +614,6 @@
       },
       "required": [
         "binding_digest",
-        "executor_instance_digest",
         "activity",
         "service"
       ],
@@ -638,12 +633,6 @@
         },
         "attempt_id": {
           "$ref": "common.schema.json#/$defs/UUID"
-        },
-        "instance": {
-          "$ref": "common.schema.json#/$defs/Id"
-        },
-        "installation_digest": {
-          "$ref": "common.schema.json#/$defs/Digest"
         },
         "binding_generation": {
           "type": "integer",
@@ -707,6 +696,9 @@
               "type": "null"
             }
           ]
+        },
+        "executor": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
         }
       },
       "required": [
@@ -714,8 +706,6 @@
         "operation_id",
         "effect_id",
         "attempt_id",
-        "instance",
-        "installation_digest",
         "binding_generation",
         "native_incarnation",
         "contract",
@@ -725,7 +715,8 @@
         "state",
         "certainty",
         "outcome",
-        "native_task"
+        "native_task",
+        "executor"
       ],
       "additionalProperties": false,
       "dependentSchemas": {
@@ -740,7 +731,7 @@
           }
         }
       },
-      "description": "Owner-retained identity and state of one authorized native mutation. Observational reconciliation refers to this original attempt; it does not create another effect. Exact retained request bytes and any referenced immutable input closure remain in owner custody. The input digest cannot replace those bytes or authorize reconstructing them from current mutable state."
+      "description": "Owner-retained identity and state of one authorized native mutation. executor pins the complete receiving-owner-approved instance, configuration and grants; it is never resolved through a replacement enrollment. input_digest covers the exact canonical role request, excluding this attempt and its invocation wrapper. Those request bytes and every immutable referenced input remain in owner custody. Mutable state, outcome and native task knowledge do not change the attempt identity. Native dispatch requires an Invocation released by the controlling owner after durable acceptance; this record alone grants no execution authority."
     },
     "EffectResult": {
       "type": "object",
@@ -802,7 +793,8 @@
         "postcondition",
         "native_task"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The observed result of the exact invocation attempt. Known effects include a verified no-op that already satisfies the requested postcondition; success still requires the original method result identities and custody. A native process ending without required outputs does not establish a satisfied terminal result. Unknown outcomes retain uncertainty and are reconciled observationally."
     },
     "Qualification": {
       "type": "object",
@@ -939,43 +931,654 @@
       "description": "Exact captured dataset and complete immutable artifact closure, bound to the capture adapter Instance that produced it. The producer role is capture. A destination or procedure digest cannot substitute for this input identity. Cross-owner restore may use a different target binding only through independently authorized custody and destination mapping."
     },
     "Counter": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "anyOf": [
-            {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
+      "description": "One observed usage quantity for an opaque approved allocation, never a limit or spare-capacity grant. Memory, swap, task, storage and inode values are instantaneous at observed_at. CPU time and I/O bytes are accumulated over [interval_start, observed_at]; complete evidence requires a nonempty positive interval and a value. I/O target is an approved logical device/domain handle, not a native path. Incomplete coverage cannot prove a hard bound; unsupported or unknown evidence cannot carry a numeric value. Counters in one response are unique by allocation, metric and target.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
             },
-            {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
               "type": "null"
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "memory-used"
+            },
+            "unit": {
+              "const": "bytes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
             }
           ]
         },
-        "unit": {
-          "enum": [
-            "bytes",
-            "inodes",
-            "tasks",
-            "cpu-millis"
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "type": "null"
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "swap-used"
+            },
+            "unit": {
+              "const": "bytes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
           ]
         },
-        "coverage": {
-          "enum": [
-            "complete",
-            "incomplete",
-            "unsupported",
-            "unknown"
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "type": "null"
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "tasks-current"
+            },
+            "unit": {
+              "const": "tasks"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "cpu-time"
+            },
+            "unit": {
+              "const": "cpu-millis"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "interval_start": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "target": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "metric": {
+              "const": "io-read"
+            },
+            "unit": {
+              "const": "bytes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "interval_start": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "target": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "metric": {
+              "const": "io-write"
+            },
+            "unit": {
+              "const": "bytes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "interval_start": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "type": "null"
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "storage-used"
+            },
+            "unit": {
+              "const": "bytes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allocation": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "complete",
+                "incomplete",
+                "unsupported",
+                "unknown"
+              ]
+            },
+            "observed_at": {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            "interval_start": {
+              "type": "null"
+            },
+            "target": {
+              "type": "null"
+            },
+            "metric": {
+              "const": "inodes-used"
+            },
+            "unit": {
+              "const": "inodes"
+            }
+          },
+          "required": [
+            "allocation",
+            "value",
+            "coverage",
+            "observed_at",
+            "interval_start",
+            "target",
+            "metric",
+            "unit"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
           ]
         }
-      },
-      "required": [
-        "value",
-        "unit",
-        "coverage"
-      ],
-      "additionalProperties": false
+      ]
     },
     "Allocation": {
       "type": "object",
@@ -1328,6 +1931,75 @@
         "identity",
         "consumer",
         "lease"
+      ],
+      "additionalProperties": false
+    },
+    "MutationRequest": {
+      "oneOf": [
+        {
+          "$ref": "runtime-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "compute-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "storage-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "capture-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "backup-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "secret-source-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "credential-issuer-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "dns-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "ingress-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "network-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "software-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "service-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "repository-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "build-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "report-adapter.schema.json#/$defs/MutationRequest"
+        },
+        {
+          "$ref": "bootstrap-source-adapter.schema.json#/$defs/MutationRequest"
+        }
+      ]
+    },
+    "Invocation": {
+      "description": "The executable owner-to-adapter boundary for one mutation: its exact retained attempt and original typed role request. The role request by itself is planning data and cannot be dispatched. attempt.input_digest is the digest of request alone, avoiding a circular identity; executor belongs to the immutable attempt identity. The controlling owner must verify retained input/artifact custody, current permission, admission and native exclusion before release. An adapter must not infer attempt identity from identical payload bytes: separately authorized attempts may have identical requests. An invocation is identity and custody data, never a self-authorizing token. Reconciliation receives the same original closure, is observational and cannot redispatch it.",
+      "type": "object",
+      "properties": {
+        "attempt": {
+          "$ref": "adapter.schema.json#/$defs/EffectAttempt"
+        },
+        "request": {
+          "$ref": "adapter.schema.json#/$defs/MutationRequest"
+        }
+      },
+      "required": [
+        "attempt",
+        "request"
       ],
       "additionalProperties": false
     }

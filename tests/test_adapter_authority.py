@@ -183,7 +183,7 @@ def test_runtime_dispatch_rechecks_exact_accepted_mutation_authority_after_resto
     restored.restore(saved)
     assert restored.snapshot()["attempts"] == saved["attempts"]
     if change == "unchanged":
-        assert restored.dispatch("demo", attempt["attempt_id"])["state"] == "dispatched"
+        assert restored.dispatch("demo", attempt["attempt_id"])["attempt"]["state"] == "dispatched"
     else:
         expected = (
             "STALE_BINDING_AUTHORITY" if change == "namespace" else "RUNTIME_MUTATION_AUTHORITY"
@@ -232,6 +232,7 @@ def test_unpinned_binding_preserves_custody_without_inventing_dispatch_authority
     )
     retained_attempt = saved["attempts"][attempt["attempt_id"]]
     retained_attempt["input_digest"] = digest(retained_request)
+    saved["requests"][attempt["attempt_id"]] = retained_request
     registry = runtime_registry()[0] if executor_available else Registry()
     restored = AdapterCoordinator(OWNER, registry, lambda value: None)
     restored.restore(saved)
@@ -253,7 +254,7 @@ def test_unpinned_binding_preserves_custody_without_inventing_dispatch_authority
             )
     if dispatched:
         assert restored.snapshot()["attempts"][attempt["attempt_id"]]["certainty"] == "unknown"
-        restored.settle(attempt["attempt_id"], result(retained_attempt))
+        restored.settle(attempt["attempt_id"], *result(restored, retained_attempt))
     else:
         restored.cancel_prepared(attempt["attempt_id"], owner_approved=True)
     restored.prove_quiescent("demo", observation(2))
@@ -277,7 +278,10 @@ def test_source_drift_blocks_new_work_without_retargeting_an_accepted_attempt():
             attempt_id=identifier(20),
             owner_approved=True,
         )
-    assert c.dispatch("demo", accepted["attempt_id"])["instance"] == "native-demo"
+    assert (
+        c.dispatch("demo", accepted["attempt_id"])["attempt"]["executor"]["instance"]
+        == "native-demo"
+    )
     assert c.snapshot()["bindings"]["demo"] == binding()
 
 
@@ -419,9 +423,9 @@ def test_delegated_stop_obeys_containment_gate_and_commits_before_native_dispatc
         c.dispatch("demo", attempt["attempt_id"])
     c.close_admission("demo")
     dispatched = c.dispatch("demo", attempt["attempt_id"])
-    assert commits[-1]["attempts"][attempt["attempt_id"]] == dispatched
-    assert dispatched["instance"] == "service-demo"
-    assert dispatched["certainty"] == "unknown"
+    assert commits[-1]["attempts"][attempt["attempt_id"]] == dispatched["attempt"]
+    assert dispatched["attempt"]["executor"]["instance"] == "service-demo"
+    assert dispatched["attempt"]["certainty"] == "unknown"
 
 
 def test_delegated_service_target_is_confined_to_enrolled_lifecycle_namespace():
@@ -465,7 +469,7 @@ def test_delegate_uncertainty_blocks_quiescence_in_the_same_runtime_owner():
     c.close_admission("demo")
     with pytest.raises(ContractError, match="PENDING_NATIVE_WORK"):
         c.prove_quiescent("demo", observation(1))
-    c.settle(attempt["attempt_id"], result(attempt))
+    c.settle(attempt["attempt_id"], *result(c, attempt))
     c.prove_quiescent("demo", observation(1))
     assert c.snapshot()["quiescent"]["demo"] is True
 
@@ -508,7 +512,7 @@ def test_restored_service_attempt_stays_pinned_to_accepted_executor_instance(cha
     assert restored.snapshot()["attempts"] == saved["attempts"]
     assert restored.snapshot()["admission"]["demo"] is False
     if changed == "unchanged":
-        assert restored.dispatch("demo", attempt["attempt_id"])["state"] == "dispatched"
+        assert restored.dispatch("demo", attempt["attempt_id"])["attempt"]["state"] == "dispatched"
     else:
         with pytest.raises(ContractError, match="STALE_EXECUTOR_INSTANCE"):
             restored.dispatch("demo", attempt["attempt_id"])

@@ -82,7 +82,7 @@
       "minProperties": 0,
       "maxProperties": 256,
       "propertyNames": {
-        "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        "$ref": "common.schema.json#/$defs/Id"
       },
       "additionalProperties": {
         "type": "object",
@@ -144,6 +144,16 @@
       "type": "integer",
       "minimum": 1,
       "maximum": 86400
+    },
+    "restore_input": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RestoreInput"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -158,7 +168,136 @@
     "secret_paths",
     "endpoint_bindings",
     "output_directory",
-    "timeout_seconds"
+    "timeout_seconds",
+    "restore_input"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "enum": [
+              "restore",
+              "verify-restore"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "restore_input": {
+            "$ref": "#/$defs/RestoreInput"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "restore_input": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "enum": [
+              "health",
+              "verify-config",
+              "dependency-check",
+              "busy",
+              "transition-assess",
+              "transition-verify",
+              "capture",
+              "verify-restore",
+              "verify-rebuild"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "dataset_handles": {
+            "additionalProperties": {
+              "properties": {
+                "mode": {
+                  "const": "read"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "RestoreInput": {
+      "type": "object",
+      "properties": {
+        "checkpoint_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "datasets": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 256,
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/RestoreDataset"
+          }
+        }
+      },
+      "required": [
+        "checkpoint_digest",
+        "datasets"
+      ],
+      "additionalProperties": false,
+      "description": "The exact owner-selected checkpoint and dataset snapshots for this restore or verification. Dataset keys exactly match the admitted dataset targets; each snapshot.dataset matches its key and its producer role is capture. Every snapshot artifact has exactly one matching materialization. The owner verifies checkpoint custody, snapshot membership, complete artifact bytes and approved bindings from independently retained operation inputs before invoking the hook. Materialized paths are local read-only access to those bytes, never replacements for immutable identity. A changed checkpoint, snapshot, producer or artifact requires a newly reviewed effect; retries retain the original selection."
+    },
+    "RestoreDataset": {
+      "type": "object",
+      "properties": {
+        "snapshot": {
+          "$ref": "adapter.schema.json#/$defs/Snapshot"
+        },
+        "materializations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "$ref": "adapter.schema.json#/$defs/Artifact"
+              },
+              "path": {
+                "$ref": "common.schema.json#/$defs/AbsolutePath"
+              },
+              "mode": {
+                "const": "read"
+              }
+            },
+            "required": [
+              "artifact",
+              "path",
+              "mode"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "snapshot",
+        "materializations"
+      ],
+      "additionalProperties": false,
+      "description": "Complete materialization of one exact captured dataset. Artifact identities match snapshot.artifacts without omissions, additions or duplicates. Paths must be canonical, remain read-only, and cannot overlap any dataset target or the output directory, including read-only verification targets. The receiver resolves native aliases and confines the materialization throughout execution; matching strings alone do not establish safe filesystem access."
+    }
+  },
+  "description": "A closed application-hook invocation under the receiving owner's retained operation and source grants. The owner joins the executor, role, exact dataset/secret/network scope and input selection to the approved procedure before dispatch. Observational roles receive only read dataset handles. Restore input custody is separate from writable targets and output; no source declaration or caller-supplied path grants authority. Validation describes this handoff without implementing native materialization, isolation or hook execution."
 }

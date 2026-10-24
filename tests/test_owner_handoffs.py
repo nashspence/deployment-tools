@@ -105,6 +105,7 @@ def workflow():
         "prerequisite_witnesses": [],
         "holds": [],
         "recovery_digests": [],
+        "transfer": None,
     }
 
 

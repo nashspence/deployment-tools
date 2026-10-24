@@ -1425,7 +1425,8 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "verified_at": {
-                "$ref": "common.schema.json#/$defs/Time"
+                "$ref": "common.schema.json#/$defs/Time",
+                "description": "Verified release-closure instant used for hot-predecessor ordering. Compare the parsed UTC instant, not the timestamp text; release_digest is the deterministic descending tie-break only for equal instants."
               },
               "accepted": {
                 "type": "boolean"

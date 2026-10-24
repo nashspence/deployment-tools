@@ -650,7 +650,7 @@ def retained_runtime_handles(
     require(all(instant(r["verified_at"]) <= when for r in releases), "future release observation")
     prior = sorted(
         (r for r in releases if not r["accepted"]),
-        key=lambda r: (r["verified_at"], r["release_digest"]),
+        key=lambda r: (instant(r["verified_at"]), r["release_digest"]),
         reverse=True,
     )
     newest = {r["release_digest"] for r in prior[: policy["prior_releases"]]}

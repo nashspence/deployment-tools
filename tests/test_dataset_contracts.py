@@ -185,5 +185,6 @@ def test_rebuild_procedures_have_explicit_hook_wire_roles(role, mode):
             "endpoint_bindings": {},
             "output_directory": "/synthetic/output",
             "timeout_seconds": 60,
+            "restore_input": None,
         },
     )

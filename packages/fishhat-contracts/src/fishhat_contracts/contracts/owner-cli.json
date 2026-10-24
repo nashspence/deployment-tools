@@ -489,7 +489,30 @@
         "--json"
       ],
       "use_case": "workflow.transfer",
-      "description": "Request an exact freeze or commit phase with bounded typed input, current owner generation and original transfer identity; timeout never releases custody."
+      "description": "Request an exact freeze or commit phase using WorkflowTransferRequest from closed stdin input. New phases compare the current local generation; an identical accepted phase replays its discoverable original generation, proposal and witnesses. Timeout never releases custody."
+    },
+    {
+      "name": "record-read",
+      "tokens": [
+        "{tool}",
+        "record",
+        "read",
+        "--request-stdin",
+        "--json"
+      ],
+      "use_case": "record.read",
+      "description": "Read one bounded chunk using the exact RecordReference, offset and length from closed stdin input. Reauthorize the actual receiving principal and protected snapshot scope; no reference is bearer authority."
+    },
+    {
+      "name": "logs",
+      "tokens": [
+        "{tool}",
+        "logs",
+        "--request-stdin",
+        "--json"
+      ],
+      "use_case": "logs",
+      "description": "Read a bounded log page using exact owner epoch, resource, nullable opaque cursor and limit from closed stdin input. Every page, including an empty page, retains owner/resource identity and explicit continuation."
     }
   ],
   "parser": "bounded tokens; no shell evaluation",

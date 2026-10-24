@@ -17,37 +17,7 @@
         "limits": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "resource": {
-                "enum": [
-                  "cpu",
-                  "memory",
-                  "swap",
-                  "tasks",
-                  "io"
-                ]
-              },
-              "value": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              "unit": {
-                "enum": [
-                  "bytes",
-                  "tasks",
-                  "cpu-millis",
-                  "weight"
-                ]
-              }
-            },
-            "required": [
-              "resource",
-              "value",
-              "unit"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/Limit"
           },
           "minItems": 1,
           "maxItems": 256,
@@ -76,37 +46,7 @@
         "limits": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "resource": {
-                "enum": [
-                  "cpu",
-                  "memory",
-                  "swap",
-                  "tasks",
-                  "io"
-                ]
-              },
-              "value": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              "unit": {
-                "enum": [
-                  "bytes",
-                  "tasks",
-                  "cpu-millis",
-                  "weight"
-                ]
-              }
-            },
-            "required": [
-              "resource",
-              "value",
-              "unit"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/Limit"
           },
           "minItems": 1,
           "maxItems": 256,
@@ -155,16 +95,16 @@
         "scope": {
           "$ref": "adapter.schema.json#/$defs/Scope"
         },
-        "attempt": {
-          "$ref": "adapter.schema.json#/$defs/EffectAttempt"
+        "invocation": {
+          "$ref": "adapter.schema.json#/$defs/Invocation"
         }
       },
       "required": [
         "scope",
-        "attempt"
+        "invocation"
       ],
       "additionalProperties": false,
-      "description": "Observe and settle the exact original retained mutation attempt without dispatching or repeating a native mutation. Any corrective mutation requires a separately reviewed and authorized effect. The attempt contract and scope must match this request, and its method must name a mutating operation of this role."
+      "description": "Observe and settle the exact original owner-retained invocation, including the original typed request, full accepted executor reference and attempt identity. Scope and role must agree with that closure. Recovered outputs obey the original method result contract. Current enrollment cannot retarget historical work; an unavailable or replaced executor leaves the result unresolved. Corrective mutation requires a separate reviewed invocation; reconciliation never dispatches or repeats the supplied mutation."
     },
     "Output": {
       "type": "object",
@@ -177,12 +117,34 @@
           "minItems": 0,
           "maxItems": 256,
           "uniqueItems": true
+        },
+        "allocation": {
+          "anyOf": [
+            {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Limit"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
         }
       },
       "required": [
+        "allocation",
+        "limits",
         "counters"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "The selected allocation, observed effective limits, and separately identified usage counters. A successful set-limits result must contain exactly the requested quantity/target/value/unit set; extra, missing or changed limits cannot establish success. Observation with no known allocation uses null and empty collections."
     },
     "Response": {
       "oneOf": [
@@ -304,7 +266,57 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "task_state": {
+                        "const": "terminal"
+                      },
+                      "effect_certainty": {
+                        "const": "known"
+                      },
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "task_state",
+                      "effect_certainty",
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  },
+                  "continuation": {
+                    "type": "null"
+                  },
+                  "output": {
+                    "properties": {
+                      "allocation": {
+                        "type": "string"
+                      },
+                      "limits": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Terminal satisfied effects require complete committed output custody under this method contract, including its exact requested identities. Native completion without required output remains unresolved; it is not successful completion. Pending, rejected and failed effects may return no output and retain their existing uncertainty and holds."
         },
         {
           "type": "object",
@@ -425,7 +437,322 @@
             "effect"
           ],
           "additionalProperties": false,
-          "description": "request_digest identifies this reconciliation RPC; effect identifies and reports the original mutation attempt from input.attempt. These are different identities. A reconciliation result supplies no authorization to repeat or correct the mutation."
+          "description": "request_digest identifies this reconciliation RPC; effect identifies its original invocation attempt. Recovered output must satisfy the original method result and custody contract, using independently retained invocation bytes. Reconciliation supplies no authority to repeat or correct the mutation."
+        }
+      ]
+    },
+    "MutationRequest": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.compute"
+            },
+            "method": {
+              "const": "set-limits"
+            },
+            "input": {
+              "$ref": "#/$defs/set-limits"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "input"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Limit": {
+      "description": "One explicitly named requirement, unique by quantity and target. cpu-max is thousandths of one CPU (1000 permits one CPU-second per wall-clock second), not cumulative CPU time. Weights are normalized 1..10000 within a contention group and are not hard ceilings. Memory high is the pressure threshold, memory max and swap max are hard ceilings; task/tmpfs bounds cover descendants. I/O rates select an approved opaque logical device/domain target; native locators remain adapter-owned. Unsupported requirements must reject or remain explicitly unresolved, never be silently dropped.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "cpu-max"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "millicpus"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "cpu-weight"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "unit": {
+              "const": "weight"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "memory-high"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "memory-max"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "swap-max"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "tasks-max"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "tasks"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "io-weight"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "unit": {
+              "const": "weight"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "io-read-rate"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes-per-second"
+            },
+            "target": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "io-write-rate"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes-per-second"
+            },
+            "target": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "tmpfs-max-bytes"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "bytes"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "const": "tmpfs-max-inodes"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "inodes"
+            },
+            "target": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "quantity",
+            "value",
+            "unit",
+            "target"
+          ],
+          "additionalProperties": false
         }
       ]
     }
@@ -511,5 +838,6 @@
       ],
       "additionalProperties": false
     }
-  ]
+  ],
+  "description": "Mutation request objects are typed planning payloads. Native execution requires the owner-authored adapter Invocation with its exact attempt and accepted executor; a bare role request is not an alternate executable boundary."
 }

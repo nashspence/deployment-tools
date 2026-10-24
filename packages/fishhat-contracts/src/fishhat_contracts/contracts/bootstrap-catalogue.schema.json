@@ -26,7 +26,7 @@
             "$ref": "common.schema.json#/$defs/Entry"
           },
           "ref": {
-            "$ref": "bootstrap-recovery.schema.json#/$defs/GitRef"
+            "$ref": "common.schema.json#/$defs/GitRef"
           },
           "commit": {
             "$ref": "common.schema.json#/$defs/Commit"

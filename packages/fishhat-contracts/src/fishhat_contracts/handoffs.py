@@ -121,6 +121,8 @@ def schema_identity(uri: str, installed: dict[str, dict[str, Any]] | None = None
 
 
 def validate_workflow(value: dict[str, Any]) -> None:
+    from .transfers import validate_workflow_transfer
+
     validate("records.schema.json", value, "Workflow")
     _require(value["phase"] in PHASES[value["type"]], "workflow phase outside installed procedure")
     if value["state"] == "completed":
@@ -142,6 +144,7 @@ def validate_workflow(value: dict[str, Any]) -> None:
             _require(witness["owner"] == participant["owner"], "participant witness owner mismatch")
             _require(witness["workflow_id"] == value["id"], "participant witness workflow mismatch")
     _require(local, "workflow capsule owner is not a participant")
+    validate_workflow_transfer(value)
 
 
 def validate_staging(
@@ -268,11 +271,29 @@ def validate_cli_result(result: Any) -> None:
         validate_workflow(result)
     elif kind == "ContentStaging":
         validate_staging(result)
+    elif kind in ("RecordReference", "RecordChunk", "EventPage"):
+        from .record_delivery import (
+            CHUNK_BYTES,
+            validate_log_page,
+            validate_record_chunk,
+            validate_record_reference,
+        )
+
+        if kind == "RecordReference":
+            validate_record_reference(result)
+        elif kind == "RecordChunk":
+            validate_record_reference(result["reference"])
+            validate_record_chunk(
+                result, result["reference"], offset=result["offset"], length=CHUNK_BYTES
+            )
+        else:
+            validate_log_page(result, expected_owner=result["owner"], resource=result["resource"])
     elif kind in ("OperationPage", "WorkflowPage"):
         validate("records.schema.json", result, kind)
         identities: set[str] = set()
         for item in result["items"]:
             _require(item["owner"] == result["owner"], "page contains another owner epoch")
-            _require(item["id"] not in identities, "page repeats retained work")
-            identities.add(item["id"])
+            identity = item["record"]["id"] if item.get("kind") == "RecordReference" else item["id"]
+            _require(identity not in identities, "page repeats retained work")
+            identities.add(identity)
             validate_cli_result(item)

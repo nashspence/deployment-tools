@@ -1941,6 +1941,16 @@
           "minimum": 0,
           "maximum": 9007199254740991,
           "description": "The receiving owner replica generation for this workflow capsule, incremented after every durable phase, driver or custody change. It is separate from participant resource generations and driver_term. workflow.advance and workflow.transfer compare this exact local value; replicas may have different generations."
+        },
+        "transfer": {
+          "anyOf": [
+            {
+              "$ref": "records.schema.json#/$defs/WorkflowTransfer"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -1958,10 +1968,29 @@
         "holds",
         "recovery_digests",
         "owner",
-        "generation"
+        "generation",
+        "transfer"
       ],
       "additionalProperties": false,
-      "description": "A finite procedure coordinating exact participant operations while each local owner retains authority and accepted state. A workflow is not a permanent central controller or an authorization supplied by an optional tracker. Each receiving owner retains its own identified, generation-checked capsule before child effects. Preparation records no accepted native operation. An authorized caller can enumerate these capsules without knowing a workflow ID; optional tracking is never required."
+      "description": "A finite procedure coordinating exact participant operations while each local owner retains authority and accepted state. A workflow is not a permanent central controller or an authorization supplied by an optional tracker. Each receiving owner retains its own identified, generation-checked capsule before child effects. Preparation records no accepted native operation. An authorized caller can enumerate these capsules without knowing a workflow ID; optional tracking is never required. A transfer-pending capsule includes its complete retained transfer proposal and original locally accepted phase inputs. workflow.get and workflow.list expose them under current receiving authorization so recovery never depends on the original client or an optional report.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "transfer-pending"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "transfer": {
+                "$ref": "records.schema.json#/$defs/WorkflowTransfer"
+              }
+            }
+          }
+        }
+      ]
     },
     "Hold": {
       "type": "object",
@@ -4312,7 +4341,29 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "records.schema.json#/$defs/Operation"
+            "oneOf": [
+              {
+                "$ref": "records.schema.json#/$defs/Operation"
+              },
+              {
+                "allOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/RecordReference"
+                  },
+                  {
+                    "properties": {
+                      "record": {
+                        "properties": {
+                          "kind": {
+                            "const": "Operation"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "minItems": 0,
           "maxItems": 128
@@ -4341,7 +4392,7 @@
         "history_complete"
       ],
       "additionalProperties": false,
-      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete."
+      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete. A single large record is delivered as its exact RecordReference; page bounds do not require dropping, truncating or splitting its logical contents. Inline records and references identify the same owner and unique record identities. Each reference must be completely retrieved before claiming its record has been inspected."
     },
     "WorkflowPage": {
       "type": "object",
@@ -4358,7 +4409,29 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "records.schema.json#/$defs/Workflow"
+            "oneOf": [
+              {
+                "$ref": "records.schema.json#/$defs/Workflow"
+              },
+              {
+                "allOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/RecordReference"
+                  },
+                  {
+                    "properties": {
+                      "record": {
+                        "properties": {
+                          "kind": {
+                            "const": "Workflow"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "minItems": 0,
           "maxItems": 128
@@ -4387,7 +4460,7 @@
         "history_complete"
       ],
       "additionalProperties": false,
-      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete."
+      "description": "A bounded complete page of the permission-filtered owner traversal, with a type discriminator even when empty. Continuations retain the same owner epoch, authenticated principal, resource filter and active/history selection; concurrent changes must not silently omit retained entries. A non-null cursor requires continuation before claiming the traversal is complete. A single large record is delivered as its exact RecordReference; page bounds do not require dropping, truncating or splitting its logical contents. Inline records and references identify the same owner and unique record identities. Each reference must be completely retrieved before claiming its record has been inspected."
     },
     "ObservationPage": {
       "type": "object",
@@ -4444,12 +4517,23 @@
           "maxItems": 256
         },
         "next_cursor": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "gap": {
           "type": "boolean"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "resource": {
+          "$ref": "common.schema.json#/$defs/Resource"
         }
       },
       "required": [
@@ -4457,10 +4541,12 @@
         "kind",
         "events",
         "next_cursor",
-        "gap"
+        "gap",
+        "owner",
+        "resource"
       ],
       "additionalProperties": false,
-      "description": "A bounded log page. gap explicitly reports missing retained history; log absence is not proof that an effect did not occur."
+      "description": "A complete bounded page of the exact owner-epoch/resource log traversal, even when events is empty. The opaque continuation binds the authenticated principal, exact query, retained traversal and owner epoch. Every resumed request supplies that owner and resource; an epoch change, expired cursor or changed query rejects and requires an explicit restart. A null next_cursor exhausts this retained traversal; a non-null cursor requires continuation regardless of page length. Concurrent appends and owner restoration cannot silently reuse an integer offset or omit retained entries. gap explicitly reports missing retained history and is preserved across the traversal; log absence is never proof that an effect did not occur. Event cursor integers are ordered positions within this pinned traversal, not reusable continuation tokens."
     },
     "ContentStaging": {
       "type": "object",
@@ -4562,6 +4648,205 @@
       ],
       "additionalProperties": false,
       "description": "Durable pre-admission input custody, not accepted execution. content.begin replays the same caller-allocated staging ID only for the same owner epoch, actual principal, resource, purpose, digest and size; changed input conflicts. Uploading has no immutable handle and accepts only complete bounded chunks at an exact offset; repeated bytes at that offset are idempotent, conflicting bytes fail. Commit verifies all declared bytes and digest before exposing an immutable staging-bound handle. All later reads, status and retries reauthorize the actual principal against protected custody. Expiry applies only without accepted references and never authorizes collection of accepted input. A missing/restored owner or expired identity cannot be treated as permission to recreate it silently. A committed handle past its admission deadline may remain retained by earlier accepted work, but cannot authorize a new plan or request. Accepted replay is resolved before new-input expiry checks."
+    },
+    "WorkflowTransferProposal": {
+      "type": "object",
+      "properties": {
+        "workflow_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "transfer_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "current_principal": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "expected_term": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740990
+        },
+        "new_principal": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "owner": {
+                "$ref": "common.schema.json#/$defs/Owner"
+              },
+              "resource": {
+                "$ref": "common.schema.json#/$defs/Resource"
+              }
+            },
+            "required": [
+              "owner",
+              "resource"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "workflow_id",
+        "transfer_id",
+        "current_principal",
+        "expected_term",
+        "new_principal",
+        "participants"
+      ],
+      "additionalProperties": false,
+      "description": "The immutable transfer preimage shared by all receiving owners: exact workflow and transfer identities, original driver principal/term, next driver principal and complete participant owner/resource closure. The next term is expected_term plus one. The receiving owner independently compares this proposal to its protected capsule and current authorization; the proposal grants no permission. Closure members are unique and the complete closure must match the retained workflow. Every freeze and commit witness binds digest(canonical JSON of this proposal), the workflow ID and its exact participant owner epoch. One owner witness covers all of that owner's resources in the proposal; a resource outside the closure cannot be admitted by it."
+    },
+    "WorkflowTransferRequest": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "proposal": {
+          "$ref": "records.schema.json#/$defs/WorkflowTransferProposal"
+        },
+        "phase": {
+          "enum": [
+            "freeze",
+            "commit"
+          ]
+        },
+        "witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "owner",
+        "expected_generation",
+        "proposal",
+        "phase",
+        "witnesses"
+      ],
+      "additionalProperties": false,
+      "description": "A phase request for one receiving owner. New requests compare the exact local capsule generation and independently verify current driver and resource authority. The owner resolves the retained transfer ID and phase before freshness checks: an identical durably accepted phase request returns its retained outcome despite a later capsule generation, while any changed preimage conflicts and never creates another transfer. Freeze blocks old-driver admission atomically with durable transfer custody; commit requires independently authenticated freeze witnesses for every distinct participant owner and cannot infer them from timeout or absent work. The receiving owner's supplied freeze witness must exactly match its retained local freeze. These are owner obligations, not a native coordinator implementation. A durably accepted local freeze atomically retains its frozen witness with the original phase input; a lost response must leave both discoverable."
+    },
+    "WorkflowTransferPhase": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "enum": [
+            "freeze",
+            "commit"
+          ]
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "phase",
+        "expected_generation",
+        "witnesses"
+      ],
+      "additionalProperties": false,
+      "description": "The exact original phase input retained by this receiving owner. Reconstruct its WorkflowTransferRequest using the enclosing capsule owner and retained proposal. The original expected_generation and supplied witness records survive newer generations so another authorized caller can retry exactly without client files."
+    },
+    "WorkflowTransfer": {
+      "type": "object",
+      "properties": {
+        "proposal": {
+          "$ref": "records.schema.json#/$defs/WorkflowTransferProposal"
+        },
+        "proposal_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "phase": {
+          "enum": [
+            "freeze",
+            "commit",
+            "completed"
+          ]
+        },
+        "accepted_phases": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/WorkflowTransferPhase"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "freeze_witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "commit_witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "proposal",
+        "proposal_digest",
+        "phase",
+        "accepted_phases",
+        "freeze_witnesses",
+        "commit_witnesses"
+      ],
+      "additionalProperties": false,
+      "description": "Discoverable transfer custody retained in every receiving Workflow. accepted_phases preserves each locally accepted input; freeze_witnesses and commit_witnesses retain independently verified evidence with states frozen and transferred respectively. Missing evidence remains missing. Freeze retains the original driver; commit records this owner's durable new term only after the complete freeze closure; completed additionally requires every participant-owner commit witness. A partial transfer remains transfer-pending and cannot silently restore old admission or authorize a different transfer. An owner keeps exact replay results in protected history even after this field records a later transfer. Restored epochs require explicit recovery rather than inventing or retargeting the original transfer. Freeze phase includes this receiving owner's frozen witness; an input accepted without its retrievable local prerequisite is not a completed freeze. Transfer witnesses use the same proposal digest and exact owner epoch, and their generation identifies the local durable phase commit; later capsule changes preserve them. Each local phase witness generation is greater than its original expected_generation and no greater than the current capsule generation; the local freeze witness generation is no greater than the original commit expected_generation."
+    },
+    "WorkflowTransferWitness": {
+      "allOf": [
+        {
+          "$ref": "records.schema.json#/$defs/Witness"
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "transfer"
+            },
+            "state": {
+              "enum": [
+                "frozen",
+                "transferred"
+              ]
+            },
+            "evidence_digests": {
+              "maxItems": 0
+            }
+          }
+        }
+      ],
+      "description": "A signed finite local freeze or commit attestation. The complete proposal digest binds the workflow, original and next drivers and every participant owner/resource. Together with this exact owner epoch, local capsule generation and frozen/transferred state, it supplies the transfer prerequisite. evidence_digests is empty because further recovery evidence is retained separately in the workflow, not in this bounded attestation. Native receivers independently authenticate the witness and verify the full proposal closure before changing admission or driver authority."
     }
   }
 }

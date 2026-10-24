@@ -80,10 +80,7 @@
                 "pattern": "^(https://|ssh://|[A-Za-z0-9_.-]+@)"
               },
               "ref": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 240,
-                "pattern": "^refs/(heads|tags)/[^\\s]+$"
+                "$ref": "common.schema.json#/$defs/GitRef"
               },
               "entrypoint": {
                 "type": "string",
@@ -1656,7 +1653,7 @@
               "network"
             ],
             "additionalProperties": false,
-            "description": "Hook roles determine their access mode. Observation, assessment, verification and capture use read access to admitted datasets; configure, quiesce, transition application, restore and rebuild use write access and require separately authorized owner work. Read access also constrains remote credentials and native operations: a read-only filesystem mount alone does not make a database connection observational. Artifact output is confined separately to the operation output directory.",
+            "description": "Hook roles determine their access mode. Observation, assessment, verification and capture use read access to admitted datasets; configure, quiesce, transition application, restore and rebuild use write access and require separately authorized owner work. Read access also constrains remote credentials and native operations: a read-only filesystem mount alone does not make a database connection observational. Artifact output is confined separately to the operation output directory. Restore and verify-restore invocations carry the selected checkpoint, exact dataset snapshots and read-only artifact materializations through hook-request.restore_input, separately from dataset targets. The receiving owner verifies that handoff against retained accepted inputs; procedure names and release identity cannot select a capture implicitly.",
             "oneOf": [
               {
                 "properties": {
@@ -1885,6 +1882,7 @@
         },
         "maintenance": {
           "type": "object",
+          "description": "Proposed task definitions, not grants of authority. The receiver resolves the exact task from its accepted release and requires at least both app.maintenance-run's minimum role and the expanded action's minimum role, within the current resource scope. Built-in backup, backup-check and drill tasks have no hook override. Native-maintenance selects one declared hook and requires administrator regardless of its hook role, while retaining its exact approved hook scope and all role-specific input and custody requirements. This rule applies to manual and scheduled execution. A schedule, task name or source change cannot delegate administrator authority.",
           "minProperties": 0,
           "maxProperties": 256,
           "propertyNames": {
@@ -1947,7 +1945,33 @@
               "timeout_seconds",
               "active_only"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "properties": {
+                  "action": {
+                    "enum": [
+                      "backup",
+                      "backup-check",
+                      "drill"
+                    ]
+                  },
+                  "hook": {
+                    "type": "null"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "action": {
+                    "const": "native-maintenance"
+                  },
+                  "hook": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
           }
         },
         "protection": {
