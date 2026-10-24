@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import copy
 import json
+from collections.abc import Callable
+from datetime import datetime
 from pathlib import Path
 from typing import Any, cast
 
@@ -11,6 +13,8 @@ from fishhat_contracts.validation import FORMAT_CHECKER, ContractError, canonica
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from referencing.exceptions import Unresolvable
+
+from .dns import validate_changes, validate_rrsets
 
 ROLES: dict[str, dict[str, dict[str, Any]]] = json.loads(
     Path(__file__).with_name("roles.json").read_text(encoding="utf-8")
@@ -82,11 +86,14 @@ def check_configuration(schema: dict[str, Any], value: Any, expected_digest: str
 
 
 def check_request(role: str, value: dict[str, Any]) -> None:
+    """Check a typed payload; mutation execution additionally requires an Invocation."""
     require(role in ROLES, "UNKNOWN_CONTRACT")
     validate(role + "-adapter.schema.json", value)
     method, inputs = value["method"], value["input"]
     if method == "reconcile":
-        original = inputs["attempt"]
+        invocation = inputs["invocation"]
+        check_invocation(role, invocation)
+        original = invocation["attempt"]
         require(
             original["contract"] == value["contract"]
             and original["scope"] == inputs["scope"]
@@ -95,6 +102,11 @@ def check_request(role: str, value: dict[str, Any]) -> None:
             "RECONCILIATION_IDENTITY",
         )
         return
+    if role == "compute" and method in {"plan", "set-limits"}:
+        _check_limits(inputs["limits"])
+    if role == "dns" and method in {"plan", "publish"}:
+        validate_changes(inputs["change"])
+        require(inputs["scope"] == inputs["change"]["scope"], "DNS_SCOPE_IDENTITY")
     binding = _handoff_binding(role, value)
     if binding is not None:
         require(
@@ -114,6 +126,40 @@ def check_request(role: str, value: dict[str, Any]) -> None:
             or (previous["source"] == binding and previous["entry"] == inputs["entry"]),
             "PUBLICATION_PREDECESSOR_IDENTITY",
         )
+
+
+def instance_reference(instance: dict[str, Any], scope: dict[str, Any]) -> dict[str, Any]:
+    """Project exact enrollment identity, without granting permission or native capability."""
+    validate("adapter.schema.json", instance, "Instance")
+    validate("adapter.schema.json", scope, "Scope")
+    return {
+        "instance": instance["id"],
+        "role": instance["role"],
+        "installation_digest": instance["installation_digest"],
+        "configuration_digest": digest(instance["configuration"]),
+        "instance_generation": instance["generation"],
+        "instance_digest": digest(instance),
+        "scope": copy.deepcopy(scope),
+    }
+
+
+def check_invocation(role: str, value: dict[str, Any]) -> None:
+    """Verify the owner-retained mutation closure, not authorization to dispatch it."""
+    validate("adapter.schema.json", value, "Invocation")
+    request, attempt = value["request"], value["attempt"]
+    check_request(role, request)
+    executor = attempt["executor"]
+    require(
+        ROLES[role][request["method"]]["effect"]
+        and attempt["contract"] == request["contract"]
+        and attempt["method"] == request["method"]
+        and attempt["scope"] == request["input"]["scope"] == executor["scope"]
+        and executor["role"] == role
+        and attempt["input_digest"] == digest(request),
+        "INVOCATION_IDENTITY",
+    )
+    binding = _handoff_binding(role, request)
+    require(binding is None or binding == executor, "INVOCATION_EXECUTOR_IDENTITY")
 
 
 def _handoff_binding(role: str, request: dict[str, Any]) -> dict[str, Any] | None:
@@ -140,7 +186,7 @@ def check_response(
     request: dict[str, Any],
     response: dict[str, Any],
     *,
-    attempt: dict[str, Any] | None = None,
+    invocation: dict[str, Any] | None = None,
 ) -> None:
     check_request(role, request)
     validate(role + "-adapter.schema.json", response, "Response")
@@ -156,24 +202,45 @@ def check_response(
         "INCOMPLETE_RESPONSE_COVERAGE",
     )
     if request["method"] == "reconcile":
-        require(attempt is not None, "EFFECT_ATTEMPT_REQUIRED")
-        assert attempt is not None
-        validate("adapter.schema.json", attempt, "EffectAttempt")
+        require(invocation is not None, "EFFECT_INVOCATION_REQUIRED")
+        assert invocation is not None
+        check_invocation(role, invocation)
+        original = request["input"]["invocation"]
         require(
-            _attempt_identity(attempt) == _attempt_identity(request["input"]["attempt"]),
+            _attempt_identity(invocation["attempt"]) == _attempt_identity(original["attempt"])
+            and invocation["request"] == original["request"],
             "RECONCILIATION_IDENTITY",
         )
-        check_result(attempt, response["effect"])
+        check_result(invocation["attempt"], response["effect"])
+        request = invocation["request"]
+        # Recovery has the same output obligations as the original method.
+        validate(
+            role + "-adapter.schema.json",
+            {**response, "method": request["method"], "request_digest": digest(request)},
+            "Response",
+        )
     elif ROLES[role][request["method"]]["effect"]:
-        require(attempt is not None, "EFFECT_ATTEMPT_REQUIRED")
-        assert attempt is not None
+        require(invocation is not None, "EFFECT_INVOCATION_REQUIRED")
+        assert invocation is not None
+        check_invocation(role, invocation)
         require(
-            attempt["input_digest"] == response["request_digest"]
-            and attempt["scope"] == response["scope"],
+            invocation["request"] == request,
             "RESPONSE_EFFECT_IDENTITY",
         )
-        check_result(attempt, response["effect"])
+        check_result(invocation["attempt"], response["effect"])
     _check_handoff_response(role, request, response)
+    _check_observed_quantities(role, response["output"])
+    if "effect" in response and _succeeded(response["effect"]):
+        assert invocation is not None
+        _check_success_output(role, request, response["output"], invocation["attempt"]["executor"])
+
+
+def _succeeded(effect: dict[str, Any]) -> bool:
+    return bool(
+        effect["task_state"] == "terminal"
+        and effect["effect_certainty"] == "known"
+        and effect["postcondition"] == "satisfied"
+    )
 
 
 def _check_handoff_response(role: str, request: dict[str, Any], response: dict[str, Any]) -> None:
@@ -203,6 +270,104 @@ def _check_handoff_response(role: str, request: dict[str, Any], response: dict[s
             ),
             "PUBLICATION_RESULT_IDENTITY",
         )
+
+
+def _same_set(a: list[Any], b: list[Any]) -> bool:
+    return len(a) == len(b) and {canonical(item) for item in a} == {canonical(item) for item in b}
+
+
+def _check_success_output(
+    role: str, request: dict[str, Any], output: dict[str, Any], executor: dict[str, Any]
+) -> None:
+    """Bind complete, method-specific result custody to its original requested identities."""
+    inputs = request["input"]
+    checks: dict[str, Callable[[], bool]] = {
+        "runtime": lambda: output["deployment"] == inputs["deployment"],
+        "compute": lambda: (
+            output["allocation"] == inputs["allocation"]
+            and _same_set(output["limits"], inputs["limits"])
+        ),
+        "storage": lambda: (
+            output["allocations"][0]["handle"] == inputs["allocation"]
+            and _same_set(output["allocations"][0]["purposes"], inputs["purposes"])
+        ),
+        "backup": lambda: (
+            output["objects"][0]["handle"] == inputs["object"]
+            and output["objects"][0]["repository"] == inputs["repository"]
+            and _same_set(output["objects"][0]["artifacts"], inputs["artifacts"])
+        ),
+        "software": lambda: (
+            output["selections"] == [inputs["selection"]]
+            and _same_set(output["artifacts"], inputs["artifacts"])
+        ),
+        "repository": lambda: output["commit"] == inputs["commit"],
+        "ingress": lambda: output["serving_generation"] == inputs["generation_digest"],
+        "network": lambda: output["policy_generation"] == inputs["policy_digest"],
+        "dns": lambda: _same_set(
+            output["rrsets"],
+            [
+                change["after"]
+                for change in inputs["change"]["changes"]
+                if change["after"] is not None
+            ],
+        ),
+        "service": lambda: output["activity"] == inputs["activity"],
+        "secret-source": lambda: all(
+            item["source"] == executor["instance"]
+            and item["entry"] == inputs["entry"]
+            and item["version"] == inputs["version"]
+            for item in output["versions"]
+        ),
+        "bootstrap-source": lambda: (
+            output["receipt"]["selection_digest"] == digest(inputs["selection"])
+        ),
+    }
+    check = checks.get(role)
+    require(check is None or check(), "SUCCESS_OUTPUT_IDENTITY")
+
+
+def _check_limits(limits: list[dict[str, Any]]) -> None:
+    keys = [(limit["quantity"], limit["target"]) for limit in limits]
+    require(len(keys) == len(set(keys)), "DUPLICATE_LIMIT")
+    values = {limit["quantity"]: limit["value"] for limit in limits if limit["target"] is None}
+    require(
+        "memory-high" not in values
+        or "memory-max" not in values
+        or values["memory-high"] <= values["memory-max"],
+        "INCONSISTENT_MEMORY_LIMITS",
+    )
+
+
+def _check_counters(counters: list[dict[str, Any]], allocation: str | None) -> None:
+    keys = [(item["allocation"], item["metric"], item["target"]) for item in counters]
+    require(len(keys) == len(set(keys)), "DUPLICATE_COUNTER")
+    for item in counters:
+        require(item["allocation"] == allocation, "COUNTER_ALLOCATION_IDENTITY")
+        require(
+            item["coverage"] not in {"unsupported", "unknown"} or item["value"] is None,
+            "UNKNOWN_COUNTER_VALUE",
+        )
+        start = item["interval_start"]
+        require(
+            start is None
+            or datetime.fromisoformat(start) < datetime.fromisoformat(item["observed_at"]),
+            "COUNTER_INTERVAL",
+        )
+
+
+def _check_observed_quantities(role: str, output: dict[str, Any]) -> None:
+    if role == "compute":
+        _check_limits(output["limits"])
+        _check_counters(output["counters"], output["allocation"])
+        require(
+            output["allocation"] is not None or not (output["counters"] or output["limits"]),
+            "UNKNOWN_ALLOCATION_QUANTITIES",
+        )
+    if role == "storage":
+        for allocation in output["allocations"]:
+            _check_counters(allocation["counters"], allocation["handle"])
+    if role == "dns":
+        validate_rrsets(output["rrsets"])
 
 
 def check_result(attempt: dict[str, Any], result: dict[str, Any]) -> None:
@@ -368,9 +533,11 @@ class Registry:
         request: dict[str, Any],
         *,
         owner_approved: bool,
+        invocation: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Check typed input identity against current receiver-owned enrollment before dispatch."""
+        """Authorize observation; reconciliation also needs independently retained invocation data."""
         check_request(role, request)
+        require(not ROLES[role][request["method"]]["effect"], "EFFECT_INVOCATION_REQUIRED")
         instance = self.authorize(
             instance_id,
             role,
@@ -379,27 +546,55 @@ class Registry:
             owner_approved=owner_approved,
         )
         if request["method"] == "reconcile":
-            original = request["input"]["attempt"]
+            require(invocation is not None, "EFFECT_INVOCATION_REQUIRED")
+            assert invocation is not None
+            check_invocation(role, invocation)
+            original = request["input"]["invocation"]
             require(
-                original["instance"] == instance["id"]
-                and original["installation_digest"] == instance["installation_digest"],
+                _attempt_identity(original["attempt"]) == _attempt_identity(invocation["attempt"])
+                and original["request"] == invocation["request"],
+                "RECONCILIATION_IDENTITY",
+            )
+            require(
+                invocation["attempt"]["executor"]
+                == instance_reference(instance, request["input"]["scope"]),
                 "RECONCILIATION_INSTANCE_IDENTITY",
             )
         binding = _handoff_binding(role, request)
         if binding is not None:
             require(
-                binding
-                == {
-                    "instance": instance["id"],
-                    "role": instance["role"],
-                    "installation_digest": instance["installation_digest"],
-                    "configuration_digest": digest(instance["configuration"]),
-                    "instance_generation": instance["generation"],
-                    "instance_digest": digest(instance),
-                    "scope": request["input"]["scope"],
-                },
+                binding == instance_reference(instance, request["input"]["scope"]),
                 "HANDOFF_INSTANCE_IDENTITY",
             )
+        return instance
+
+    def authorize_invocation(
+        self,
+        role: str,
+        invocation: dict[str, Any],
+        *,
+        owner_approved: bool,
+    ) -> dict[str, Any]:
+        """Check an owner-authored mutation closure; native dispatch remains owner-controlled."""
+        check_invocation(role, invocation)
+        request, attempt = invocation["request"], invocation["attempt"]
+        require(
+            attempt["state"] == "dispatched"
+            and attempt["certainty"] == "unknown"
+            and attempt["outcome"] == "pending",
+            "INVOCATION_NOT_DISPATCHABLE",
+        )
+        instance = self.authorize(
+            attempt["executor"]["instance"],
+            role,
+            request["method"],
+            request["input"]["scope"],
+            owner_approved=owner_approved,
+        )
+        require(
+            attempt["executor"] == instance_reference(instance, request["input"]["scope"]),
+            "HANDOFF_INSTANCE_IDENTITY",
+        )
         return instance
 
     def authorize(
@@ -411,6 +606,7 @@ class Registry:
         *,
         owner_approved: bool,
     ) -> dict[str, Any]:
+        """Check current enrollment permissions only, never release executable input bytes."""
         require(owner_approved, "OPERATION_NOT_AUTHORIZED")
         instance = self._operation(instance_id, role, method, scope)
         if ROLES[role][method]["effect"]:

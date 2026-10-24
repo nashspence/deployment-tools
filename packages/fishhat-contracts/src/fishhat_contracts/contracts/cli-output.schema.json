@@ -109,6 +109,12 @@
             },
             {
               "$ref": "resource-records.schema.json#/$defs/ResourceReport"
+            },
+            {
+              "$ref": "common.schema.json#/$defs/RecordReference"
+            },
+            {
+              "$ref": "common.schema.json#/$defs/RecordChunk"
             }
           ]
         },
@@ -152,5 +158,43 @@
     "problem"
   ],
   "additionalProperties": false,
-  "description": "Human and machine result envelope. Acceptance, execution progress, terminal outcome, and certainty stay distinct. A successful command response or accepted request is not evidence that requested work has completed."
+  "description": "Human and machine result envelope. Acceptance, execution progress, terminal outcome, and certainty stay distinct. A successful command response or accepted request is not evidence that requested work has completed. RecordReference and RecordChunk replies use observed and establish only retrieval of that reference or chunk. The caller must verify the complete record before presenting a Plan as reviewed or claiming acceptance, execution or complete workflow inspection.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "RecordReference",
+                  "RecordChunk"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "const": "observed"
+          },
+          "complete": {
+            "const": true
+          },
+          "ok": {
+            "const": true
+          },
+          "problem": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
 }

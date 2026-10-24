@@ -4,7 +4,7 @@ import copy
 import json
 
 import pytest
-from fishhat_contracts.validation import ContractError
+from fishhat_contracts.validation import ContractError, digest
 from fishhat_owner.adapter_state import AdapterCoordinator
 
 from tests.adapter_support import (
@@ -51,8 +51,9 @@ def prepare(c, number=10):
     )
 
 
-def result(attempt, **overrides):
-    return {
+def result(owner, attempt, **overrides):
+    query = copy.deepcopy(owner.snapshot()["requests"][attempt["attempt_id"]])
+    effect = {
         "attempt_id": attempt["attempt_id"],
         "input_digest": attempt["input_digest"],
         "acknowledgment": "accepted",
@@ -62,14 +63,30 @@ def result(attempt, **overrides):
         "native_task": None,
         **overrides,
     }
+    output = (
+        {"deployment": query["input"]["deployment"], "observation": None, "objects": []}
+        if query["contract"] == "fishhat.runtime"
+        else {"activity": query["input"]["activity"]}
+    )
+    return query, {
+        "contract": query["contract"],
+        "method": query["method"],
+        "request_digest": digest(query),
+        "scope": query["input"]["scope"],
+        "coverage": "complete",
+        "continuation": None,
+        "proposal": None,
+        "effect": effect,
+        "output": output,
+    }
 
 
 def test_dispatch_commits_unknown_before_releasing_native_attempt():
     c, commits = coordinator()
     attempt = prepare(c)
     returned = c.dispatch("demo", attempt["attempt_id"])
-    assert commits[-1]["attempts"][attempt["attempt_id"]] == returned
-    assert returned["certainty"] == "unknown"
+    assert commits[-1]["attempts"][attempt["attempt_id"]] == returned["attempt"]
+    assert returned["attempt"]["certainty"] == "unknown"
     with pytest.raises(ContractError, match="RECONCILE_REQUIRED"):
         c.dispatch("demo", attempt["attempt_id"])
 
@@ -95,7 +112,7 @@ def test_close_racing_dispatched_start_is_not_quiescence():
     c.close_admission("demo")
     with pytest.raises(ContractError, match="PENDING_NATIVE_WORK"):
         c.prove_quiescent("demo", observation(c.state["bindings"]["demo"]["admission_generation"]))
-    c.settle(attempt["attempt_id"], result(attempt))
+    c.settle(attempt["attempt_id"], *result(c, attempt))
     # Only a separate complete native cessation observation can now establish quiescence.
     c.prove_quiescent("demo", observation(c.state["bindings"]["demo"]["admission_generation"]))
     assert c.snapshot()["quiescent"]["demo"] is True
@@ -106,10 +123,12 @@ def test_unknown_result_cannot_succeed_or_be_blindly_retried():
     attempt = prepare(c)
     c.dispatch("demo", attempt["attempt_id"])
     with pytest.raises(ContractError, match="UNKNOWN_EFFECT_CANNOT_SUCCEED"):
-        c.settle(attempt["attempt_id"], result(attempt, effect_certainty="unknown"))
+        c.settle(attempt["attempt_id"], *result(c, attempt, effect_certainty="unknown"))
     c.settle(
         attempt["attempt_id"],
-        result(attempt, effect_certainty="unknown", postcondition="unknown", task_state="unknown"),
+        *result(
+            c, attempt, effect_certainty="unknown", postcondition="unknown", task_state="unknown"
+        ),
     )
     assert c.snapshot()["attempts"][attempt["attempt_id"]]["state"] == "reconciling"
     with pytest.raises(ContractError, match="UNCERTAIN_EFFECT_RETRY"):
@@ -140,7 +159,7 @@ def test_wrong_result_identity_is_rejected():
     attempt = prepare(c)
     c.dispatch("demo", attempt["attempt_id"])
     with pytest.raises(ContractError, match="RESULT_IDENTITY"):
-        c.settle(attempt["attempt_id"], result(attempt, attempt_id=identifier(77)))
+        c.settle(attempt["attempt_id"], *result(c, attempt, attempt_id=identifier(77)))
 
 
 @pytest.mark.parametrize(
@@ -195,7 +214,7 @@ def test_closing_admission_does_not_disable_containment_effects():
         attempt_id=identifier(82),
         owner_approved=True,
     )
-    assert c.dispatch("demo", attempt["attempt_id"])["state"] == "dispatched"
+    assert c.dispatch("demo", attempt["attempt_id"])["attempt"]["state"] == "dispatched"
 
 
 def test_prepared_start_can_be_cancelled_but_dispatched_start_cannot():
@@ -224,7 +243,7 @@ def test_resolved_effect_is_not_permission_to_repeat_the_native_mutation():
     c, _ = coordinator()
     attempt = prepare(c)
     c.dispatch("demo", attempt["attempt_id"])
-    c.settle(attempt["attempt_id"], result(attempt))
+    c.settle(attempt["attempt_id"], *result(c, attempt))
     with pytest.raises(ContractError, match="EFFECT_RETRY_REQUIRES_NEW_PLAN"):
         prepare(c, 11)
 

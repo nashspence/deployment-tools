@@ -10,7 +10,15 @@ import copy
 from collections.abc import Callable
 from typing import Any, cast
 
-from fishhat_adapters import ROLES, Registry, check_request, check_result, runtime_binding_digest
+from fishhat_adapters import (
+    ROLES,
+    Registry,
+    check_invocation,
+    check_request,
+    check_response,
+    instance_reference,
+    runtime_binding_digest,
+)
 from fishhat_contracts.validation import ContractError, canonical, digest, validate
 
 
@@ -35,6 +43,8 @@ class AdapterCoordinator:
             "bindings": {},
             "admission": {},
             "attempts": {},
+            "requests": {},
+            "results": {},
             "quiescent": {},
         }
 
@@ -225,7 +235,6 @@ class AdapterCoordinator:
             attempt_id=attempt_id,
             runtime_control={
                 "binding_digest": runtime_binding_digest(binding),
-                "executor_instance_digest": digest(instance),
                 "service": request["input"]["service"],
                 "activity": request["input"]["activity"],
             },
@@ -247,8 +256,7 @@ class AdapterCoordinator:
             "operation_id": operation_id,
             "effect_id": effect_id,
             "attempt_id": attempt_id,
-            "instance": instance["id"],
-            "installation_digest": instance["installation_digest"],
+            "executor": instance_reference(instance, binding["scope"]),
             "binding_generation": binding["generation"],
             "native_incarnation": binding["native_incarnation"],
             "contract": request["contract"],
@@ -278,6 +286,8 @@ class AdapterCoordinator:
                 raise ContractError("EFFECT_RETRY_REQUIRES_NEW_PLAN")
         candidate = copy.deepcopy(self.state)
         candidate["attempts"][attempt_id] = attempt
+        candidate["requests"][attempt_id] = copy.deepcopy(request)
+        check_invocation(instance["role"], {"attempt": attempt, "request": request})
         self._publish(candidate)
         return copy.deepcopy(attempt)
 
@@ -305,8 +315,7 @@ class AdapterCoordinator:
         self._instance_matches(binding)
         require(
             attempt["scope"] == binding["scope"]
-            and attempt["instance"] == instance["id"]
-            and attempt["installation_digest"] == instance["installation_digest"]
+            and attempt["executor"] == instance_reference(instance, binding["scope"])
             and attempt["binding_generation"] == binding["generation"]
             and attempt["native_incarnation"] == binding["native_incarnation"],
             "STALE_DISPATCH",
@@ -316,8 +325,13 @@ class AdapterCoordinator:
         candidate["attempts"][attempt_id].update(state="dispatched", certainty="unknown")
         candidate["quiescent"][subject] = False
         self._publish(candidate)
-        # The native call can occur only after this owner commit has returned.
-        return cast(dict[str, Any], copy.deepcopy(self.state["attempts"][attempt_id]))
+        # Release the exact executable closure only after the owner commit has returned.
+        invocation = {
+            "attempt": copy.deepcopy(self.state["attempts"][attempt_id]),
+            "request": copy.deepcopy(self.state["requests"][attempt_id]),
+        }
+        check_invocation(instance["role"], invocation)
+        return invocation
 
     def _dispatch_control(
         self, binding: dict[str, Any], attempt: dict[str, Any]
@@ -335,8 +349,13 @@ class AdapterCoordinator:
                 ROLES["runtime"][attempt["method"]]["admission"],
             )
         control = self._service_control(binding, attempt)
-        instance = self._service_instance(binding, attempt["instance"], control["service"])
-        require(digest(instance) == control["executor_instance_digest"], "STALE_EXECUTOR_INSTANCE")
+        instance = self._service_instance(
+            binding, attempt["executor"]["instance"], control["service"]
+        )
+        require(
+            attempt["executor"] == instance_reference(instance, binding["scope"]),
+            "STALE_EXECUTOR_INSTANCE",
+        )
         return (
             instance,
             "closed" if control["activity"] == "stopped" else "open",
@@ -365,26 +384,79 @@ class AdapterCoordinator:
         require(digest(request) == attempt["input_digest"], "DELEGATED_INPUT_IDENTITY")
         return cast(dict[str, Any], control)
 
-    def settle(self, attempt_id: str, result: dict[str, Any]) -> None:
+    def settle(self, attempt_id: str, request: dict[str, Any], response: dict[str, Any]) -> None:
+        """Retain complete typed response custody before resolving the original attempt."""
         attempt = self.state["attempts"].get(attempt_id)
         require(attempt is not None, "UNKNOWN_ATTEMPT")
         assert attempt is not None
         require(attempt["state"] in {"dispatched", "reconciling"}, "INVALID_SETTLEMENT")
-        check_result(attempt, result)
+        check_response(
+            attempt["executor"]["role"],
+            request,
+            response,
+            invocation={"attempt": attempt, "request": self.state["requests"][attempt_id]},
+        )
+        candidate = copy.deepcopy(self.state)
+        candidate["attempts"][attempt_id].update(self._settlement(response["effect"]))
+        retained = {
+            "request": copy.deepcopy(request),
+            "response": copy.deepcopy(response),
+        }
+        identity = digest(retained)
+        evidence = candidate["results"].setdefault(attempt_id, {"latest": identity, "records": {}})
+        evidence["records"][identity] = retained
+        evidence["latest"] = identity
+        self._publish(candidate)
+
+    @staticmethod
+    def _settlement(result: dict[str, Any]) -> dict[str, Any]:
         known_terminal = (
             result["task_state"] == "terminal" and result["effect_certainty"] != "unknown"
         )
         outcome = "pending"
         if known_terminal and result["postcondition"] != "unknown":
             outcome = "succeeded" if result["postcondition"] == "satisfied" else "failed"
-        candidate = copy.deepcopy(self.state)
-        candidate["attempts"][attempt_id].update(
-            state="resolved" if outcome != "pending" else "reconciling",
-            certainty=result["effect_certainty"],
-            native_task=result["native_task"],
-            outcome=outcome,
-        )
-        self._publish(candidate)
+        return {
+            "state": "resolved" if outcome != "pending" else "reconciling",
+            "certainty": result["effect_certainty"],
+            "native_task": result["native_task"],
+            "outcome": outcome,
+        }
+
+    def _check_retained_results(self, snapshot: dict[str, Any]) -> None:
+        require(set(snapshot["results"]) <= set(snapshot["attempts"]), "RESTORE_RESULT_CUSTODY")
+        for key, attempt in snapshot["attempts"].items():
+            evidence = snapshot["results"].get(key)
+            require(
+                evidence is not None or attempt["outcome"] not in {"succeeded", "failed"},
+                "RESTORE_RESULT_CUSTODY",
+            )
+            if evidence is None:
+                continue
+            require(
+                set(evidence) == {"latest", "records"}
+                and evidence["latest"] in evidence["records"],
+                "RESTORE_RESULT_CUSTODY",
+            )
+            for identity, retained in evidence["records"].items():
+                require(
+                    set(retained) == {"request", "response"} and digest(retained) == identity,
+                    "RESTORE_RESULT_CUSTODY",
+                )
+                check_response(
+                    attempt["executor"]["role"],
+                    retained["request"],
+                    retained["response"],
+                    invocation={"attempt": attempt, "request": snapshot["requests"][key]},
+                )
+            latest = evidence["records"][evidence["latest"]]
+            require(
+                all(
+                    attempt[field] == value
+                    for field, value in self._settlement(latest["response"]["effect"]).items()
+                ),
+                "RESTORE_RESULT_STATE",
+            )
 
     def prove_quiescent(self, subject: str, observation: dict[str, Any]) -> None:
         validate("adapter.schema.json", observation, "Observation")
@@ -452,6 +524,15 @@ class AdapterCoordinator:
             )
             if attempt["contract"] == "fishhat.service":
                 self._service_control(scopes[digest(attempt["scope"])], attempt)
+        require(
+            set(snapshot["requests"]) == set(snapshot["attempts"]), "RESTORE_INVOCATION_CUSTODY"
+        )
+        for key, attempt in snapshot["attempts"].items():
+            check_invocation(
+                attempt["executor"]["role"],
+                {"attempt": attempt, "request": snapshot["requests"][key]},
+            )
+        self._check_retained_results(snapshot)
         candidate = copy.deepcopy(snapshot)
         candidate["admission"] = {subject: False for subject in candidate["bindings"]}
         candidate["quiescent"] = {subject: False for subject in candidate["bindings"]}

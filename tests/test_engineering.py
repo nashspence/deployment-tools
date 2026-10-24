@@ -321,6 +321,7 @@ def test_operation_owned_bounds_are_discovered_and_never_claim_native_qualificat
         "wire.read-frame",
         "directory.load",
         "journal.submit",
+        "record-delivery.chunk",
         "reporting.put",
         "reporting.events",
         "reporting.workflows",

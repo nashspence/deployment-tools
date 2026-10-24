@@ -3,7 +3,13 @@ from __future__ import annotations
 import copy
 
 import pytest
-from fishhat_adapters import ROLES, Registry, check_request, check_response
+from fishhat_adapters import (
+    ROLES,
+    Registry,
+    check_request,
+    check_response,
+    instance_reference,
+)
 from fishhat_contracts.validation import ContractError, digest
 from fishhat_owner.adapter_state import AdapterCoordinator
 
@@ -40,13 +46,21 @@ def artifact(letter):
     }
 
 
-def installed(role, *, observe_only=False):
+def installed(role, *, observe_only=False, endpoint="protected-target", generation=3):
     """An independent authority-model double, not a supplied native adapter."""
     scope = {"authority": OWNER["id"], "kind": "dataset", "handle": "data"}
     if role in {"secret-source", "credential-issuer"}:
         scope["kind"] = role
     elif role == "runtime":
         scope["kind"] = "application"
+    elif role in {"compute", "storage"}:
+        scope["kind"] = "allocation"
+    elif role == "backup":
+        scope["kind"] = "backup-repository"
+    elif role == "build":
+        scope["kind"] = "builder"
+    elif role == "dns":
+        scope["kind"] = "dns-service"
     configuration_schema = {
         "type": "object",
         "properties": {"endpoint": {"type": "string"}},
@@ -71,7 +85,7 @@ def installed(role, *, observe_only=False):
         "installation_digest": artifact("a")["digest"],
         "role": role,
         "schema_digest": digest(configuration_schema),
-        "configuration": {"endpoint": "protected-target"},
+        "configuration": {"endpoint": endpoint},
         "grants": [
             {
                 "scope": scope,
@@ -86,7 +100,7 @@ def installed(role, *, observe_only=False):
                 },
             }
         ],
-        "generation": 3,
+        "generation": generation,
     }
     registry = Registry()
     registry.install(
@@ -162,13 +176,23 @@ def handoff(role, method):
 
 
 def attempt_for(query):
+    inputs = query["input"]
+    executor = inputs.get("binding") or inputs.get("issuer")
+    if executor is None and "lease" in inputs:
+        executor = inputs["lease"]["issuer"]
+    if executor is None:
+        role = query["contract"].removeprefix("fishhat.")
+        executor = (
+            instance_reference(runtime_registry()[2], inputs["scope"])
+            if role == "runtime"
+            else installed(role)[1]
+        )
     return {
         "owner": OWNER,
         "operation_id": identifier(8),
         "effect_id": identifier(9),
         "attempt_id": identifier(10),
-        "instance": "selected",
-        "installation_digest": artifact("a")["digest"],
+        "executor": copy.deepcopy(executor),
         "binding_generation": 3,
         "native_incarnation": identifier(11),
         "contract": query["contract"],
@@ -180,6 +204,10 @@ def attempt_for(query):
         "outcome": "pending",
         "native_task": None,
     }
+
+
+def invocation_for(query):
+    return {"attempt": attempt_for(query), "request": copy.deepcopy(query)}
 
 
 def response_for(query, attempt, output):
@@ -206,16 +234,18 @@ def response_for(query, attempt, output):
 
 def reconciliation():
     original = request()
-    attempt = attempt_for(original)
+    invocation = invocation_for(original)
     query = {
         "contract": original["contract"],
         "method": "reconcile",
-        "input": {"scope": original["input"]["scope"], "attempt": copy.deepcopy(attempt)},
+        "input": {"scope": original["input"]["scope"], "invocation": copy.deepcopy(invocation)},
     }
     response = response_for(
-        query, attempt, {"deployment": None, "observation": None, "objects": []}
+        query,
+        invocation["attempt"],
+        {"deployment": original["input"]["deployment"], "observation": None, "objects": []},
     )
-    return query, attempt, response
+    return query, invocation, response
 
 
 def test_lost_activation_reply_is_settled_without_a_second_dispatch():
@@ -234,18 +264,25 @@ def test_lost_activation_reply_is_settled_without_a_second_dispatch():
         attempt_id=identifier(10),
         owner_approved=True,
     )
-    original = owner.dispatch("demo", prepared["attempt_id"])
+    invocation = owner.dispatch("demo", prepared["attempt_id"])
+    original = invocation["attempt"]
     query = {
         "contract": original["contract"],
         "method": "reconcile",
-        "input": {"scope": original["scope"], "attempt": original},
+        "input": {"scope": original["scope"], "invocation": invocation},
     }
     response = response_for(
-        query, original, {"deployment": None, "observation": None, "objects": []}
+        query,
+        original,
+        {
+            "deployment": invocation["request"]["input"]["deployment"],
+            "observation": None,
+            "objects": [],
+        },
     )
     assert response["request_digest"] != response["effect"]["input_digest"]
-    check_response("runtime", query, response, attempt=original)
-    owner.settle(original["attempt_id"], response["effect"])
+    check_response("runtime", query, response, invocation=invocation)
+    owner.settle(original["attempt_id"], query, response)
     assert owner.snapshot()["attempts"][original["attempt_id"]]["outcome"] == "succeeded"
     count = len(commits)
     with pytest.raises(ContractError, match="RECONCILE_REQUIRED"):
@@ -268,15 +305,15 @@ def test_lost_activation_reply_is_settled_without_a_second_dispatch():
 def test_reconciliation_refuses_identity_substitution(substitution):
     query, original, response = reconciliation()
     if substitution == "rpc-digest":
-        response["request_digest"] = original["input_digest"]
+        response["request_digest"] = original["attempt"]["input_digest"]
     elif substitution == "effect-digest":
         response["effect"]["input_digest"] = digest(query)
     elif substitution == "attempt-id":
         response["effect"]["attempt_id"] = identifier(99)
     elif substitution == "trusted-attempt":
-        original["installation_digest"] = artifact("f")["digest"]
+        original["attempt"]["executor"]["installation_digest"] = artifact("f")["digest"]
     else:
-        changed = query["input"]["attempt"]
+        changed = query["input"]["invocation"]["attempt"]
         if substitution == "scope":
             changed["scope"] = {**changed["scope"], "handle": "other"}
         elif substitution == "role":
@@ -285,7 +322,7 @@ def test_reconciliation_refuses_identity_substitution(substitution):
             changed["method"] = "observe"
         response["request_digest"] = digest(query)
     with pytest.raises(ContractError):
-        check_response("runtime", query, response, attempt=original)
+        check_response("runtime", query, response, invocation=original)
 
 
 def test_observational_reconciliation_does_not_require_mutation_authority():
@@ -302,16 +339,18 @@ def test_observational_reconciliation_does_not_require_mutation_authority():
 @pytest.mark.parametrize("method", ["restore", "verify"])
 def test_capture_handoff_distinguishes_old_and_new_snapshot(method):
     registry, query = handoff("capture", method)
-    registry.authorize_request("selected", "capture", query, owner_approved=True)
+    registry.authorize_invocation("capture", invocation_for(query), owner_approved=True)
     original = attempt_for(query)
     selected = query["input"]["snapshot"]
     response = response_for(
         query, original, {"snapshots": [copy.deepcopy(selected)], "verification": "consistent"}
     )
-    check_response("capture", query, response, attempt=original)
+    check_response("capture", query, response, invocation={"attempt": original, "request": query})
     response["output"]["snapshots"][0]["artifacts"] = [artifact("d")]
     with pytest.raises(ContractError, match="SNAPSHOT_OUTPUT_IDENTITY"):
-        check_response("capture", query, response, attempt=original)
+        check_response(
+            "capture", query, response, invocation={"attempt": original, "request": query}
+        )
     changed = copy.deepcopy(query)
     changed["input"]["snapshot"]["handle"] = "snapshot:new"
     changed["input"]["snapshot"]["artifacts"] = [artifact("d")]
@@ -322,7 +361,7 @@ def test_capture_handoff_distinguishes_old_and_new_snapshot(method):
 def test_cross_owner_restore_keeps_source_identity_separate_from_target_authority():
     registry, query = handoff("capture", "restore")
     query["input"]["snapshot"]["producer"]["scope"]["authority"] = identifier(55)
-    registry.authorize_request("selected", "capture", query, owner_approved=True)
+    registry.authorize_invocation("capture", invocation_for(query), owner_approved=True)
     query["input"]["snapshot"]["dataset"] = "different-data"
     with pytest.raises(ContractError, match="SNAPSHOT_INPUT_IDENTITY"):
         check_request("capture", query)
@@ -331,7 +370,7 @@ def test_cross_owner_restore_keeps_source_identity_separate_from_target_authorit
 @pytest.mark.parametrize("method", ["renew", "revoke"])
 def test_overlapping_credential_lease_is_never_an_implicit_target(method):
     registry, query = handoff("credential-issuer", method)
-    registry.authorize_request("selected", "credential-issuer", query, owner_approved=True)
+    registry.authorize_invocation("credential-issuer", invocation_for(query), owner_approved=True)
     original = attempt_for(query)
     lease = {
         **copy.deepcopy(query["input"]["lease"]),
@@ -341,10 +380,14 @@ def test_overlapping_credential_lease_is_never_an_implicit_target(method):
         "renewable": method == "renew",
     }
     response = response_for(query, original, {"leases": [lease]})
-    check_response("credential-issuer", query, response, attempt=original)
+    check_response(
+        "credential-issuer", query, response, invocation={"attempt": original, "request": query}
+    )
     response["output"]["leases"][0]["lease"] = "lease:new"
     with pytest.raises(ContractError, match="LEASE_RESULT_IDENTITY"):
-        check_response("credential-issuer", query, response, attempt=original)
+        check_response(
+            "credential-issuer", query, response, invocation={"attempt": original, "request": query}
+        )
     changed = copy.deepcopy(query)
     changed["input"]["lease"]["lease"] = "lease:new"
     check_request("credential-issuer", changed)
@@ -353,7 +396,7 @@ def test_overlapping_credential_lease_is_never_an_implicit_target(method):
 
 def test_publication_requires_same_source_and_exact_predecessor():
     registry, query = handoff("secret-source", "publish")
-    registry.authorize_request("selected", "secret-source", query, owner_approved=True)
+    registry.authorize_invocation("secret-source", invocation_for(query), owner_approved=True)
     changed = copy.deepcopy(query)
     changed["input"]["expected_previous"]["artifact_digest"] = artifact("d")["digest"]
     check_request("secret-source", changed)
@@ -381,7 +424,7 @@ def test_handoff_cannot_substitute_current_instance_configuration(role, method):
         query["input"]["expected_previous"]["source"] = copy.deepcopy(reference)
     check_request(role, query)
     with pytest.raises(ContractError, match="HANDOFF_INSTANCE_IDENTITY"):
-        registry.authorize_request("selected", role, query, owner_approved=True)
+        registry.authorize_invocation(role, invocation_for(query), owner_approved=True)
 
 
 @pytest.mark.parametrize(
@@ -391,6 +434,7 @@ def test_handoff_cannot_substitute_current_instance_configuration(role, method):
 def test_changed_exact_handoff_input_cannot_reuse_an_accepted_attempt(role, method):
     _, query = handoff(role, method)
     original = attempt_for(query)
+    invocation = {"attempt": original, "request": copy.deepcopy(query)}
     if role == "capture":
         query["input"]["snapshot"]["artifacts"] = [artifact("d")]
         output = {"snapshots": [], "verification": "unknown"}
@@ -401,5 +445,8 @@ def test_changed_exact_handoff_input_cannot_reuse_an_accepted_attempt(role, meth
         query["input"]["lease"]["lease"] = "lease:new"
         output = {"leases": []}
     response = response_for(query, original, output)
+    response["effect"].update(
+        task_state="unknown", effect_certainty="unknown", postcondition="unknown"
+    )
     with pytest.raises(ContractError, match="RESPONSE_EFFECT_IDENTITY"):
-        check_response(role, query, response, attempt=original)
+        check_response(role, query, response, invocation=invocation)

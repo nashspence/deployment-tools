@@ -255,23 +255,33 @@
               ],
               "additionalProperties": false
             },
-            "after": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
             "limit": {
               "type": "integer",
               "minimum": 1,
               "maximum": 256
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/Owner"
+            },
+            "cursor": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Cursor"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
+            "owner",
             "resource",
-            "after",
+            "cursor",
             "limit"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Begin with cursor null and the independently authenticated owner epoch; resume using the exact returned owner/resource/cursor. The owner rejects epoch, principal, resource or traversal substitution. Numeric event positions cannot be used as continuation tokens."
         }
       },
       "required": [
@@ -993,64 +1003,7 @@
           "const": "workflow.transfer"
         },
         "params": {
-          "type": "object",
-          "properties": {
-            "workflow_id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "expected_term": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 9007199254740991
-            },
-            "new_principal": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 24,
-              "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-            },
-            "transfer_id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "phase": {
-              "enum": [
-                "freeze",
-                "commit"
-              ]
-            },
-            "witnesses": {
-              "type": "array",
-              "items": {
-                "$ref": "records.schema.json#/$defs/Witness"
-              },
-              "minItems": 0,
-              "maxItems": 256
-            },
-            "owner": {
-              "$ref": "common.schema.json#/$defs/Owner"
-            },
-            "expected_generation": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "workflow_id",
-            "expected_term",
-            "new_principal",
-            "transfer_id",
-            "phase",
-            "witnesses",
-            "owner",
-            "expected_generation"
-          ],
-          "additionalProperties": false,
-          "description": "Compare the receiving owner capsule generation as well as its driver term. Preserve separately identified freeze/commit retry identity; partial transfer never opens new-driver admission without every required participant witness."
+          "$ref": "records.schema.json#/$defs/WorkflowTransferRequest"
         }
       },
       "required": [
@@ -1442,6 +1395,51 @@
           ],
           "additionalProperties": false,
           "description": "Inspect original durable staging after an uncertain reply under the current authenticated custody scope. Do not allocate a replacement identity or infer absence of accepted effects from missing staging."
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "record.read"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "reference": {
+              "$ref": "common.schema.json#/$defs/RecordReference"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "length": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 196608
+            }
+          },
+          "required": [
+            "reference",
+            "offset",
+            "length"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

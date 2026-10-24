@@ -149,7 +149,7 @@ def test_selection_cannot_enable_ambient_bootstrap_effects(member):
     ["HEAD", "main", "refs/heads/a..b", "refs/heads/a.lock/b", "refs/heads/a/.b", "refs/heads/a b"],
     ids=["symbolic", "abbreviated", "range", "lock-component", "hidden-component", "space"],
 )
-def test_only_literal_branch_refs_are_selected(value):
+def test_only_literal_git_refs_are_selected(value):
     selection = records("git-bundle")["selection"]
     selection["ref"] = value
     with pytest.raises(ContractError):
@@ -472,8 +472,15 @@ def test_bootstrap_wire_requires_repository_scope_and_an_evidenced_result(method
         "operation_id": identifier(8),
         "effect_id": identifier(9),
         "attempt_id": identifier(10),
-        "instance": "offline-source",
-        "installation_digest": D,
+        "executor": {
+            "instance": "offline-source",
+            "role": "bootstrap-source",
+            "installation_digest": D,
+            "configuration_digest": digest(value["configuration"]),
+            "instance_generation": 1,
+            "instance_digest": D,
+            "scope": value["scope"],
+        },
         "binding_generation": 1,
         "native_incarnation": identifier(11),
         "contract": request["contract"],
@@ -504,14 +511,15 @@ def test_bootstrap_wire_requires_repository_scope_and_an_evidenced_result(method
             "native_task": None,
         },
     }
-    check_response("bootstrap-source", request, response, attempt=attempt)
+    invocation = {"attempt": attempt, "request": copy.deepcopy(request)}
+    check_response("bootstrap-source", request, response, invocation=invocation)
     response["output"]["receipt"] = None
     with pytest.raises(ContractError):
-        check_response("bootstrap-source", request, response, attempt=attempt)
+        check_response("bootstrap-source", request, response, invocation=invocation)
     response["output"]["receipt"] = fixture("source-receipt")
     response["effect"]["effect_certainty"] = "unknown"
     with pytest.raises(ContractError, match="UNKNOWN_EFFECT_CANNOT_SUCCEED"):
-        check_response("bootstrap-source", request, response, attempt=attempt)
+        check_response("bootstrap-source", request, response, invocation=invocation)
 
 
 def test_catalogue_extent_and_source_visits():
@@ -523,7 +531,7 @@ def test_catalogue_extent_and_source_visits():
         catalogue["sources"] = [
             {**copy.deepcopy(source), "source_id": f"source-{n}"} for n in range(count)
         ]
-        with patch.object(bootstrap, "valid_branch", wraps=bootstrap.valid_branch) as counted:
+        with patch.object(bootstrap, "_ref", wraps=bootstrap._ref) as counted:
             validate_catalogue(catalogue)
         assert counted.call_count == count
         assert len(catalogue["sources"]) == count
@@ -535,7 +543,7 @@ def test_catalogue_extent_and_source_visits():
     catalogue["sources"] = [
         {**copy.deepcopy(source), "source_id": f"source-{n}"} for n in range(257)
     ]
-    with pytest.raises(ContractError), patch.object(bootstrap, "valid_branch") as counted:
+    with pytest.raises(ContractError), patch.object(bootstrap, "_ref") as counted:
         validate_catalogue(catalogue)
     assert counted.call_count == 0
     catalogue["padding"] = "x" * MAX_BYTES

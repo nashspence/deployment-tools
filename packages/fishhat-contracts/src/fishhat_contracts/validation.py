@@ -423,12 +423,8 @@ def validate_app(app: dict[str, Any], catalogue: dict[str, Any] | None = None) -
         for name in names:
             _require(name in hooks and hooks[name]["role"] == role, "missing/wrong lifecycle hook")
     for task in app["maintenance"].values():
-        if task["hook"] is not None:
+        if task["action"] == "native-maintenance":
             _require(task["hook"] in hooks, "unknown maintenance hook")
-        _require(
-            task["action"] != "native-maintenance" or task["hook"] is not None,
-            "native maintenance hook missing",
-        )
     from fishhat_contracts.resources import validate_requirements
 
     validate_requirements(app["resources"], app=app)

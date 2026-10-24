@@ -1,0 +1,226 @@
+"""Exact synthetic restore inputs and observation access, without native execution."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+
+import pytest
+from fishhat_contracts.hooks import require_selected_restore_input, validate_hook_request
+from fishhat_contracts.validation import ContractError, validate
+
+CHECK_PURPOSE = {
+    "purpose": "public-contract",
+    "authority": [
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/hook-request.schema.json",
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/adapter.schema.json#/$defs/Snapshot",
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/source.schema.json#/$defs/App",
+    ],
+    "scope": "exact selected restore snapshots, complete immutable materializations and role access",
+    "relationship": "candidate",
+    "reason": "Adverse request substitutions and omitted input cases exercise pure schema and reference joins, without establishing materialization, native path identity or authority.",
+    "claims": [],
+}
+
+D = "sha256:" + "a" * 64
+OTHER = "sha256:" + "b" * 64
+
+
+def request(role="restore"):
+    artifact = {"digest": D, "media_type": "application/octet-stream", "size_bytes": 64}
+    snapshot = {
+        "handle": "snapshot:selected",
+        "dataset": "state",
+        "format": "independent.snapshot",
+        "consistency": "quiesced",
+        "artifacts": [deepcopy(artifact)],
+        "restore_requirements": [],
+        "producer": {
+            "instance": "capture",
+            "role": "capture",
+            "installation_digest": D,
+            "configuration_digest": D,
+            "instance_generation": 1,
+            "instance_digest": D,
+            "scope": {
+                "authority": "00000000-0000-4000-8000-000000000003",
+                "kind": "dataset",
+                "handle": "state",
+            },
+        },
+    }
+    return {
+        "format": "deployment-ops/hook/v1",
+        "id": "00000000-0000-4000-8000-000000000001",
+        "operation_id": "00000000-0000-4000-8000-000000000002",
+        "release_digest": D,
+        "executor_component": "maintenance",
+        "subject": {"kind": "dataset", "id": "state"},
+        "role": role,
+        "dataset_handles": {
+            "state": {"path": "/synthetic/target", "mode": "write" if role == "restore" else "read"}
+        },
+        "secret_paths": {},
+        "endpoint_bindings": {},
+        "output_directory": "/synthetic/output",
+        "timeout_seconds": 60,
+        "restore_input": {
+            "checkpoint_digest": D,
+            "datasets": {
+                "state": {
+                    "snapshot": snapshot,
+                    "materializations": [
+                        {"artifact": artifact, "path": "/synthetic/input/state", "mode": "read"}
+                    ],
+                }
+            },
+        }
+        if role in {"restore", "verify-restore"}
+        else None,
+    }
+
+
+@pytest.mark.parametrize("role", ["restore", "verify-restore"])
+def test_restore_handoff_preserves_selected_checkpoint_and_complete_snapshot(role):
+    value = request(role)
+    selected = deepcopy(value["restore_input"])
+    require_selected_restore_input(
+        value,
+        checkpoint_digest=selected["checkpoint_digest"],
+        snapshots={name: item["snapshot"] for name, item in selected["datasets"].items()},
+    )
+    assert value["restore_input"] == selected
+
+
+@pytest.mark.parametrize("role", ["restore", "verify-restore"])
+@pytest.mark.parametrize("change", ["missing", "null"])
+def test_restore_cannot_omit_the_selected_input(role, change):
+    value = request(role)
+    if change == "missing":
+        del value["restore_input"]
+    else:
+        value["restore_input"] = None
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        "health",
+        "verify-config",
+        "dependency-check",
+        "busy",
+        "transition-assess",
+        "transition-verify",
+        "capture",
+        "verify-restore",
+        "verify-rebuild",
+    ],
+)
+def test_observational_hook_wire_cannot_expand_dataset_access(role):
+    value = request(role)
+    validate_hook_request(value)
+    value["dataset_handles"]["state"]["mode"] = "write"
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize("role", ["health", "capture", "configure", "rebuild"])
+def test_other_hook_roles_cannot_borrow_restore_inputs(role):
+    value = request()
+    value["role"] = role
+    value["dataset_handles"]["state"]["mode"] = "read"
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize("change", ["omitted-target", "other-dataset", "wrong-producer"])
+def test_restore_snapshot_cannot_change_dataset_or_capture_identity(change):
+    value = request()
+    snapshot = value["restore_input"]["datasets"]["state"]["snapshot"]
+    if change == "omitted-target":
+        value["dataset_handles"]["additional"] = {"path": "/synthetic/other", "mode": "write"}
+    elif change == "other-dataset":
+        snapshot["dataset"] = "other"
+    else:
+        snapshot["producer"]["role"] = "runtime"
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize("change", ["missing", "additional", "duplicate", "changed-bytes"])
+def test_restore_materialization_must_equal_the_complete_artifact_closure(change):
+    value = request()
+    selected = value["restore_input"]["datasets"]["state"]
+    item = selected["materializations"][0]
+    if change == "missing":
+        selected["snapshot"]["artifacts"].append({**deepcopy(item["artifact"]), "digest": OTHER})
+    elif change == "additional":
+        selected["materializations"].append(
+            {
+                "artifact": {**deepcopy(item["artifact"]), "digest": OTHER},
+                "path": "/input/extra",
+                "mode": "read",
+            }
+        )
+    elif change == "duplicate":
+        selected["materializations"].append({**deepcopy(item), "path": "/input/duplicate"})
+    else:
+        item["artifact"]["size_bytes"] += 1
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/synthetic/target",
+        "/synthetic/target/input",
+        "/synthetic/output/input",
+        "/synthetic/../input",
+    ],
+    ids=["target", "below-target", "output", "noncanonical"],
+)
+@pytest.mark.parametrize("role", ["restore", "verify-restore"])
+def test_restore_artifacts_remain_separate_from_restored_targets_and_output(path, role):
+    value = request(role)
+    value["restore_input"]["datasets"]["state"]["materializations"][0]["path"] = path
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+def test_restore_artifact_materialization_cannot_request_write_access():
+    value = request()
+    value["restore_input"]["datasets"]["state"]["materializations"][0]["mode"] = "write"
+    with pytest.raises(ContractError):
+        validate_hook_request(value)
+
+
+@pytest.mark.parametrize("change", ["checkpoint", "snapshot", "producer", "artifact"])
+def test_consistent_new_input_cannot_replace_retained_restore_selection(change):
+    value = request()
+    expected = deepcopy(value["restore_input"])
+    selected = value["restore_input"]["datasets"]["state"]
+    if change == "checkpoint":
+        value["restore_input"]["checkpoint_digest"] = OTHER
+    elif change == "snapshot":
+        selected["snapshot"]["handle"] = "snapshot:other"
+    elif change == "producer":
+        selected["snapshot"]["producer"]["instance_generation"] += 1
+    else:
+        selected["snapshot"]["artifacts"][0]["digest"] = OTHER
+        selected["materializations"][0]["artifact"]["digest"] = OTHER
+    validate_hook_request(value)
+    with pytest.raises(ContractError, match="selected"):
+        require_selected_restore_input(
+            value,
+            checkpoint_digest=expected["checkpoint_digest"],
+            snapshots={name: item["snapshot"] for name, item in expected["datasets"].items()},
+        )
+
+
+def test_hook_source_does_not_give_the_caller_an_extra_input_channel():
+    value = request()
+    value["input_directory"] = "/synthetic/unbound-input"
+    with pytest.raises(ContractError):
+        validate("hook-request.schema.json", value)

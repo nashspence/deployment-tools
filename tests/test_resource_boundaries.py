@@ -11,7 +11,7 @@ from fishhat_contracts.resources import (
     validate_host_resources,
     validate_snapshot,
 )
-from fishhat_contracts.validation import ContractError, strict_yaml
+from fishhat_contracts.validation import ContractError, strict_yaml, validate
 
 from tests.support import fixture_path
 
@@ -187,3 +187,25 @@ def test_resource_bindings_cannot_hide_a_native_provider_field():
     observed["quotas"][0]["storage"]["project_id"] = 10001
     with pytest.raises(ContractError):
         validate_snapshot(observed)
+
+
+@pytest.mark.parametrize("collection", ["accounts", "pools"])
+@pytest.mark.parametrize("name", ["a" * 25, "account-"], ids=["too-long", "trailing-hyphen"])
+def test_resource_source_names_cannot_exceed_their_record_identifier_type(collection, name):
+    resources = host()["resources"]
+    entries = resources[collection]
+    entries[name] = entries.pop(next(iter(entries)))
+    with pytest.raises(ContractError, match=r"schema resources\.schema\.json"):
+        validate("resources.schema.json", resources, "HostResources")
+
+
+@pytest.mark.parametrize("name", ["a", "a" * 24], ids=["minimum", "maximum"])
+def test_resource_account_name_round_trips_from_source_to_accounting(name):
+    source = host()
+    accounts = source["resources"]["accounts"]
+    accounts[name] = accounts.pop("maintainer")
+    validate_host_resources(source)
+    observed = snapshot()
+    observed["account"] = name
+    validate_snapshot(observed)
+    assert observed["account"] in source["resources"]["accounts"]

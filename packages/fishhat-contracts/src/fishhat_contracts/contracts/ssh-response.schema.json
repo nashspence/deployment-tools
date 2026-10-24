@@ -213,7 +213,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Plan"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Plan"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Plan"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -243,7 +265,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Plan"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Plan"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Plan"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -273,7 +317,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Operation"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Operation"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Operation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -303,7 +369,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Operation"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Operation"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Operation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -363,7 +451,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Operation"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Operation"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Operation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -393,7 +503,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Workflow"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Workflow"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Workflow"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -423,7 +555,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Workflow"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Workflow"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Workflow"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -453,7 +607,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Workflow"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Workflow"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Workflow"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -483,7 +659,29 @@
           "const": true
         },
         "result": {
-          "$ref": "records.schema.json#/$defs/Workflow"
+          "oneOf": [
+            {
+              "$ref": "records.schema.json#/$defs/Workflow"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/RecordReference"
+                },
+                {
+                  "properties": {
+                    "record": {
+                      "properties": {
+                        "kind": {
+                          "const": "Workflow"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "required": [
@@ -670,7 +868,8 @@
             "operation.list",
             "resources.observe",
             "workflow.list",
-            "content.status"
+            "content.status",
+            "record.read"
           ]
         },
         "ok": {
@@ -764,6 +963,34 @@
         },
         "result": {
           "$ref": "records.schema.json#/$defs/ContentStaging"
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "ok",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "record.read"
+        },
+        "ok": {
+          "const": true
+        },
+        "result": {
+          "$ref": "common.schema.json#/$defs/RecordChunk"
         }
       },
       "required": [

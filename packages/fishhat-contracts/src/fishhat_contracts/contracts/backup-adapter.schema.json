@@ -181,16 +181,16 @@
         "scope": {
           "$ref": "adapter.schema.json#/$defs/Scope"
         },
-        "attempt": {
-          "$ref": "adapter.schema.json#/$defs/EffectAttempt"
+        "invocation": {
+          "$ref": "adapter.schema.json#/$defs/Invocation"
         }
       },
       "required": [
         "scope",
-        "attempt"
+        "invocation"
       ],
       "additionalProperties": false,
-      "description": "Observe and settle the exact original retained mutation attempt without dispatching or repeating a native mutation. Any corrective mutation requires a separately reviewed and authorized effect. The attempt contract and scope must match this request, and its method must name a mutating operation of this role."
+      "description": "Observe and settle the exact original owner-retained invocation, including the original typed request, full accepted executor reference and attempt identity. Scope and role must agree with that closure. Recovered outputs obey the original method result contract. Current enrollment cannot retarget historical work; an unavailable or replaced executor leaves the result unresolved. Corrective mutation requires a separate reviewed invocation; reconciliation never dispatches or repeats the supplied mutation."
     },
     "Output": {
       "type": "object",
@@ -208,7 +208,8 @@
       "required": [
         "objects"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A successful store retains one exact sealed object with available or explicitly deferred retrieval. Successful retrieval or verification requires that exact sealed object to be available; incomplete or missing data cannot establish either. A successful delete, including verified prior absence, retains the requested immutable object identity with retrieval missing. Deletion evidence is not a retrievable data copy."
     },
     "Response": {
       "oneOf": [
@@ -272,7 +273,68 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "task_state": {
+                        "const": "terminal"
+                      },
+                      "effect_certainty": {
+                        "const": "known"
+                      },
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "task_state",
+                      "effect_certainty",
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  },
+                  "continuation": {
+                    "type": "null"
+                  },
+                  "output": {
+                    "properties": {
+                      "objects": {
+                        "minItems": 1,
+                        "maxItems": 1,
+                        "items": {
+                          "properties": {
+                            "completeness": {
+                              "const": "sealed"
+                            },
+                            "retrieval": {
+                              "enum": [
+                                "available",
+                                "deferred"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Terminal satisfied effects require complete committed output custody under this method contract, including its exact requested identities. Native completion without required output remains unresolved; it is not successful completion. Pending, rejected and failed effects may return no output and retain their existing uncertainty and holds."
         },
         {
           "type": "object",
@@ -334,7 +396,65 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "task_state": {
+                        "const": "terminal"
+                      },
+                      "effect_certainty": {
+                        "const": "known"
+                      },
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "task_state",
+                      "effect_certainty",
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  },
+                  "continuation": {
+                    "type": "null"
+                  },
+                  "output": {
+                    "properties": {
+                      "objects": {
+                        "minItems": 1,
+                        "maxItems": 1,
+                        "items": {
+                          "properties": {
+                            "completeness": {
+                              "const": "sealed"
+                            },
+                            "retrieval": {
+                              "const": "available"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Terminal satisfied effects require complete committed output custody under this method contract, including its exact requested identities. Native completion without required output remains unresolved; it is not successful completion. Pending, rejected and failed effects may return no output and retain their existing uncertainty and holds."
         },
         {
           "type": "object",
@@ -396,7 +516,65 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "task_state": {
+                        "const": "terminal"
+                      },
+                      "effect_certainty": {
+                        "const": "known"
+                      },
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "task_state",
+                      "effect_certainty",
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  },
+                  "continuation": {
+                    "type": "null"
+                  },
+                  "output": {
+                    "properties": {
+                      "objects": {
+                        "minItems": 1,
+                        "maxItems": 1,
+                        "items": {
+                          "properties": {
+                            "completeness": {
+                              "const": "sealed"
+                            },
+                            "retrieval": {
+                              "const": "available"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Terminal satisfied effects require complete committed output custody under this method contract, including its exact requested identities. Native completion without required output remains unresolved; it is not successful completion. Pending, rejected and failed effects may return no output and retain their existing uncertainty and holds."
         },
         {
           "type": "object",
@@ -458,7 +636,62 @@
             "output",
             "effect"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "properties": {
+                      "task_state": {
+                        "const": "terminal"
+                      },
+                      "effect_certainty": {
+                        "const": "known"
+                      },
+                      "postcondition": {
+                        "const": "satisfied"
+                      }
+                    },
+                    "required": [
+                      "task_state",
+                      "effect_certainty",
+                      "postcondition"
+                    ]
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "coverage": {
+                    "const": "complete"
+                  },
+                  "continuation": {
+                    "type": "null"
+                  },
+                  "output": {
+                    "properties": {
+                      "objects": {
+                        "minItems": 1,
+                        "maxItems": 1,
+                        "items": {
+                          "properties": {
+                            "retrieval": {
+                              "const": "missing"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "description": "Terminal satisfied effects require complete committed output custody under this method contract, including its exact requested identities. Native completion without required output remains unresolved; it is not successful completion. Pending, rejected and failed effects may return no output and retain their existing uncertainty and holds."
         },
         {
           "type": "object",
@@ -579,7 +812,91 @@
             "effect"
           ],
           "additionalProperties": false,
-          "description": "request_digest identifies this reconciliation RPC; effect identifies and reports the original mutation attempt from input.attempt. These are different identities. A reconciliation result supplies no authorization to repeat or correct the mutation."
+          "description": "request_digest identifies this reconciliation RPC; effect identifies its original invocation attempt. Recovered output must satisfy the original method result and custody contract, using independently retained invocation bytes. Reconciliation supplies no authority to repeat or correct the mutation."
+        }
+      ]
+    },
+    "MutationRequest": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.backup"
+            },
+            "method": {
+              "const": "store"
+            },
+            "input": {
+              "$ref": "#/$defs/store"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "input"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.backup"
+            },
+            "method": {
+              "const": "retrieve"
+            },
+            "input": {
+              "$ref": "#/$defs/retrieve"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "input"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.backup"
+            },
+            "method": {
+              "const": "verify"
+            },
+            "input": {
+              "$ref": "#/$defs/verify"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "input"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "fishhat.backup"
+            },
+            "method": {
+              "const": "delete"
+            },
+            "input": {
+              "$ref": "#/$defs/delete"
+            }
+          },
+          "required": [
+            "contract",
+            "method",
+            "input"
+          ],
+          "additionalProperties": false
         }
       ]
     }
@@ -705,5 +1022,6 @@
       ],
       "additionalProperties": false
     }
-  ]
+  ],
+  "description": "Mutation request objects are typed planning payloads. Native execution requires the owner-authored adapter Invocation with its exact attempt and accepted executor; a bare role request is not an alternate executable boundary."
 }

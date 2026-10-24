@@ -15,7 +15,7 @@ from fishhat_adapters import check_configuration, check_descriptor, check_reques
 from fishhat_contracts.bounds import Bounds, bounds
 from fishhat_contracts.validation import MAX_BYTES, ContractError, canonical, digest, validate
 
-from fishhat_client.workspace import clean_path, valid_branch, within
+from fishhat_client.workspace import clean_path, within
 
 
 def _bounded(value: dict[str, Any]) -> None:
@@ -24,10 +24,7 @@ def _bounded(value: dict[str, Any]) -> None:
 
 
 def _ref(value: str) -> None:
-    branch = value.removeprefix("refs/heads/")
-    if not value.startswith("refs/heads/") or any(p.endswith(".lock") for p in branch.split("/")):
-        raise ContractError("literal Git branch ref required")
-    valid_branch(branch)
+    validate("common.schema.json", value, "GitRef")
 
 
 def validate_selection(selection: dict[str, Any]) -> dict[str, Any]:

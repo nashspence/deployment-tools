@@ -356,6 +356,172 @@
       ],
       "additionalProperties": false,
       "description": "A committed operation output and its exact approved result schema. The handle owner and operation binding must match the enclosing Operation. The owning action catalog determines the permitted result type; a generic adapter action pins its selected method result schema in its reviewed subject. This declaration does not advertise an implemented capability."
+    },
+    "GitRef": {
+      "type": "string",
+      "minLength": 11,
+      "maxLength": 240,
+      "pattern": "^refs/(heads|tags)/[^\\s]+$",
+      "not": {
+        "pattern": "(^|/)\\.|\\.\\.|@\\{|//|\\.lock(/|$)|[\\u0000-\\u0020\\u007f~^:?*\\[\\\\]|[./]$"
+      },
+      "description": "A literal full Git branch or tag reference. Source selection and independent source recovery use the same grammar and bound; revision expressions, malformed path components and ref metacharacters are rejected. The exact commit remains separately pinned."
+    },
+    "RecordReference": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record-reference/v1"
+        },
+        "kind": {
+          "const": "RecordReference"
+        },
+        "snapshot_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/Owner"
+        },
+        "record": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "Plan",
+                "Operation",
+                "Workflow"
+              ]
+            },
+            "id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            },
+            "generation": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "generation"
+          ],
+          "additionalProperties": false
+        },
+        "schema": {
+          "$ref": "common.schema.json#/$defs/SchemaIdentity"
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "snapshot_id",
+        "owner",
+        "record",
+        "schema",
+        "digest",
+        "size"
+      ],
+      "additionalProperties": false,
+      "description": "An owner-minted immutable canonical-JSON snapshot of one complete record, independently of operation admission. The record identity, exact owner epoch, record-declared generation, installed schema closure, complete byte digest and size are inseparable. Immutable Plans use null generation; Operations and Workflows use their declared generation, with the digest distinguishing every snapshot. Possession grants no read or execution authority: every record.read rechecks the actual receiving principal and the protected snapshot resource closure. The owner commits complete retrievable snapshot custody before advertising this reference. Later generations never replace its bytes. Plan expiry affects admission, not completion of an already advertised traversal; accepted, active, uncertain and recovery-required custody cannot lose its only retrievable evidence. An explicit expired or restored snapshot requires a fresh record lookup, never silent rebinding. Accepted work must remain discoverable and fully retrievable through its current record even if old completed traversals are collected. This reference does not establish plan review, acceptance or execution success before its complete payload is verified. Size describes the record and adds no total-size limit beyond its owning contract; transfers use bounded chunks and local capacity failures must be explicit.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "kind": {
+                    "const": "Plan"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "generation": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RecordChunk": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/record-chunk/v1"
+        },
+        "kind": {
+          "const": "RecordChunk"
+        },
+        "reference": {
+          "$ref": "common.schema.json#/$defs/RecordReference"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "base64": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 262144,
+          "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+        },
+        "next_offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "format",
+        "kind",
+        "reference",
+        "offset",
+        "base64",
+        "next_offset",
+        "complete"
+      ],
+      "additionalProperties": false,
+      "description": "One exact requested byte range from the immutable record snapshot. The complete reference and starting offset match the request; decoded bytes are at most the requested length and 196608 bytes. next_offset equals offset plus decoded length and never exceeds the pinned size. complete is true exactly at that size; a nonterminal chunk must make progress. Consumers reject substituted references, offsets, invalid base64, gaps, overlaps and premature completion, then verify complete size, digest, canonical encoding, installed schema and record identity before using the record. A chunk or an exhausted connection is not a completed record."
     }
   }
 }

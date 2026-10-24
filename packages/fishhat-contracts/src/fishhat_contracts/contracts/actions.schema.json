@@ -1290,7 +1290,7 @@
         "task"
       ],
       "additionalProperties": false,
-      "description": "Run one declared application maintenance task with its exact approved scope. The plan explains any data changes or downtime; a task name does not authorize arbitrary host commands."
+      "description": "Run one task resolved from the receiver's accepted application release with its exact approved scope. The effective minimum role is the higher of app.maintenance-run and the expanded app.backup, app.backup-check or app.drill action. Those built-in tasks cannot select a hook. The native-maintenance branch selects one declared hook and requires administrator regardless of its hook role; it cannot lower the permission floor of restore, drill or other owner work. The receiver checks this role and current scoped authority for manual and scheduled execution. A task declaration or schedule cannot delegate administrator authority. The plan explains data changes or downtime; a task name does not authorize arbitrary host commands."
     },
     "app.secrets-adopt": {
       "type": "object",
@@ -1431,11 +1431,42 @@
           "maxLength": 24,
           "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
         },
-        "checkpoint": {
-          "type": "string",
-          "minLength": 71,
-          "maxLength": 71,
-          "pattern": "^sha256:[0-9a-f]{64}$"
+        "recovery_basis": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "checkpoint"
+                },
+                "checkpoint_digest": {
+                  "$ref": "common.schema.json#/$defs/Digest"
+                }
+              },
+              "required": [
+                "kind",
+                "checkpoint_digest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "release"
+                },
+                "release_digest": {
+                  "$ref": "common.schema.json#/$defs/Digest"
+                }
+              },
+              "required": [
+                "kind",
+                "release_digest"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "Exact reviewed recovery basis. A checkpoint retains the selected preserved data closure. A release basis is permitted only when the independently loaded accepted application source has no app-owned dataset with preserve recovery; it pins the accepted release and its reconstruction inputs. It covers data-free and rebuild-only applications without inventing a captured dataset. It does not waive external custody, reconstruction verification or destination admission."
         },
         "placement_generation": {
           "type": "integer",
@@ -1445,11 +1476,11 @@
       },
       "required": [
         "destination_host",
-        "checkpoint",
+        "recovery_basis",
         "placement_generation"
       ],
       "additionalProperties": false,
-      "description": "Move the same application identity and its data to the selected host through a fenced ownership handoff. Source and destination must not become concurrent production writers; changing placement text alone does not move the application."
+      "description": "Move the same application identity to the selected host through a fenced ownership handoff under the exact recovery basis. The receiving owner checks the basis against independently loaded accepted source and custody; a caller cannot reclassify preserved data as rebuildable or data-free. Source and destination must not become concurrent production writers. A release basis changes neither fencing nor permissions and cannot authorize deletion; changing placement text alone does not move the application."
     },
     "host.apply": {
       "type": "object",
