@@ -35,7 +35,6 @@
         ]
       },
       "minItems": 1,
-      "maxItems": 15,
       "uniqueItems": true
     },
     "entrypoint": {
@@ -56,7 +55,6 @@
         "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
       },
       "minItems": 0,
-      "maxItems": 256,
       "uniqueItems": true
     },
     "native_qualified": {
@@ -168,8 +166,7 @@
           "$ref": "common.schema.json#/$defs/Digest"
         },
         "source": {
-          "type": "object",
-          "maxProperties": 128
+          "type": "object"
         }
       },
       "required": [
@@ -214,7 +211,6 @@
             "$ref": "adapter.schema.json#/$defs/MutationNamespace"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -353,8 +349,7 @@
           "$ref": "common.schema.json#/$defs/Digest"
         },
         "configuration": {
-          "type": "object",
-          "maxProperties": 128
+          "type": "object"
         },
         "grants": {
           "type": "array",
@@ -362,7 +357,6 @@
             "$ref": "adapter.schema.json#/$defs/Grant"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "generation": {
@@ -461,7 +455,6 @@
             "$ref": "common.schema.json#/$defs/Id"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -841,7 +834,6 @@
             "additionalProperties": false
           },
           "minItems": 1,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "external_accounts": {
@@ -853,7 +845,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -899,7 +890,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "restore_requirements": {
@@ -911,7 +901,6 @@
             "pattern": "^[a-z][a-z0-9-]*(?:[./][a-z][a-z0-9-]*)+$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "producer": {
@@ -1618,11 +1607,23 @@
             "$ref": "adapter.schema.json#/$defs/Counter"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "hard_isolation": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "True only when effective byte and inode capacities are enforced for the entire allocation domain; false is observational/advisory and cannot satisfy a hard allocation request."
+        },
+        "capacity_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Native observed effective enforced allocation capacity in bytes. Zero means a hard zero-sized allocation, never unlimited."
+        },
+        "capacity_inodes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Native observed effective enforced allocation capacity in inodes. Zero means no inodes, never unlimited."
         }
       },
       "required": [
@@ -1631,7 +1632,9 @@
         "purposes",
         "native_identity_digest",
         "counters",
-        "hard_isolation"
+        "hard_isolation",
+        "capacity_bytes",
+        "capacity_inodes"
       ],
       "additionalProperties": false
     },
@@ -1719,7 +1722,6 @@
             "$ref": "adapter.schema.json#/$defs/Handle"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -1749,7 +1751,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "completeness": {
@@ -1808,13 +1809,25 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "description": "The authoritatively observed effective expiration time, or null only when unknown/not applicable. Null cannot satisfy a bounded issuance or renewal."
         },
         "renewable": {
           "type": "boolean"
         },
         "issuer": {
           "$ref": "adapter.schema.json#/$defs/InstanceReference"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Authoritatively observed start/renewal instant of this effective lease validity. Null is permitted only when temporal validity is not known; it cannot satisfy a new issue/renew result."
         }
       },
       "required": [
@@ -1825,7 +1838,8 @@
         "validity",
         "expires_at",
         "renewable",
-        "issuer"
+        "issuer",
+        "valid_from"
       ],
       "additionalProperties": false,
       "description": "One exact credential lease and its observed validity, bound to its issuer Instance and consumer. Lease and value handles are opaque protected references, not plaintext or bearer authority. Multiple leases may overlap for one identity/consumer; rotating or revoking one does not authorize changes to another."

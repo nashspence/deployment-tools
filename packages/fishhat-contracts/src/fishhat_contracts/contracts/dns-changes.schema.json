@@ -50,7 +50,6 @@
         "additionalProperties": false
       },
       "minItems": 1,
-      "maxItems": 256,
       "uniqueItems": true
     },
     "custodian": {

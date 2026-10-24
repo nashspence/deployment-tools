@@ -16,7 +16,7 @@ from fishhat_contracts.resources import (
     validate_host_resources,
     validate_requirements,
 )
-from fishhat_contracts.validation import ContractError, digest, strict_yaml, validate_host
+from fishhat_contracts.validation import ContractError, digest, strict_yaml, validate, validate_host
 
 from tests.support import fixture_path
 
@@ -411,6 +411,63 @@ class Cleanup(unittest.TestCase):
     def test_revalidation(self):
         self.revalidate(self.plan())
 
+    def test_refresh_does_not_invalidate_reviewed_cleanup_candidates(self):
+        reviewed = self.plan()
+        self.i["observed_at"] = "2026-10-19T12:00:01Z"
+        revalidate_cleanup(
+            reviewed,
+            self.i,
+            accepted_policy=self.policy,
+            retention_inventory=self.retention,
+            now="2026-10-19T12:00:02Z",
+        )
+
+    def test_confirmed_first_deletion_can_resume_without_reauthorizing_unsafe_objects(self):
+        reviewed = self.plan()
+        removed = reviewed["candidates"][0]["handle"]
+        self.i["items"] = [item for item in self.i["items"] if item["handle"] != removed]
+        self.i["generation"] += 1
+        with self.assertRaisesRegex(ContractError, "without confirmed outcome"):
+            self.revalidate(reviewed)
+        revalidate_cleanup(
+            reviewed,
+            self.i,
+            accepted_policy=self.policy,
+            retention_inventory=self.retention,
+            now=NOW,
+            confirmed_removed={removed},
+        )
+        self.i["items"][4]["protected_by"].append("new-hold")
+        with self.assertRaises(ContractError):
+            revalidate_cleanup(
+                reviewed,
+                self.i,
+                accepted_policy=self.policy,
+                retention_inventory=self.retention,
+                now=NOW,
+                confirmed_removed={removed},
+            )
+
+    def test_cleanup_revalidates_complete_large_graph_beyond_batch_boundary(self):
+        template = self.i["items"][5]
+        self.i["items"].extend(
+            {
+                **deepcopy(template),
+                "handle": "sha256:" + f"{index:064x}",
+                "native_id": f"{index:064x}",
+            }
+            for index in range(100, 5100)
+        )
+        self.i["max_objects"] = 3
+        reviewed = self.plan()
+        self.assertEqual(len(reviewed["candidates"]), 3)
+        self.revalidate(reviewed)
+        self.i["items"][-1]["references"] = [reviewed["candidates"][0]["handle"]]
+        with self.assertRaisesRegex(ContractError, "candidate no longer safe"):
+            self.revalidate(reviewed)
+        self.i["coverage_complete"] = False
+        self.assertFalse(self.plan()["candidates"])
+
     def test_protection_changed_after_plan(self):
         p = self.plan()
         self.i["items"][5]["protected_by"].append("new-release")
@@ -598,3 +655,14 @@ class Retention(unittest.TestCase):
         self.old["recovery_required"] = False
         self.old["archive"] = None
         self.assertNotIn(self.old["runtime_handles"][0], self.result()["protected_roots"])
+
+
+def test_complete_resource_report_has_no_account_or_blocker_prefix():
+    report = load("examples/resources/report.json")
+    account = report["accounts"][0]
+    report["accounts"] = [{**deepcopy(account), "account": f"app-{i}"} for i in range(65)]
+    report["accounts"][-1]["blockers"] = [f"blocked-{i}" for i in range(257)]
+    validate("resource-records.schema.json", report, "ResourceReport")
+    report["accounts"][-1]["coverage"] = "invalid"
+    with unittest.TestCase().assertRaises(ContractError):
+        validate("resource-records.schema.json", report, "ResourceReport")

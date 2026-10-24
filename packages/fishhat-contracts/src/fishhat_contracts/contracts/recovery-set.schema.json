@@ -40,7 +40,6 @@
         "$ref": "common.schema.json#/$defs/Digest"
       },
       "minItems": 1,
-      "maxItems": 16,
       "uniqueItems": true
     },
     "application_closure_digests": {
@@ -49,7 +48,6 @@
         "$ref": "common.schema.json#/$defs/Digest"
       },
       "minItems": 1,
-      "maxItems": 256,
       "uniqueItems": true
     },
     "independent_custody": {
@@ -64,7 +62,6 @@
         "$ref": "common.schema.json#/$defs/Digest"
       },
       "minItems": 0,
-      "maxItems": 128,
       "uniqueItems": true
     },
     "installation_bundle_path": {

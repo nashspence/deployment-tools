@@ -563,6 +563,7 @@ def revalidate_cleanup(
     accepted_policy: dict[str, Any],
     retention_inventory: dict[str, Any],
     now: str,
+    confirmed_removed: set[str] | None = None,
 ) -> None:
     """Check current bindings while the owner excludes protection changes.
 
@@ -578,12 +579,28 @@ def revalidate_cleanup(
         plan["owner"] == inventory["owner"]
         and plan["store_binding"] == inventory["store_binding"]
         and plan["account"] == inventory["account"]
-        and plan["generation"] == inventory["generation"],
+        and plan["generation"] <= inventory["generation"],
         "cleanup native binding changed",
     )
-    require(plan["inventory_digest"] == digest(inventory), "cleanup inventory changed")
+    # `confirmed_removed` is owner-authenticated journal evidence supplied by the
+    # native caller, never a client claim. Original reviewed identity remains in
+    # the plan; refreshed observation timestamps and known own deletions must not
+    # invalidate every later candidate in the same plan.
+    removed = set() if confirmed_removed is None else confirmed_removed
+    candidates = {item["handle"]: item for item in plan["candidates"]}
+    require(removed <= candidates.keys(), "unknown cleanup progress")
+    present = {item["handle"] for item in inventory["items"]}
+    require(not (removed & present), "completed cleanup object reappeared")
+    require(
+        all(handle in present or handle in removed for handle in candidates),
+        "cleanup object vanished without confirmed outcome",
+    )
+    # Revalidate the entire current native candidate set, not merely the next
+    # bounded batch selected by max_objects. Completeness/ref closure is mandatory.
+    expanded = deepcopy(inventory)
+    expanded["max_objects"] = max(1, len(inventory["items"]))
     current = plan_cleanup(
-        inventory,
+        expanded,
         accepted_policy=accepted_policy,
         retention_inventory=retention_inventory,
         now=now,
@@ -602,7 +619,11 @@ def revalidate_cleanup(
         "duplicate cleanup candidate handle",
     )
     require(
-        {(x["handle"], x["kind"], x["native_id"]) for x in plan["candidates"]}
+        {
+            (x["handle"], x["kind"], x["native_id"])
+            for x in plan["candidates"]
+            if x["handle"] not in removed
+        }
         <= {(x["handle"], x["kind"], x["native_id"]) for x in current["candidates"]},
         "cleanup candidate no longer safe",
     )

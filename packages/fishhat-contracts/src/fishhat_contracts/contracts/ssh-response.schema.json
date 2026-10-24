@@ -59,8 +59,7 @@
                 "minLength": 1,
                 "maxLength": 128
               },
-              "minItems": 1,
-              "maxItems": 256
+              "minItems": 1
             },
             "actions": {
               "type": "array",
@@ -70,7 +69,6 @@
                 "maxLength": 96
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "adapters": {
@@ -82,7 +80,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             }
           },

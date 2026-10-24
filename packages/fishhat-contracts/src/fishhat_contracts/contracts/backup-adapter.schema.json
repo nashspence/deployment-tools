@@ -26,7 +26,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -62,7 +61,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -98,7 +96,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -134,7 +131,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -201,7 +197,6 @@
             "$ref": "adapter.schema.json#/$defs/BackupObject"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },

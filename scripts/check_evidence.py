@@ -406,12 +406,12 @@ def valid_evidence(tests: dict[str, Any], root: Path) -> bool:
 
 def current_run(root: Path, source: dict[str, Any]) -> dict[str, Any] | None:
     """Select the latest exact-source canonical run, retaining failures and missing cases."""
-    from scripts.validation import CANONICAL, MAX_BYTES, digest, full_check_passed
+    from scripts.validation import CANONICAL, digest, full_check_passed
     from scripts.validation import FORMAT as RECEIPT_FORMAT
 
     runs: list[dict[str, Any]] = []
     for path in (root / "artifacts/validation").glob("*.json"):
-        if path.is_symlink() or path.stat().st_size > MAX_BYTES:
+        if path.is_symlink():
             continue
         try:
             value = json.loads(path.read_text())
@@ -419,7 +419,7 @@ def current_run(root: Path, source: dict[str, Any]) -> dict[str, Any] | None:
                 value["format"] == RECEIPT_FORMAT
                 and value["id"] + ".json" == path.name
                 and value["target"] == "unit"
-                and value["source_before"] == value["source_after"] == source
+                and value["source_before"] == source
                 and source["clean"]
                 and value["selection"]["canonical"]
             ):

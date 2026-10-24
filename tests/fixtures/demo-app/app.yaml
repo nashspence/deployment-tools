@@ -125,6 +125,9 @@ maintenance:
     action: backup
     hook: null
     calendar: '*-*-* 03:00:00'
+    calendar_language: systemd-oncalendar
+    dst_policy: skip-gap-first-repeat
+    catch_up: latest-once
     timezone: America/Los_Angeles
     max_delay_seconds: 3600
     timeout_seconds: 3600

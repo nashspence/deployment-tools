@@ -58,6 +58,7 @@ def handoff_output(role, request):
                     "value_handle": "protected:old",
                     "validity": "revoked",
                     "expires_at": None,
+                    "valid_from": None,
                     "renewable": False,
                 }
             ]

@@ -44,7 +44,6 @@
             "additionalProperties": false
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -97,7 +96,6 @@
             "additionalProperties": false
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },

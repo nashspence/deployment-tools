@@ -155,9 +155,17 @@ def _mapping(loader: SourceLoader, node: Any, deep: bool = False) -> dict[str, A
 SourceLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _mapping)
 
 
-def strict_yaml(data: str) -> Any:
-    if len(data.encode("utf-8")) > MAX_BYTES:
-        raise ContractError("source size limit")
+def strict_yaml(data: str, *, capacity_bytes: int | None = None) -> Any:
+    """Parse a whole source document; a wire-frame limit is not a source extent limit.
+
+    A receiving owner must enforce its independently approved memory/byte capacity
+    before accepting or applying a document. Refusal is explicit, never truncation.
+    """
+    if capacity_bytes is not None:
+        if type(capacity_bytes) is not int or capacity_bytes < 1:
+            raise ContractError("invalid source capacity")
+        if len(data.encode("utf-8")) > capacity_bytes:
+            raise ContractError("source capacity exceeded")
     try:
         for event in yaml.parse(data):
             if isinstance(event, DocumentStartEvent) and (event.version is not None or event.tags):

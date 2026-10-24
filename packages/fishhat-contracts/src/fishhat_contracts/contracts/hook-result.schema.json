@@ -53,8 +53,7 @@
         ],
         "additionalProperties": false
       },
-      "minItems": 0,
-      "maxItems": 256
+      "minItems": 0
     },
     "artifacts": {
       "type": "array",
@@ -86,8 +85,7 @@
         ],
         "additionalProperties": false
       },
-      "minItems": 0,
-      "maxItems": 256
+      "minItems": 0
     }
   },
   "required": [

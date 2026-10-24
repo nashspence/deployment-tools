@@ -147,7 +147,6 @@
         "additionalProperties": false
       },
       "minItems": 0,
-      "maxItems": 16,
       "uniqueItems": true
     },
     "recovery_hint": {

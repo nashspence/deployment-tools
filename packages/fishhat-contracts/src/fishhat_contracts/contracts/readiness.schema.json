@@ -125,8 +125,7 @@
         ],
         "additionalProperties": false
       },
-      "minItems": 0,
-      "maxItems": 256
+      "minItems": 0
     },
     "checkpoint": {
       "anyOf": [
@@ -163,7 +162,6 @@
         "pattern": "^sha256:[0-9a-f]{64}$"
       },
       "minItems": 0,
-      "maxItems": 256,
       "uniqueItems": true
     },
     "max_downtime_seconds": {
@@ -224,13 +222,11 @@
         "maxLength": 96
       },
       "minItems": 0,
-      "maxItems": 256,
       "uniqueItems": true
     },
     "case_evidence": {
       "type": "object",
       "minProperties": 0,
-      "maxProperties": 256,
       "propertyNames": {
         "pattern": "^[A-Za-z0-9-]+$"
       },

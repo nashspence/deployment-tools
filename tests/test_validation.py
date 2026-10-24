@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import errno
 import json
 import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -149,15 +151,14 @@ def test_pass(broken):
     assert not latest(checkout)["full_check_passed"]
 
 
-def test_receipt_retention_preserves_unrelated_files(checkout, monkeypatch):
-    monkeypatch.setattr(validation, "MAX_RECEIPTS", 2)
+def test_receipt_retention_preserves_unrelated_files(checkout):
     folder = checkout / "artifacts/validation"
     folder.mkdir(parents=True)
     unrelated = folder / "keep.json"
     unrelated.write_text('{"preserved":true}')
-    for _ in range(4):
+    for _ in range(65):
         assert validation.run("ruff", ["python", "-c", "pass"], checkout) == 0
-    assert len(list(folder.glob("*.json"))) == 3
+    assert len(list(folder.glob("*.json"))) == 66
     assert unrelated.read_text() == '{"preserved":true}'
 
 
@@ -170,3 +171,32 @@ def test_reporting_options_keep_the_default_selection(monkeypatch):
     assert not validation.selection("unit", [*validation.CANONICAL["unit"], "--collect-only"])[
         "canonical"
     ]
+
+
+@pytest.mark.parametrize("stage", ["write_text", "chmod", "replace"])
+def test_failed_receipt_publication_keeps_prior_evidence_and_can_resume(
+    tmp_path, monkeypatch, stage
+):
+    directory = tmp_path / "artifacts/validation"
+    directory.mkdir(parents=True)
+    path = directory / ("a" * 32 + ".json")
+    prior = {"state": "running", "full_check_passed": False}
+    validation.write_receipt(path, prior)
+    original = getattr(Path, stage)
+
+    def fail_temporary(self, *args, **kwargs):
+        if self == path.with_suffix(".tmp"):
+            if stage == "write_text":
+                original(self, "partial")
+            raise OSError(errno.ENOSPC, "synthetic evidence capacity exhausted")
+        return original(self, *args, **kwargs)
+
+    completed = {"state": "completed", "full_check_passed": True}
+    with monkeypatch.context() as scoped:
+        scoped.setattr(Path, stage, fail_temporary)
+        with pytest.raises(OSError):
+            validation.write_receipt(path, completed)
+    assert json.loads(path.read_text()) == prior
+    assert list(directory.glob("*.json")) == [path]
+    validation.write_receipt(path, completed)
+    assert json.loads(path.read_text()) == completed

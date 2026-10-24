@@ -22,8 +22,6 @@ from scripts.project_policy import ROOT
 from scripts.run_stats import valid_phases, valid_stats
 
 FORMAT = "fishhat-validation/v1"
-MAX_RECEIPTS = 64
-MAX_BYTES = 4 * 1024 * 1024
 OVERRIDES = (
     "PYTEST_ADDOPTS",
     "PYTEST_PLUGINS",
@@ -128,7 +126,7 @@ def selection(target: str, command: list[str]) -> dict[str, Any]:
 
 
 def read_test_results(path: Path, root: Path = ROOT) -> dict[str, Any] | None:
-    if not path.is_file() or path.stat().st_size > 2_000_000:
+    if not path.is_file() or path.is_symlink():
         return None
     value = json.loads(path.read_text(encoding="utf-8"))
     collected = value["collected"]
@@ -188,33 +186,9 @@ def full_check_passed(receipt: dict[str, Any]) -> bool:
     )
 
 
-def prune(directory: Path, current: Path, incoming_size: int) -> None:
-    candidates = []
-    for path in directory.glob("*.json"):
-        if not re.fullmatch(r"[a-f0-9]{32}\.json", path.name) or path.is_symlink():
-            continue
-        candidates.append(path)
-    size = sum(path.stat().st_size for path in candidates)
-    count = len(candidates) + int(current not in candidates)
-    size += incoming_size - (current.stat().st_size if current in candidates else 0)
-    for path in sorted(candidates, key=lambda item: item.stat().st_mtime):
-        if count <= MAX_RECEIPTS and size <= MAX_BYTES:
-            break
-        if path == current:
-            continue
-        value = json.loads(path.read_text(encoding="utf-8"))
-        if value.get("format") == FORMAT and value.get("state") in {"completed", "interrupted"}:
-            size -= path.stat().st_size
-            count -= 1
-            path.unlink()
-    if count > MAX_RECEIPTS or size > MAX_BYTES:
-        raise ValueError("validation receipt retention limit reached")
-
-
 def write_receipt(path: Path, value: dict[str, Any]) -> None:
     content = json.dumps(value, indent=2, sort_keys=True) + "\n"
     with FileLock(str(path.parent / ".lock"), timeout=10):
-        prune(path.parent, path, len(content.encode("utf-8")))
         temporary = path.with_suffix(".tmp")
         temporary.write_text(content, encoding="utf-8", newline="\n")
         temporary.chmod(0o600)

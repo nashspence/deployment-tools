@@ -152,8 +152,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 4,
-          "maxItems": 4
+          "minItems": 4
         },
         "pools": {
           "type": "array",
@@ -216,8 +215,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 16
+          "minItems": 1
         },
         "control_pool": {
           "$ref": "resources.schema.json#/$defs/PoolIdentity"
@@ -313,8 +311,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 4
+          "minItems": 1
         },
         "bindings_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
@@ -466,8 +463,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 4
+          "minItems": 1
         }
       },
       "required": [
@@ -553,7 +549,8 @@
           "$ref": "common.schema.json#/$defs/Time"
         },
         "coverage_complete": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "True only after an exact native traversal has exhausted its stable scoped inventory and all referenced objects and protected roots; page availability, a fixed count, timeout or partial scan cannot establish completeness. False must block destructive cleanup."
         },
         "exclusive_control": {
           "type": "boolean"
@@ -608,8 +605,7 @@
                   "maxLength": 71,
                   "pattern": "^sha256:[0-9a-f]{64}$"
                 },
-                "minItems": 0,
-                "maxItems": 256
+                "minItems": 0
               },
               "protected_by": {
                 "type": "array",
@@ -618,8 +614,7 @@
                   "minLength": 1,
                   "maxLength": 256
                 },
-                "minItems": 0,
-                "maxItems": 256
+                "minItems": 0
               },
               "deletion_bytes_estimate": {
                 "anyOf": [
@@ -668,8 +663,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 4096
+          "minItems": 0
         },
         "protected_roots": {
           "type": "array",
@@ -679,8 +673,7 @@
             "maxLength": 71,
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
-          "minItems": 0,
-          "maxItems": 4096
+          "minItems": 0
         },
         "minimum_age_seconds": {
           "type": "integer",
@@ -690,7 +683,7 @@
         "max_objects": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 256
+          "description": "Owner-chosen bound on the number of deletion candidates proposed in one Plan, not an inventory or store-size ceiling. Native limits may refuse/delay a batch but cannot silently omit objects or prevent complete traversal."
         },
         "policy_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
@@ -832,8 +825,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 256
+          "minItems": 0
         },
         "blocked": {
           "type": "array",
@@ -842,8 +834,7 @@
             "minLength": 1,
             "maxLength": 256
           },
-          "minItems": 0,
-          "maxItems": 256
+          "minItems": 0
         },
         "policy_digest": {
           "$ref": "common.schema.json#/$defs/Digest"
@@ -964,8 +955,7 @@
                   "maxLength": 71,
                   "pattern": "^sha256:[0-9a-f]{64}$"
                 },
-                "minItems": 0,
-                "maxItems": 256
+                "minItems": 0
               }
             },
             "required": [
@@ -975,8 +965,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 256
+          "minItems": 0
         },
         "before_used_bytes": {
           "type": "integer",
@@ -1316,8 +1305,7 @@
                   "minLength": 1,
                   "maxLength": 256
                 },
-                "minItems": 0,
-                "maxItems": 256
+                "minItems": 0
               }
             },
             "required": [
@@ -1332,8 +1320,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 64
+          "minItems": 0
         },
         "next_cursor": {
           "anyOf": [
@@ -1411,7 +1398,8 @@
           "$ref": "common.schema.json#/$defs/Time"
         },
         "complete": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "True only after every retained release and runtime/protection reference in this owner scope has been exhaustively traversed; no fixed number of entries establishes completeness. False blocks reclamation."
         },
         "releases": {
           "type": "array",
@@ -1441,8 +1429,7 @@
                   "minLength": 71,
                   "maxLength": 71,
                   "pattern": "^sha256:[0-9a-f]{64}$"
-                },
-                "maxItems": 4096
+                }
               },
               "blocking_refs": {
                 "type": "array",
@@ -1450,8 +1437,7 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 256
-                },
-                "maxItems": 4096
+                }
               },
               "archive": {
                 "anyOf": [
@@ -1543,8 +1529,7 @@
               "cold_demotion_receipt"
             ],
             "additionalProperties": false
-          },
-          "maxItems": 4096
+          }
         },
         "policy_digest": {
           "$ref": "common.schema.json#/$defs/Digest"

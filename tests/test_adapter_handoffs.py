@@ -376,7 +376,8 @@ def test_overlapping_credential_lease_is_never_an_implicit_target(method):
         **copy.deepcopy(query["input"]["lease"]),
         "value_handle": "protected:old",
         "validity": "revoked" if method == "revoke" else "valid",
-        "expires_at": None,
+        "expires_at": "2026-10-19T13:00:00Z" if method == "renew" else None,
+        "valid_from": "2026-10-19T12:00:00Z" if method == "renew" else None,
         "renewable": method == "renew",
     }
     response = response_for(query, original, {"leases": [lease]})
@@ -392,6 +393,56 @@ def test_overlapping_credential_lease_is_never_an_implicit_target(method):
     changed["input"]["lease"]["lease"] = "lease:new"
     check_request("credential-issuer", changed)
     assert digest(changed) != digest(query)
+
+
+@pytest.mark.parametrize("method", ["issue", "renew"])
+@pytest.mark.parametrize("reconcile", [False, True], ids=["direct", "recovered"])
+def test_issuance_must_prove_effective_bounded_lease_lifetime(method, reconcile):
+    _, query = handoff("credential-issuer", "renew")
+    selected_lease = copy.deepcopy(query["input"]["lease"])
+    if method == "issue":
+        query["method"] = method
+        query["input"].update(
+            issuer=selected_lease["issuer"],
+            identity=selected_lease["identity"],
+            consumer=selected_lease["consumer"],
+        )
+        del query["input"]["lease"]
+    invocation = invocation_for(query)
+    original = query
+    if reconcile:
+        query = {
+            "contract": query["contract"],
+            "method": "reconcile",
+            "input": {"scope": query["input"]["scope"], "invocation": invocation},
+        }
+    lease = {
+        **selected_lease,
+        "value_handle": "protected:old",
+        "validity": "valid",
+        "valid_from": "2026-10-19T12:00:00Z",
+        "expires_at": "2026-10-19T13:00:00Z",
+        "renewable": True,
+    }
+    response = response_for(query, invocation["attempt"], {"leases": [lease]})
+    check_response("credential-issuer", query, response, invocation=invocation)
+    for begin, end in (
+        ("2026-10-19T12:00:00Z", "2026-10-19T12:30:00Z"),
+        ("9999-12-31T23:59:58Z", "9999-12-31T23:59:59Z"),
+    ):
+        short = copy.deepcopy(response)
+        short["output"]["leases"][0].update(valid_from=begin, expires_at=end)
+        check_response("credential-issuer", query, short, invocation=invocation)
+    assert original["input"]["lifetime_seconds"] == 3600
+    for end in (None, "2026-10-19T13:00:01Z", "2026-10-19T12:00:00Z"):
+        changed = copy.deepcopy(response)
+        changed["output"]["leases"][0]["expires_at"] = end
+        with pytest.raises(ContractError, match="LEASE_LIFETIME"):
+            check_response("credential-issuer", query, changed, invocation=invocation)
+    changed = copy.deepcopy(response)
+    changed["output"]["leases"][0]["valid_from"] = None
+    with pytest.raises(ContractError, match="LEASE_LIFETIME_UNVERIFIED"):
+        check_response("credential-issuer", query, changed, invocation=invocation)
 
 
 def test_publication_requires_same_source_and_exact_predecessor():

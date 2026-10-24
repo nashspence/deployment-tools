@@ -103,7 +103,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "created_at": {
@@ -269,7 +268,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "preconditions": {
@@ -349,7 +347,6 @@
                   "pattern": "^sha256:[0-9a-f]{64}$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "holds_digest": {
@@ -368,8 +365,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 256
+          "minItems": 1
         },
         "effects": {
           "type": "array",
@@ -449,8 +445,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 256
+          "minItems": 1
         },
         "host_preimages": {
           "type": "array",
@@ -458,7 +453,6 @@
             "$ref": "records.schema.json#/$defs/HostPreimage"
           },
           "minItems": 1,
-          "maxItems": 256,
           "description": "Required exactly for a host.apply subject and covers every effect step exactly once, including delegated effects and arbitrary executor action names. The plan digest binds every comparison and disposition. Before each native effect, its executor must reobserve the same projection, reject any mismatch with the reviewed live_digest, and maintain exclusion or an equivalent compare-and-apply guarantee through mutation. Earlier offline validation cannot supply that native guarantee."
         },
         "checkpoint_required": {
@@ -494,7 +488,6 @@
             "maxLength": 512
           },
           "minItems": 0,
-          "maxItems": 256,
           "description": "Known reasons this proposal cannot currently be admitted. A blocked plan remains available for inspection and explanation."
         },
         "digest": {
@@ -604,7 +597,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -795,7 +787,6 @@
             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "authenticated_principal": {
@@ -928,7 +919,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -1355,7 +1345,6 @@
                     "pattern": "^sha256:[0-9a-f]{64}$"
                   },
                   "minItems": 0,
-                  "maxItems": 256,
                   "uniqueItems": true
                 },
                 "created_at": {
@@ -1608,7 +1597,6 @@
                   "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
                 },
                 "minItems": 1,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "last_witness": {
@@ -1714,7 +1702,6 @@
                           "pattern": "^sha256:[0-9a-f]{64}$"
                         },
                         "minItems": 0,
-                        "maxItems": 256,
                         "uniqueItems": true
                       },
                       "created_at": {
@@ -1765,8 +1752,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 64
+          "minItems": 1
         },
         "prerequisite_witnesses": {
           "type": "array",
@@ -1871,7 +1857,6 @@
                   "pattern": "^sha256:[0-9a-f]{64}$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "created_at": {
@@ -1907,8 +1892,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 256
+          "minItems": 0
         },
         "holds": {
           "type": "array",
@@ -1918,7 +1902,6 @@
             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "recovery_digests": {
@@ -1930,7 +1913,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "owner": {
@@ -2088,7 +2070,6 @@
             "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "release_condition": {
@@ -2198,7 +2179,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -2306,7 +2286,6 @@
         "datasets": {
           "type": "object",
           "minProperties": 1,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
@@ -2353,7 +2332,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "backup_backend": {
@@ -2371,7 +2349,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "verified_at": {
@@ -2488,7 +2465,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -2523,6 +2499,24 @@
             "signature"
           ],
           "additionalProperties": false
+        },
+        "consistency_scope": {
+          "enum": [
+            "application-quiesced",
+            "independent-datasets"
+          ],
+          "description": "Application-quiesced asserts one verified writer fence/cohort covering every captured preserved dataset. Independent-datasets provides only individually consistent recovery points and must not be advertised as application-atomic."
+        },
+        "quiescence_evidence": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact durable independent owner evidence establishing one common write-quiescence interval and capture generation across all preserved datasets, or null when no application-wide consistency is claimed. A digest is not itself proof of native fencing."
         }
       },
       "required": [
@@ -2538,10 +2532,46 @@
         "recovery_closure",
         "verified_at",
         "restore_tested_at",
-        "witness"
+        "witness",
+        "consistency_scope",
+        "quiescence_evidence"
       ],
       "additionalProperties": false,
-      "description": "A specific recoverable application state with exact data, release and secret-generation references. Capture verification and tested restoration are separate evidence; a source commit alone is not an application checkpoint."
+      "description": "A complete checkpoint binds every required captured dataset, accepted release and secret generations, independent signed native capture receipts and verified backup snapshot identity. Its witness subject covers the entire canonical checkpoint body excluding the witness, including consistency_scope and quiescence_evidence. Application-quiesced requires one verifiable writer fence and capture cohort; independent-datasets is explicitly not an application-atomic recovery point. No missing dataset or inconsistent archive may be silently omitted.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "consistency_scope": {
+                "const": "application-quiesced"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quiescence_evidence": {
+                "$ref": "common.schema.json#/$defs/Digest"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "consistency_scope": {
+                "const": "independent-datasets"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quiescence_evidence": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "Release": {
       "type": "object",
@@ -2630,8 +2660,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 256
+          "minItems": 1
         },
         "profile_digest": {
           "type": "string",
@@ -2660,7 +2689,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "hook_closure": {
@@ -2672,7 +2700,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "recovery_closure": {
@@ -2684,13 +2711,11 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "artifacts": {
           "type": "object",
           "minProperties": 1,
-          "maxProperties": 256,
           "additionalProperties": {
             "$ref": "adapter.schema.json#/$defs/Artifact"
           }
@@ -2843,7 +2868,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -2898,8 +2922,7 @@
             "minLength": 1,
             "maxLength": 128
           },
-          "minItems": 1,
-          "maxItems": 256
+          "minItems": 1
         },
         "actions": {
           "type": "array",
@@ -2909,7 +2932,6 @@
             "maxLength": 96
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "adapters": {
@@ -2921,7 +2943,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -3059,8 +3080,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 256
+          "minItems": 1
         },
         "owner": {
           "type": "object",
@@ -3190,7 +3210,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -3371,7 +3390,6 @@
             "maxLength": 512
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "generation": {
@@ -3487,7 +3505,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -3623,7 +3640,6 @@
             "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
           },
           "minItems": 1,
-          "maxItems": 64,
           "uniqueItems": true
         },
         "transport": {
@@ -3661,7 +3677,6 @@
             "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
           },
           "minItems": 1,
-          "maxItems": 64,
           "uniqueItems": true
         },
         "secret_generations": {
@@ -3673,7 +3688,6 @@
             "pattern": "^sha256:[0-9a-f]{64}$"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "generation": {
@@ -3791,7 +3805,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -3924,7 +3937,6 @@
         "apps": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
@@ -3967,7 +3979,6 @@
             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "witness": {
@@ -4071,7 +4082,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -4274,7 +4284,6 @@
                 "pattern": "^sha256:[0-9a-f]{64}$"
               },
               "minItems": 0,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "created_at": {
@@ -4687,8 +4696,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 1,
-          "maxItems": 64
+          "minItems": 1
         }
       },
       "required": [
@@ -4727,8 +4735,7 @@
           "items": {
             "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
           },
-          "minItems": 0,
-          "maxItems": 64
+          "minItems": 0
         }
       },
       "required": [
@@ -4760,8 +4767,7 @@
           "items": {
             "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
           },
-          "minItems": 0,
-          "maxItems": 64
+          "minItems": 0
         }
       },
       "required": [
@@ -4801,16 +4807,14 @@
           "items": {
             "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
           },
-          "minItems": 0,
-          "maxItems": 64
+          "minItems": 0
         },
         "commit_witnesses": {
           "type": "array",
           "items": {
             "$ref": "records.schema.json#/$defs/WorkflowTransferWitness"
           },
-          "minItems": 0,
-          "maxItems": 64
+          "minItems": 0
         }
       },
       "required": [
