@@ -57,6 +57,12 @@
     },
     {
       "name": "resources.observe"
+    },
+    {
+      "name": "workflow.list"
+    },
+    {
+      "name": "content.status"
     }
   ],
   "max_frame_bytes": 1048576,

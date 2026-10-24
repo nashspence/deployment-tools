@@ -102,7 +102,8 @@ def test_map_exhaustively_tracks_current_surfaces_and_native_gaps():
     coverage = check()
     rows = {row["id"]: row for row in coverage["operations"]}
     assert len([key for key in rows if key.startswith("action:")]) == 34
-    assert len([key for key in rows if key.startswith("rpc:")]) == 19
+    assert len([key for key in rows if key.startswith("rpc:")]) == 21
+    assert {"rpc:workflow.list", "rpc:content.status"} <= rows.keys()
     assert all(
         row["status"] == "unimplemented" and row["implementation"] is None
         for key, row in rows.items()

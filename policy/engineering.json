@@ -28,7 +28,7 @@
       "qualification": "reference-model",
       "sources": {
         "packages/fishhat-client/src/fishhat_client/bootstrap.py": "ddc52947c94b7daf9518dfb94dc78a07aa9b78d1e9b00291ef9f10fe78b2ee36",
-        "tests/test_bootstrap.py": "013aba761adadfaf83b75b5315cfae39f8a8b83d721e2b1c927d7c8a2d7f9541"
+        "tests/test_bootstrap.py": "9508c6e658c45d3078c28572ae7cf6ca074548ee8b64440535984f42d3a8c732"
       },
       "symbol": "fishhat_client.bootstrap:validate_catalogue",
       "work": "O(B + S) bounded reference record validation and one source identity pass"

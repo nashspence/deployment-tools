@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from fishhat_contracts.validation import ContractError, canonical, digest, validate
-from jsonschema import Draft202012Validator, FormatChecker
+from fishhat_contracts.validation import FORMAT_CHECKER, ContractError, canonical, digest, validate
+from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from referencing.exceptions import Unresolvable
 
@@ -75,7 +75,7 @@ def check_configuration(schema: dict[str, Any], value: Any, expected_digest: str
     require(digest(schema) == expected_digest, "SCHEMA_IDENTITY")
     require(len(canonical(value)) <= 1048576, "CONFIGURATION_CAPACITY")
     try:
-        errors = Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(value)
+        errors = Draft202012Validator(schema, format_checker=FORMAT_CHECKER).iter_errors(value)
         require(next(errors, None) is None, "CONFIGURATION_REJECTED")
     except (RecursionError, Unresolvable):
         raise ContractError("CONFIGURATION_REJECTED") from None
@@ -84,6 +84,55 @@ def check_configuration(schema: dict[str, Any], value: Any, expected_digest: str
 def check_request(role: str, value: dict[str, Any]) -> None:
     require(role in ROLES, "UNKNOWN_CONTRACT")
     validate(role + "-adapter.schema.json", value)
+    method, inputs = value["method"], value["input"]
+    if method == "reconcile":
+        original = inputs["attempt"]
+        require(
+            original["contract"] == value["contract"]
+            and original["scope"] == inputs["scope"]
+            and original["method"] in ROLES[role]
+            and ROLES[role][original["method"]]["effect"],
+            "RECONCILIATION_IDENTITY",
+        )
+        return
+    binding = _handoff_binding(role, value)
+    if binding is not None:
+        require(
+            binding["role"] == role and binding["scope"] == inputs["scope"],
+            "HANDOFF_BINDING_SCOPE",
+        )
+    if role == "capture" and method in {"restore", "verify"}:
+        snapshot = inputs["snapshot"]
+        require(
+            snapshot["dataset"] == inputs["dataset"] and snapshot["producer"]["role"] == "capture",
+            "SNAPSHOT_INPUT_IDENTITY",
+        )
+    if role == "secret-source" and method == "publish":
+        previous = inputs["expected_previous"]
+        require(
+            previous is None
+            or (previous["source"] == binding and previous["entry"] == inputs["entry"]),
+            "PUBLICATION_PREDECESSOR_IDENTITY",
+        )
+
+
+def _handoff_binding(role: str, request: dict[str, Any]) -> dict[str, Any] | None:
+    method, inputs = request["method"], request["input"]
+    if (role == "capture" and method in {"assess", "capture", "restore", "verify"}) or (
+        role == "secret-source" and method == "publish"
+    ):
+        return cast(dict[str, Any], inputs["binding"])
+    if role == "credential-issuer":
+        if method == "issue":
+            return cast(dict[str, Any], inputs["issuer"])
+        if method in {"renew", "revoke"}:
+            return cast(dict[str, Any], inputs["lease"]["issuer"])
+    return None
+
+
+def _attempt_identity(attempt: dict[str, Any]) -> dict[str, Any]:
+    mutable = {"state", "certainty", "outcome", "native_task"}
+    return {key: value for key, value in attempt.items() if key not in mutable}
 
 
 def check_response(
@@ -106,7 +155,16 @@ def check_response(
         response["coverage"] != "complete" or response["continuation"] is None,
         "INCOMPLETE_RESPONSE_COVERAGE",
     )
-    if ROLES[role][request["method"]]["effect"]:
+    if request["method"] == "reconcile":
+        require(attempt is not None, "EFFECT_ATTEMPT_REQUIRED")
+        assert attempt is not None
+        validate("adapter.schema.json", attempt, "EffectAttempt")
+        require(
+            _attempt_identity(attempt) == _attempt_identity(request["input"]["attempt"]),
+            "RECONCILIATION_IDENTITY",
+        )
+        check_result(attempt, response["effect"])
+    elif ROLES[role][request["method"]]["effect"]:
         require(attempt is not None, "EFFECT_ATTEMPT_REQUIRED")
         assert attempt is not None
         require(
@@ -115,6 +173,36 @@ def check_response(
             "RESPONSE_EFFECT_IDENTITY",
         )
         check_result(attempt, response["effect"])
+    _check_handoff_response(role, request, response)
+
+
+def _check_handoff_response(role: str, request: dict[str, Any], response: dict[str, Any]) -> None:
+    method, inputs, output = request["method"], request["input"], response["output"]
+    if role == "capture" and method in {"assess", "capture", "restore", "verify"}:
+        for snapshot in output["snapshots"]:
+            require(snapshot["dataset"] == inputs["dataset"], "SNAPSHOT_OUTPUT_IDENTITY")
+            if method in {"restore", "verify"}:
+                require(snapshot == inputs["snapshot"], "SNAPSHOT_OUTPUT_IDENTITY")
+            else:
+                require(snapshot["producer"] == inputs["binding"], "SNAPSHOT_OUTPUT_IDENTITY")
+    if role == "credential-issuer" and method in {"issue", "renew", "revoke"}:
+        target = inputs if method == "issue" else inputs["lease"]
+        for lease in output["leases"]:
+            require(
+                all(lease[key] == target[key] for key in ("issuer", "identity", "consumer"))
+                and (method == "issue" or lease["lease"] == target["lease"]),
+                "LEASE_RESULT_IDENTITY",
+            )
+    if role == "secret-source" and method == "publish":
+        require(
+            all(
+                version["source"] == inputs["binding"]["instance"]
+                and version["entry"] == inputs["entry"]
+                and version["version"] == inputs["version"]
+                for version in output["versions"]
+            ),
+            "PUBLICATION_RESULT_IDENTITY",
+        )
 
 
 def check_result(attempt: dict[str, Any], result: dict[str, Any]) -> None:
@@ -255,6 +343,64 @@ class Registry:
         selectors = [canonical(x["native"]) for x in components.values()]
         require(len(set(selectors)) == len(selectors), "DUPLICATE_COMPONENT")
         return copy.deepcopy(instance)
+
+    def resolve_source(
+        self, selection: dict[str, Any], role: str, scope: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Resolve approved source selection without enrollment, reconfiguration or execution."""
+        validate("adapter.schema.json", selection, "Selection")
+        validate("adapter.schema.json", scope, "Scope")
+        require(role in ROLES, "UNKNOWN_CONTRACT")
+        instance = self._instances.get(selection["instance"])
+        require(instance is not None and instance["role"] == role, "INSTANCE_ROLE")
+        assert instance is not None
+        self._grant(instance, scope, "observe")
+        _, descriptor = self._installations[instance["installation_digest"]]
+        check_configuration(
+            descriptor["source_schema"], selection["source"], selection["source_schema_digest"]
+        )
+        return copy.deepcopy(instance)
+
+    def authorize_request(
+        self,
+        instance_id: str,
+        role: str,
+        request: dict[str, Any],
+        *,
+        owner_approved: bool,
+    ) -> dict[str, Any]:
+        """Check typed input identity against current receiver-owned enrollment before dispatch."""
+        check_request(role, request)
+        instance = self.authorize(
+            instance_id,
+            role,
+            request["method"],
+            request["input"]["scope"],
+            owner_approved=owner_approved,
+        )
+        if request["method"] == "reconcile":
+            original = request["input"]["attempt"]
+            require(
+                original["instance"] == instance["id"]
+                and original["installation_digest"] == instance["installation_digest"],
+                "RECONCILIATION_INSTANCE_IDENTITY",
+            )
+        binding = _handoff_binding(role, request)
+        if binding is not None:
+            require(
+                binding
+                == {
+                    "instance": instance["id"],
+                    "role": instance["role"],
+                    "installation_digest": instance["installation_digest"],
+                    "configuration_digest": digest(instance["configuration"]),
+                    "instance_generation": instance["generation"],
+                    "instance_digest": digest(instance),
+                    "scope": request["input"]["scope"],
+                },
+                "HANDOFF_INSTANCE_IDENTITY",
+            )
+        return instance
 
     def authorize(
         self,

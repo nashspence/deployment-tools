@@ -123,34 +123,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "records.schema.json#/$defs/Observation"
-              },
-              "minItems": 0,
-              "maxItems": 256
-            },
-            "next_cursor": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 256
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          "required": [
-            "items",
-            "next_cursor"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/ObservationPage"
         }
       },
       "required": [
@@ -180,34 +153,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "records.schema.json#/$defs/Observation"
-              },
-              "minItems": 0,
-              "maxItems": 256
-            },
-            "next_cursor": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 256
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          "required": [
-            "items",
-            "next_cursor"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/ObservationPage"
         }
       },
       "required": [
@@ -237,31 +183,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "events": {
-              "type": "array",
-              "items": {
-                "$ref": "records.schema.json#/$defs/Event"
-              },
-              "minItems": 0,
-              "maxItems": 256
-            },
-            "next_cursor": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "gap": {
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "events",
-            "next_cursor",
-            "gap"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/EventPage"
         }
       },
       "required": [
@@ -411,28 +333,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "records.schema.json#/$defs/Operation"
-              },
-              "maxItems": 128
-            },
-            "next_cursor": {
-              "type": [
-                "string",
-                "null"
-              ],
-              "maxLength": 256
-            }
-          },
-          "required": [
-            "items",
-            "next_cursor"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/OperationPage"
         }
       },
       "required": [
@@ -612,76 +513,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "owner": {
-              "type": "object",
-              "properties": {
-                "tool": {
-                  "enum": [
-                    "host-ops",
-                    "app-ops"
-                  ]
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "epoch": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                }
-              },
-              "required": [
-                "tool",
-                "id",
-                "epoch"
-              ],
-              "additionalProperties": false
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "purpose": {
-              "enum": [
-                "content",
-                "capture",
-                "restore-input",
-                "source-proposal",
-                "native-config",
-                "secret-candidate"
-              ]
-            },
-            "operation_id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "digest": {
-              "type": "string",
-              "minLength": 71,
-              "maxLength": 71,
-              "pattern": "^sha256:[0-9a-f]{64}$"
-            },
-            "size": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 10737418240
-            }
-          },
-          "required": [
-            "owner",
-            "id",
-            "purpose",
-            "operation_id",
-            "digest",
-            "size"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/ContentStaging"
         }
       },
       "required": [
@@ -711,18 +543,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "offset": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "offset"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/ContentStaging"
         }
       },
       "required": [
@@ -752,76 +573,7 @@
           "const": true
         },
         "result": {
-          "type": "object",
-          "properties": {
-            "owner": {
-              "type": "object",
-              "properties": {
-                "tool": {
-                  "enum": [
-                    "host-ops",
-                    "app-ops"
-                  ]
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "epoch": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                }
-              },
-              "required": [
-                "tool",
-                "id",
-                "epoch"
-              ],
-              "additionalProperties": false
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "purpose": {
-              "enum": [
-                "content",
-                "capture",
-                "restore-input",
-                "source-proposal",
-                "native-config",
-                "secret-candidate"
-              ]
-            },
-            "operation_id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "digest": {
-              "type": "string",
-              "minLength": 71,
-              "maxLength": 71,
-              "pattern": "^sha256:[0-9a-f]{64}$"
-            },
-            "size": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 10737418240
-            }
-          },
-          "required": [
-            "owner",
-            "id",
-            "purpose",
-            "operation_id",
-            "digest",
-            "size"
-          ],
-          "additionalProperties": false
+          "$ref": "records.schema.json#/$defs/ContentStaging"
         }
       },
       "required": [
@@ -916,7 +668,9 @@
             "content.commit",
             "content.get",
             "operation.list",
-            "resources.observe"
+            "resources.observe",
+            "workflow.list",
+            "content.status"
           ]
         },
         "ok": {
@@ -954,6 +708,62 @@
         },
         "result": {
           "$ref": "resource-records.schema.json#/$defs/ResourceReport"
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "ok",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "workflow.list"
+        },
+        "ok": {
+          "const": true
+        },
+        "result": {
+          "$ref": "records.schema.json#/$defs/WorkflowPage"
+        }
+      },
+      "required": [
+        "format",
+        "message_id",
+        "method",
+        "ok",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "deployment-ops/owner/v1"
+        },
+        "message_id": {
+          "$ref": "common.schema.json#/$defs/UUID"
+        },
+        "method": {
+          "const": "content.status"
+        },
+        "ok": {
+          "const": true
+        },
+        "result": {
+          "$ref": "records.schema.json#/$defs/ContentStaging"
         }
       },
       "required": [

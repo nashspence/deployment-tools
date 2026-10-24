@@ -47,17 +47,36 @@ def validate_host_resources(host: dict[str, Any]) -> None:
     if resources is None:
         require(not host["app_accounts"], "managed app lacks enforced resource profile")
         return
-    require(host["platform"] == "linux", "Linux profile on non-Linux host")
     validate("resources.schema.json", resources, "HostResources")
     pools, accounts = resources["pools"], resources["accounts"]
+
+    def selection(instance_id: str, role: str, handle: str) -> None:
+        instance = host["adapter_instances"].get(instance_id)
+        require(
+            instance is not None and instance["id"] == instance_id and instance["role"] == role,
+            "unknown or mismatched resource adapter instance",
+        )
+        assert instance is not None
+        require(
+            any(
+                g["scope"]["kind"] == "allocation" and g["scope"]["handle"] == handle
+                for g in instance["grants"]
+            ),
+            "resource adapter lacks allocation scope",
+        )
+
+    for pool in pools.values():
+        selection(pool["instance"], "storage", pool["pool"])
+    control = resources["control"]
+    selection(control["instance"], "storage", control["pool"])
+    pool_selections = {(p["instance"], p["pool"]) for p in pools.values()}
     require(
-        len({p["filesystem_uuid"] for p in pools.values()}) == len(pools),
-        "duplicate pool filesystem identity",
+        len(pool_selections) == len(pools),
+        "duplicate pool selection",
     )
     require(
-        resources["control"]["filesystem_uuid"]
-        not in {p["filesystem_uuid"] for p in pools.values()},
-        "control and workload filesystem overlap",
+        (control["instance"], control["pool"]) not in pool_selections,
+        "control and workload pool overlap",
     )
     require(
         resources["control"]["emergency_file_bytes"] < resources["control"]["reserve_bytes"],
@@ -66,6 +85,8 @@ def validate_host_resources(host: dict[str, Any]) -> None:
     roots: list[PurePosixPath] = []
     totals = {k: [0, 0] for k in pools}
     logins: set[str] = set()
+    allocations: set[tuple[str, str, str]] = set()
+    compute_allocations: set[tuple[str, str]] = set()
     for aid, account in accounts.items():
         require(account["login"] != "root", "root is not a managed account envelope")
         require(account["login"] not in logins, "duplicate account login")
@@ -85,6 +106,10 @@ def validate_host_resources(host: dict[str, Any]) -> None:
             "user store automatic cleanup prohibited",
         )
         c = account["compute"]
+        selection(c["instance"], "compute", c["allocation"])
+        compute_key = (c["instance"], c["allocation"])
+        require(compute_key not in compute_allocations, "duplicate compute allocation")
+        compute_allocations.add(compute_key)
         require(c["memory_high_bytes"] <= c["memory_max_bytes"], "memory high exceeds max")
         require(c["tmpfs_max_bytes"] < c["memory_max_bytes"], "tmpfs leaves no process memory")
         require(
@@ -94,6 +119,10 @@ def validate_host_resources(host: dict[str, Any]) -> None:
         for bucket in BUCKETS:
             q = account["storage"][bucket]
             require(q["pool"] in pools, "unknown quota pool")
+            pool = pools[q["pool"]]
+            allocation = (pool["instance"], pool["pool"], q["allocation"])
+            require(allocation not in allocations, "duplicate storage allocation")
+            allocations.add(allocation)
             require(
                 q["headroom_bytes"] < q["max_bytes"] and q["headroom_inodes"] < q["max_inodes"],
                 "quota leaves no usable headroom",
@@ -173,30 +202,86 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
     )
     pools = {p["pool"]: p for p in snapshot["pools"]}
     require(len(pools) == len(snapshot["pools"]), "duplicate pool observation")
-    projects: set[tuple[str, int]] = set()
+    domains = {p["storage"]["capacity_domain"] for p in pools.values()}
+    require(len(domains) == len(pools), "duplicate pool capacity domain")
+    require(
+        snapshot["control_pool"]["capacity_domain"] not in domains,
+        "control and workload capacity domain overlap",
+    )
+    allocations: set[tuple[str, str]] = set()
     for q in snapshot["quotas"]:
         require(q["pool"] in pools, "quota observation missing pool")
         p = pools[q["pool"]]
         require(
-            (q["filesystem_uuid"], q["mount_id"]) == (p["filesystem_uuid"], p["mount_id"]),
-            "quota native mount identity mismatch",
+            q["storage"]["pool"] == p["storage"],
+            "quota pool binding mismatch",
         )
-        key = (q["filesystem_uuid"], q["project_id"])
-        require(key not in projects, "duplicate project identity")
-        projects.add(key)
+        key = (p["storage"]["capacity_domain"], q["storage"]["handle"])
+        require(key not in allocations, "duplicate allocation identity")
+        allocations.add(key)
         normal_root(q["root"])
 
 
+def resource_bindings_digest(snapshot: dict[str, Any]) -> str:
+    """Canonical binding identity; callers must independently establish its authority."""
+    validate_snapshot(snapshot)
+    return digest(
+        {
+            "owner": snapshot["owner"],
+            "account": snapshot["account"],
+            "resource_generation": snapshot["resource_generation"],
+            "control_pool": snapshot["control_pool"],
+            "pools": sorted(
+                (
+                    {key: p[key] for key in ("pool", "storage", "reserve_bytes", "reserve_inodes")}
+                    for p in snapshot["pools"]
+                ),
+                key=lambda p: p["pool"],
+            ),
+            "quotas": sorted(
+                (
+                    {
+                        key: q[key]
+                        for key in (
+                            "bucket",
+                            "pool",
+                            "storage",
+                            "root",
+                            "max_bytes",
+                            "max_inodes",
+                            "headroom_bytes",
+                            "headroom_inodes",
+                        )
+                    }
+                    for q in snapshot["quotas"]
+                ),
+                key=lambda q: q["bucket"],
+            ),
+        }
+    )
+
+
 def check_capacity(
-    snapshot: dict[str, Any], request: dict[str, Any], *, now: str, max_age_seconds: int = 30
+    snapshot: dict[str, Any],
+    request: dict[str, Any],
+    *,
+    approved_bindings_digest: str,
+    now: str,
+    max_age_seconds: int = 30,
 ) -> dict[str, Any]:
-    """Decide from supplied counters; not a native guarantee or reservation."""
+    """Join counters to independent owner-approved bindings; no native guarantee."""
     validate_snapshot(snapshot)
     validate("resource-records.schema.json", request, "CapacityRequest")
     require(
         request["account"] == snapshot["account"]
         and request["resource_generation"] == snapshot["resource_generation"],
         "stale resource binding",
+    )
+    require(
+        request["bindings_digest"]
+        == approved_bindings_digest
+        == resource_bindings_digest(snapshot),
+        "capacity snapshot differs from approved resource bindings",
     )
     require(
         len({x["bucket"] for x in request["growth"]}) == len(request["growth"]),
@@ -262,9 +347,14 @@ def check_capacity(
 class ReservationModel:
     """In-memory transaction model, not a durable scheduler or implementation."""
 
-    def __init__(self, snapshot: dict[str, Any]):
+    def __init__(self, snapshot: dict[str, Any], *, approved_bindings_digest: str):
         validate_snapshot(snapshot)
+        require(
+            resource_bindings_digest(snapshot) == approved_bindings_digest,
+            "reservation model differs from approved resource bindings",
+        )
         self.snapshot = deepcopy(snapshot)
+        self.approved_bindings_digest = approved_bindings_digest
         self.requests: dict[str, dict[str, Any]] = {}
 
     def reserve(self, request: dict[str, Any], *, now: str) -> dict[str, Any]:
@@ -272,7 +362,9 @@ class ReservationModel:
         if key in self.requests:
             require(self.requests[key]["digest"] == digest(request), "reservation replay conflict")
             return deepcopy(self.requests[key])
-        decision = check_capacity(self.snapshot, request, now=now)
+        decision = check_capacity(
+            self.snapshot, request, approved_bindings_digest=self.approved_bindings_digest, now=now
+        )
         require(decision["admissible"], "capacity reservation blocked")
         for g in request["growth"]:
             q = next(x for x in self.snapshot["quotas"] if x["bucket"] == g["bucket"])
@@ -298,6 +390,12 @@ class ReservationModel:
         if self.requests[key]["phase"] == "released":
             return
         require(writer_stopped is True, "reservation release needs cessation evidence")
+        require(
+            resource_bindings_digest(self.snapshot)
+            == self.approved_bindings_digest
+            == self.requests[key]["request"]["bindings_digest"],
+            "reservation release differs from approved resource bindings",
+        )
         for g in self.requests[key]["request"]["growth"]:
             q = next(x for x in self.snapshot["quotas"] if x["bucket"] == g["bucket"])
             p = next(x for x in self.snapshot["pools"] if x["pool"] == q["pool"])

@@ -364,7 +364,12 @@ def test_preparation_never_enrolls_or_authorizes_a_native_adapter(provider):
         registry.authorize(
             "offline-source", "bootstrap-source", "recover", value["scope"], owner_approved=True
         )
-    assert all(x["repeat"] == "reconcile-before-repeat" for x in ROLES["bootstrap-source"].values())
+    assert all(
+        x["repeat"] == "reconcile-before-repeat"
+        for method, x in ROLES["bootstrap-source"].items()
+        if method != "reconcile"
+    )
+    assert ROLES["bootstrap-source"]["reconcile"]["repeat"] == "read-only"
 
 
 @pytest.mark.parametrize("member,replacement", [("kind", "application"), ("handle", "another")])

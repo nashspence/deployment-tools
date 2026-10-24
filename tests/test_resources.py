@@ -57,9 +57,9 @@ class HostEnvelopes(unittest.TestCase):
         self.h["resources"] = None
         self.bad()
 
-    def test_non_linux(self):
+    def test_platform_does_not_select_native_implementation(self):
         self.h["platform"] = "macos"
-        self.bad()
+        validate_host_resources(self.h)
 
     def test_missing_account(self):
         self.h["app_accounts"]["demo-app"]["resource_account"] = "missing"
@@ -109,10 +109,9 @@ class HostEnvelopes(unittest.TestCase):
         self.a["storage"]["scratch"]["root"] = "/srv/ops"
         self.bad()
 
-    def test_shared_control_fs(self):
-        self.h["resources"]["control"]["filesystem_uuid"] = self.h["resources"]["pools"][
-            "app-disk"
-        ]["filesystem_uuid"]
+    def test_shared_control_pool(self):
+        pool = self.h["resources"]["pools"]["app-disk"]
+        self.h["resources"]["control"].update(instance=pool["instance"], pool=pool["pool"])
         self.bad()
 
     def test_byte_overcommit(self):
@@ -127,8 +126,8 @@ class HostEnvelopes(unittest.TestCase):
         self.a["storage"]["runtime"]["max_bytes"] = True
         self.bad()
 
-    def test_unsupported_adapter(self):
-        self.h["resources"]["pools"]["app-disk"]["adapter"] = "pretend-ext4"
+    def test_unknown_adapter_instance(self):
+        self.h["resources"]["pools"]["app-disk"]["instance"] = "unapproved-storage"
         self.bad()
 
     def test_insufficient_headroom(self):
@@ -177,7 +176,9 @@ class Capacity(unittest.TestCase):
         self.r = load("examples/resources/capacity-request.json")
 
     def run_check(self):
-        return check_capacity(self.s, self.r, now=NOW)
+        return check_capacity(
+            self.s, self.r, approved_bindings_digest=self.r["bindings_digest"], now=NOW
+        )
 
     def test_valid_growth(self):
         self.assertTrue(self.run_check()["admissible"])
@@ -235,13 +236,13 @@ class Capacity(unittest.TestCase):
         self.s["coverage_complete"] = False
         self.assertFalse(self.run_check()["admissible"])
 
-    def test_wrong_native_mount(self):
-        self.s["quotas"][0]["mount_id"] += 1
+    def test_wrong_pool_incarnation(self):
+        self.s["quotas"][0]["storage"]["pool"]["incarnation"] = "replaced-pool"
         with self.assertRaises(ContractError):
             self.run_check()
 
-    def test_duplicate_project(self):
-        self.s["quotas"][1]["project_id"] = self.s["quotas"][0]["project_id"]
+    def test_duplicate_allocation(self):
+        self.s["quotas"][1]["storage"]["handle"] = self.s["quotas"][0]["storage"]["handle"]
         with self.assertRaises(ContractError):
             self.run_check()
 
@@ -257,7 +258,7 @@ class Capacity(unittest.TestCase):
 
     def test_concurrent_reservation(self):
         self.s["pools"][0]["available_bytes"] = 20 << 30
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         book.reserve(self.r, now=NOW)
         other = deepcopy(self.r)
         other["operation_id"] = "00000000-0000-4000-8000-000000000009"
@@ -265,21 +266,21 @@ class Capacity(unittest.TestCase):
             book.reserve(other, now=NOW)
 
     def test_reservation_idempotent(self):
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         one = book.reserve(self.r, now=NOW)
         snap = deepcopy(book.snapshot)
         self.assertEqual(book.reserve(self.r, now=NOW), one)
         self.assertEqual(book.snapshot, snap)
 
     def test_reservation_identity_conflict(self):
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         book.reserve(self.r, now=NOW)
         self.r["growth"][0]["bytes"] += 1
         with self.assertRaises(ContractError):
             book.reserve(self.r, now=NOW)
 
     def test_expiry_preserves_claim(self):
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         book.reserve(self.r, now=NOW)
         snap = deepcopy(book.snapshot)
         book.timeout(self.r["operation_id"])
@@ -287,13 +288,13 @@ class Capacity(unittest.TestCase):
         self.assertEqual(book.requests[self.r["operation_id"]]["phase"], "reconciling")
 
     def test_release_requires_cessation(self):
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         book.reserve(self.r, now=NOW)
         with self.assertRaises(ContractError):
             book.release(self.r["operation_id"], writer_stopped=False)
 
     def test_released_claim_not_subtracted_twice(self):
-        book = ReservationModel(self.s)
+        book = ReservationModel(self.s, approved_bindings_digest=self.r["bindings_digest"])
         book.reserve(self.r, now=NOW)
         book.release(self.r["operation_id"], writer_stopped=True)
         book.release(self.r["operation_id"], writer_stopped=True)

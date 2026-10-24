@@ -11,11 +11,6 @@
         "control": {
           "type": "object",
           "properties": {
-            "filesystem_uuid": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
             "root": {
               "type": "string",
               "minLength": 2,
@@ -41,17 +36,25 @@
               "type": "integer",
               "minimum": 16777216,
               "maximum": 9007199254740991
+            },
+            "instance": {
+              "$ref": "common.schema.json#/$defs/Id"
+            },
+            "pool": {
+              "$ref": "adapter.schema.json#/$defs/Handle"
             }
           },
           "required": [
-            "filesystem_uuid",
             "root",
             "reserve_bytes",
             "reserve_inodes",
             "emergency_file_bytes",
-            "host_memory_reserve_bytes"
+            "host_memory_reserve_bytes",
+            "instance",
+            "pool"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Control allocation selected through an approved storage instance. Its resolved capacity domain must be independent of every workload pool; distinct input handles do not prove separation."
         },
         "pools": {
           "type": "object",
@@ -66,14 +69,6 @@
                 "minLength": 2,
                 "maxLength": 512,
                 "pattern": "^/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\u0000-\\u001f\\\\])[^\\n]+$"
-              },
-              "filesystem_uuid": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-              },
-              "adapter": {
-                "const": "xfs-project-v1"
               },
               "allocation_budget_bytes": {
                 "type": "integer",
@@ -107,21 +102,28 @@
               },
               "overcommit": {
                 "const": false
+              },
+              "instance": {
+                "$ref": "common.schema.json#/$defs/Id"
+              },
+              "pool": {
+                "$ref": "adapter.schema.json#/$defs/Handle"
               }
             },
             "required": [
               "mount",
-              "filesystem_uuid",
-              "adapter",
               "allocation_budget_bytes",
               "allocation_budget_inodes",
               "host_reserve_bytes",
               "host_reserve_inodes",
               "other_writers_max_bytes",
               "other_writers_max_inodes",
-              "overcommit"
+              "overcommit",
+              "instance",
+              "pool"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Logical pool selection and hard allocation budget. Provider locators and native identities belong to the selected storage adapter. Admission joins this selection to an approved PoolIdentity and rejects aliased or overlapping capacity domains."
           },
           "minProperties": 1,
           "maxProperties": 256
@@ -153,106 +155,7 @@
                 "maxLength": 64
               },
               "compute": {
-                "type": "object",
-                "properties": {
-                  "cpu_millis": {
-                    "type": "integer",
-                    "minimum": 100,
-                    "maximum": 1024000
-                  },
-                  "cpu_weight": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 10000
-                  },
-                  "memory_high_bytes": {
-                    "type": "integer",
-                    "minimum": 16777216,
-                    "maximum": 9007199254740991
-                  },
-                  "memory_max_bytes": {
-                    "type": "integer",
-                    "minimum": 16777216,
-                    "maximum": 9007199254740991
-                  },
-                  "swap_max_bytes": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 9007199254740991
-                  },
-                  "tasks_max": {
-                    "type": "integer",
-                    "minimum": 32,
-                    "maximum": 1048576
-                  },
-                  "io_weight": {
-                    "anyOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 10000
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "io_limits": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "device_id": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 24,
-                          "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
-                        },
-                        "read_bps": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "maximum": 9007199254740991
-                        },
-                        "write_bps": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "maximum": 9007199254740991
-                        }
-                      },
-                      "required": [
-                        "device_id",
-                        "read_bps",
-                        "write_bps"
-                      ],
-                      "additionalProperties": false
-                    },
-                    "minItems": 0,
-                    "maxItems": 16
-                  },
-                  "tmpfs_max_bytes": {
-                    "type": "integer",
-                    "minimum": 1048576,
-                    "maximum": 9007199254740991
-                  },
-                  "tmpfs_max_inodes": {
-                    "type": "integer",
-                    "minimum": 128,
-                    "maximum": 9007199254740991
-                  }
-                },
-                "required": [
-                  "cpu_millis",
-                  "cpu_weight",
-                  "memory_high_bytes",
-                  "memory_max_bytes",
-                  "swap_max_bytes",
-                  "tasks_max",
-                  "io_weight",
-                  "io_limits",
-                  "tmpfs_max_bytes",
-                  "tmpfs_max_inodes"
-                ],
-                "additionalProperties": false
+                "$ref": "resources.schema.json#/$defs/ComputeEnvelope"
               },
               "storage": {
                 "type": "object",
@@ -291,6 +194,9 @@
                         "type": "integer",
                         "minimum": 16,
                         "maximum": 9007199254740991
+                      },
+                      "allocation": {
+                        "$ref": "adapter.schema.json#/$defs/Handle"
                       }
                     },
                     "required": [
@@ -299,9 +205,11 @@
                       "max_bytes",
                       "max_inodes",
                       "headroom_bytes",
-                      "headroom_inodes"
+                      "headroom_inodes",
+                      "allocation"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Opaque allocation selected within its approved logical pool. The receiving owner binds exact identity and incarnation before accounting or change; paths alone never authorize access."
                   },
                   "state": {
                     "type": "object",
@@ -337,6 +245,9 @@
                         "type": "integer",
                         "minimum": 16,
                         "maximum": 9007199254740991
+                      },
+                      "allocation": {
+                        "$ref": "adapter.schema.json#/$defs/Handle"
                       }
                     },
                     "required": [
@@ -345,9 +256,11 @@
                       "max_bytes",
                       "max_inodes",
                       "headroom_bytes",
-                      "headroom_inodes"
+                      "headroom_inodes",
+                      "allocation"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Opaque allocation selected within its approved logical pool. The receiving owner binds exact identity and incarnation before accounting or change; paths alone never authorize access."
                   },
                   "scratch": {
                     "type": "object",
@@ -383,6 +296,9 @@
                         "type": "integer",
                         "minimum": 16,
                         "maximum": 9007199254740991
+                      },
+                      "allocation": {
+                        "$ref": "adapter.schema.json#/$defs/Handle"
                       }
                     },
                     "required": [
@@ -391,9 +307,11 @@
                       "max_bytes",
                       "max_inodes",
                       "headroom_bytes",
-                      "headroom_inodes"
+                      "headroom_inodes",
+                      "allocation"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Opaque allocation selected within its approved logical pool. The receiving owner binds exact identity and incarnation before accounting or change; paths alone never authorize access."
                   },
                   "logs": {
                     "type": "object",
@@ -429,6 +347,9 @@
                         "type": "integer",
                         "minimum": 16,
                         "maximum": 9007199254740991
+                      },
+                      "allocation": {
+                        "$ref": "adapter.schema.json#/$defs/Handle"
                       }
                     },
                     "required": [
@@ -437,9 +358,11 @@
                       "max_bytes",
                       "max_inodes",
                       "headroom_bytes",
-                      "headroom_inodes"
+                      "headroom_inodes",
+                      "allocation"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Opaque allocation selected within its approved logical pool. The receiving owner binds exact identity and incarnation before accounting or change; paths alone never authorize access."
                   }
                 },
                 "required": [
@@ -561,7 +484,8 @@
         "accounts",
         "policy"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Portable capacity and isolation requirements selecting receiving-owner-approved storage and compute instances. Source cannot enroll adapters or prove enforcement. The receiving owner must resolve provider aliases, verify independent control capacity, native isolation and accounting coverage for the chosen platform/profile, or refuse growth. No filesystem, service manager or provider is selected by this contract."
     },
     "AppRequirements": {
       "type": "object",
@@ -748,6 +672,206 @@
       ],
       "additionalProperties": false,
       "description": "Retention requirements selected from the accepted application source by its local owner. Inventories and cleanup plans derive from this exact policy. keep-local prohibits cold demotion; an explicit cleanup plan or archive receipt cannot override it. Policy changes require separate owner authorization before new retention decisions are prepared."
+    },
+    "ComputeEnvelope": {
+      "type": "object",
+      "properties": {
+        "cpu_millis": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 1024000
+        },
+        "cpu_weight": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "memory_high_bytes": {
+          "type": "integer",
+          "minimum": 16777216,
+          "maximum": 9007199254740991
+        },
+        "memory_max_bytes": {
+          "type": "integer",
+          "minimum": 16777216,
+          "maximum": 9007199254740991
+        },
+        "swap_max_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "tasks_max": {
+          "type": "integer",
+          "minimum": 32,
+          "maximum": 1048576
+        },
+        "io_weight": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "io_limits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24,
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+              },
+              "read_bps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "write_bps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "device_id",
+              "read_bps",
+              "write_bps"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 16
+        },
+        "tmpfs_max_bytes": {
+          "type": "integer",
+          "minimum": 1048576,
+          "maximum": 9007199254740991
+        },
+        "tmpfs_max_inodes": {
+          "type": "integer",
+          "minimum": 128,
+          "maximum": 9007199254740991
+        },
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "allocation": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "cpu_millis",
+        "cpu_weight",
+        "memory_high_bytes",
+        "memory_max_bytes",
+        "swap_max_bytes",
+        "tasks_max",
+        "io_weight",
+        "io_limits",
+        "tmpfs_max_bytes",
+        "tmpfs_max_inodes",
+        "instance",
+        "allocation"
+      ],
+      "additionalProperties": false,
+      "description": "Approved compute instance and opaque allocation selection with required limits. cpu_millis is thousandths of one CPU; weights use a normalized 1..10000 scale within a contention group; memory_high_bytes is the pressure threshold and memory_max_bytes the hard ceiling; task and tmpfs limits cover all workload descendants. A provider must qualify an equivalent mapping and report unsupported limits instead of silently omitting them. These requirements do not choose a native controller or its placement."
+    },
+    "PoolIdentity": {
+      "description": "Receiving-owner-verified pool binding, including the approved executor and scope. handle is opaque to core; incarnation changes when a native object is recreated or restored. capacity_domain is canonical within the receiving authority across adapters and aliases, not an adapter-local name, and must be resolved independently before admission. It identifies capacity that cannot be counted twice. Different input strings do not establish isolation. Native filesystem, mount and quota identifiers remain adapter-owned.",
+      "type": "object",
+      "properties": {
+        "executor": {
+          "allOf": [
+            {
+              "$ref": "adapter.schema.json#/$defs/InstanceReference"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "storage"
+                }
+              }
+            }
+          ]
+        },
+        "handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "incarnation": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "capacity_domain": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "executor",
+        "handle",
+        "incarnation",
+        "capacity_domain"
+      ],
+      "additionalProperties": false
+    },
+    "StorageIdentity": {
+      "description": "Exact allocation binding within a pool. Native project IDs, dataset IDs and paths are private adapter details. The owner must reject a binding that does not match the current approved resource generation, instance, scope or native incarnation. An identity record alone is not a grant or evidence of enforcement.",
+      "type": "object",
+      "properties": {
+        "pool": {
+          "$ref": "resources.schema.json#/$defs/PoolIdentity"
+        },
+        "handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "incarnation": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "pool",
+        "handle",
+        "incarnation"
+      ],
+      "additionalProperties": false
+    },
+    "ComputeIdentity": {
+      "description": "Receiving-owner-verified compute allocation; native controller IDs and placement paths remain adapter-owned. Recreated allocations invalidate earlier incarnation evidence. Missing or unqualified native coverage must remain explicit.",
+      "type": "object",
+      "properties": {
+        "executor": {
+          "allOf": [
+            {
+              "$ref": "adapter.schema.json#/$defs/InstanceReference"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "compute"
+                }
+              }
+            }
+          ]
+        },
+        "handle": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "incarnation": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "executor",
+        "handle",
+        "incarnation"
+      ],
+      "additionalProperties": false
     }
   }
 }

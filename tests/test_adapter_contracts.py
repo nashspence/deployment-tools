@@ -191,7 +191,9 @@ def test_role_response_shape_is_closed_and_method_specific(role):
     assert all(branch["additionalProperties"] is False for branch in responses)
     for branch in responses:
         method = branch["properties"]["method"]["const"]
-        assert ("effect" in branch["required"]) is ROLES[role][method]["effect"]
+        assert ("effect" in branch["required"]) is (
+            ROLES[role][method]["effect"] or method == "reconcile"
+        )
 
 
 def test_read_response_is_bound_to_request_and_complete_coverage():

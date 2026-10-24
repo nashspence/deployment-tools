@@ -1204,6 +1204,108 @@
       "use_case": "operation.list"
     },
     {
+      "id": "owner-form:op-list-active-resource",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "id": "owner-form:op-list-active-resource-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "id": "owner-form:op-list-history",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "id": "owner-form:op-list-history-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "id": "owner-form:op-list-history-resource",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
+      "id": "owner-form:op-list-history-resource-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "operation.list"
+    },
+    {
       "id": "owner-form:plan-stdin",
       "implementation": null,
       "recovery": "required",
@@ -1222,6 +1324,23 @@
     },
     {
       "id": "owner-form:resources",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "resources.observe"
+    },
+    {
+      "id": "owner-form:resources-page",
       "implementation": null,
       "recovery": "required",
       "status": "unimplemented",
@@ -1289,6 +1408,227 @@
       "use_case": "observe"
     },
     {
+      "id": "owner-form:status-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "observe"
+    },
+    {
+      "id": "owner-form:workflow-advance",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.advance"
+    },
+    {
+      "id": "owner-form:workflow-list-active",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-active-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-active-resource",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-active-resource-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-history",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-history-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-history-resource",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-list-history-resource-page",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.list"
+    },
+    {
+      "id": "owner-form:workflow-prepare",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.prepare"
+    },
+    {
+      "id": "owner-form:workflow-show",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.get"
+    },
+    {
+      "id": "owner-form:workflow-transfer",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-owner-form",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ],
+      "use_case": "workflow.transfer"
+    },
+    {
       "id": "rpc:check",
       "implementation": null,
       "recovery": "required",
@@ -1354,6 +1694,22 @@
     },
     {
       "id": "rpc:content.get",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-rpc",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ]
+    },
+    {
+      "id": "rpc:content.status",
       "implementation": null,
       "recovery": "required",
       "status": "unimplemented",
@@ -1561,6 +1917,22 @@
       ]
     },
     {
+      "id": "rpc:workflow.list",
+      "implementation": null,
+      "recovery": "required",
+      "status": "unimplemented",
+      "surface": "declared-rpc",
+      "tests": {
+        "failure": [],
+        "recovery": [],
+        "success": []
+      },
+      "tools": [
+        "host-ops",
+        "app-ops"
+      ]
+    },
+    {
       "id": "rpc:workflow.prepare",
       "implementation": null,
       "recovery": "required",
@@ -1602,12 +1974,12 @@
     "fishhat/domain-ops/src/fishhat_domain/cli.py": "c8e1242a73f5a670e836a35cbb92ffffab44496aff92d198ea80ab14e3279a57",
     "fishhat/host-ops/pyproject.toml": "3cc402bda8fd5e83e36d0bd5a299d0e6904535c69c992754e1aa169f37f88bd6",
     "fishhat/host-ops/src/fishhat_host/cli.py": "d8457ca822e6d01be0b1301fb439ef9f5ed74b6224aca2d85feb189dadeb611c",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/actions.json": "149b200dbe9dfdd3e693f95ebc7dbb966d9f25f1cdf67c1ad91ab22437a81e58",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/actions.json": "1fe1d813add57b1593586a90765b6ba2a5932329716efc4b977254b93482d15b",
     "packages/fishhat-contracts/src/fishhat_contracts/contracts/client-commands.json": "a8e2c6238b3942b68c82a7ea21c5d01540dbedf468518d4495fdbd4337ea878e",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/owner-cli.json": "d6df9224079e494390dc229af409c4f200e77e583613d0f984a03a33e7126cfd",
-    "packages/fishhat-contracts/src/fishhat_contracts/contracts/ssh-methods.json": "00315ae70e895d4583ccad459ae39c4054adef70a7906e5cc84e3a1b390f8053",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/owner-cli.json": "4a628765e9140ce1ea93a0e3e03ef8583b58626685ce91376f037a95b5c3bdc2",
+    "packages/fishhat-contracts/src/fishhat_contracts/contracts/ssh-methods.json": "4cf4f8abde4206b23b1a433bbfbc811e89fca4dae777ff236d5b16aac306cfbe",
     "policy/components.toml": "d83506dc63602aec3932e1ac35244efca0db494a38a5d4cd9ec94c68476b235c",
-    "policy/interfaces.json": "b0089faa4377939c35fcba35614d293cec653eaa4677e326fe811e377f345392",
+    "policy/interfaces.json": "eab5efa68fad74558f8512c793cbe73d87efe59fb04d4c249741db9cdc96ae11",
     "policy/operation-coverage.toml": "9fdd2320914eaf5ae615e199a73169afe0451c6826e164a30652550b4070ca92",
     "release.toml": "d53f1d09e5900fc08ed71dbf7321674a9460b5d029a8f863b2b012819c99f743",
     "some-implementations/fishhat/backup/restic/pyproject.toml": "665f88e34c00d431e829678503ae3bb7075294d0db3f303c318f87dbdab651e8",
@@ -1646,6 +2018,6 @@
     "some-implementations/fishhat/storage/ext4-filesystem/pyproject.toml": "c44f077b5697e948c3a6c2f7bcd4d2061d60521f45ad5b3596c67cbd0d9c1e3f",
     "some-implementations/fishhat/storage/xfs-project/pyproject.toml": "73e00e3691845add0fc45f4d7286bb87bff35a62083f3d310b63694b61da03af",
     "tests/test_component_policy.py": "c8fa537f8926fa978509c928a3f1d50c7954a12c2d8abadaa3d80f93a090977b",
-    "tests/test_operation_coverage.py": "530b85672f58d85611defb55966f5a6cdbcb4a5b6538582f431d3735c008e46e"
+    "tests/test_operation_coverage.py": "f38c17c49b34e00513c3514e5f7e27098d1a48bf4a032f585e8f7144f0a2b65d"
   }
 }

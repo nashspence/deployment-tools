@@ -28,7 +28,10 @@
     "Time": {
       "type": "string",
       "format": "date-time",
-      "pattern": "Z$"
+      "pattern": "^(?!0000)[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,6})?Z(?![\\s\\S])",
+      "minLength": 20,
+      "maxLength": 27,
+      "description": "A real Gregorian UTC instant, years 0001 through 9999, with uppercase T and Z and optional one to six fractional-second digits. The pattern explicitly rejects year zero, leap seconds, offsets, local times and unsupported precision; date-time format checking also rejects impossible calendar dates. Consumers must assert the declared format. Provider-owned schemas using bare date-time retain RFC3339 syntax rather than this narrower profile."
     },
     "RelativePath": {
       "type": "string",
@@ -220,36 +223,10 @@
       "type": "object",
       "properties": {
         "owner": {
-          "type": "object",
-          "properties": {
-            "tool": {
-              "enum": [
-                "host-ops",
-                "app-ops"
-              ]
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            },
-            "epoch": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-            }
-          },
-          "required": [
-            "tool",
-            "id",
-            "epoch"
-          ],
-          "additionalProperties": false
+          "$ref": "common.schema.json#/$defs/Owner"
         },
         "id": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          "$ref": "common.schema.json#/$defs/UUID"
         },
         "purpose": {
           "enum": [
@@ -261,16 +238,11 @@
             "secret-candidate"
           ]
         },
-        "operation_id": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        "binding": {
+          "$ref": "common.schema.json#/$defs/HandleBinding"
         },
         "digest": {
-          "type": "string",
-          "minLength": 71,
-          "maxLength": 71,
-          "pattern": "^sha256:[0-9a-f]{64}$"
+          "$ref": "common.schema.json#/$defs/Digest"
         },
         "size": {
           "type": "integer",
@@ -282,11 +254,108 @@
         "owner",
         "id",
         "purpose",
-        "operation_id",
+        "binding",
         "digest",
         "size"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "An owner-minted reference to complete immutable bytes. Every redemption rechecks the actual receiving principal, resource, purpose and owner epoch against protected owner state; possession is not bearer authority. Only content.commit exposes an input handle. Planning binds its exact digest and identity; operation admission atomically pins referenced inputs before acknowledgement or effects. Unadmitted staging expiry cannot collect accepted references. Restoring owner state invalidates mutable staging and requires explicit recovery of retained bindings."
+    },
+    "Cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "description": "Opaque owner-minted base64url continuation, bound to authenticated principal, exact query, retained traversal and owner epoch. Expiry requires an explicit restart; a cursor conveys no authority."
+    },
+    "SchemaIdentity": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        }
+      },
+      "required": [
+        "uri",
+        "digest"
+      ],
+      "additionalProperties": false,
+      "description": "The exact installed closed result schema. Digest is SHA-256 over canonical {root: uri, documents: {document URI: complete schema document}} containing the root document and every transitively referenced local document. Resolve references only from the approved installed schema set, never by fetching the URI. A caller-supplied identity does not approve a schema. The supported closed subset uses static references and JSON Pointer fragments; nested schema IDs, dynamic references and unresolved targets are rejected, not approximated."
+    },
+    "HandleBinding": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "staging"
+            },
+            "staging_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            }
+          },
+          "required": [
+            "kind",
+            "staging_id"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "operation"
+            },
+            "operation_id": {
+              "$ref": "common.schema.json#/$defs/UUID"
+            }
+          },
+          "required": [
+            "kind",
+            "operation_id"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "description": "Input staging has its own durable identity before any plan or operation acceptance. Owner-produced output binds to its accepted operation. Adoption pins the original immutable staging handle; it does not rewrite its identity or turn staging into execution."
+    },
+    "ResultHandle": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "allOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Handle"
+            },
+            {
+              "properties": {
+                "binding": {
+                  "properties": {
+                    "kind": {
+                      "const": "operation"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "schema": {
+          "$ref": "common.schema.json#/$defs/SchemaIdentity"
+        }
+      },
+      "required": [
+        "handle",
+        "schema"
+      ],
+      "additionalProperties": false,
+      "description": "A committed operation output and its exact approved result schema. The handle owner and operation binding must match the enclosing Operation. The owning action catalog determines the permitted result type; a generic adapter action pins its selected method result schema in its reviewed subject. This declaration does not advertise an implemented capability."
     }
   }
 }

@@ -739,7 +739,8 @@
             }
           }
         }
-      }
+      },
+      "description": "Owner-retained identity and state of one authorized native mutation. Observational reconciliation refers to this original attempt; it does not create another effect. Exact retained request bytes and any referenced immutable input closure remain in owner custody. The input digest cannot replace those bytes or authorize reconstructing them from current mutable state."
     },
     "EffectResult": {
       "type": "object",
@@ -920,6 +921,9 @@
           "minItems": 0,
           "maxItems": 256,
           "uniqueItems": true
+        },
+        "producer": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
         }
       },
       "required": [
@@ -928,9 +932,11 @@
         "format",
         "consistency",
         "artifacts",
-        "restore_requirements"
+        "restore_requirements",
+        "producer"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Exact captured dataset and complete immutable artifact closure, bound to the capture adapter Instance that produced it. The producer role is capture. A destination or procedure digest cannot substitute for this input identity. Cross-owner restore may use a different target binding only through independently authorized custody and destination mapping."
     },
     "Counter": {
       "type": "object",
@@ -1203,6 +1209,9 @@
         },
         "renewable": {
           "type": "boolean"
+        },
+        "issuer": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
         }
       },
       "required": [
@@ -1212,9 +1221,116 @@
         "lease",
         "validity",
         "expires_at",
-        "renewable"
+        "renewable",
+        "issuer"
+      ],
+      "additionalProperties": false,
+      "description": "One exact credential lease and its observed validity, bound to its issuer Instance and consumer. Lease and value handles are opaque protected references, not plaintext or bearer authority. Multiple leases may overlap for one identity/consumer; rotating or revoking one does not authorize changes to another."
+    },
+    "InstanceReference": {
+      "description": "Exact receiving-owner-approved adapter Instance and scope. installation_digest identifies its immutable artifact; configuration_digest and instance_digest bind the accepted configuration and complete enrollment including grants. New admission must match all fields against the independently loaded approved Instance. This record is identity data, never enrollment, dispatch authority or proof of native capability. Historical input producers may differ from the current executor; consuming their artifacts requires separately verified custody and an explicit accepted mapping.",
+      "type": "object",
+      "properties": {
+        "instance": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "role": {
+          "enum": [
+            "runtime",
+            "compute",
+            "storage",
+            "capture",
+            "backup",
+            "secret-source",
+            "credential-issuer",
+            "dns",
+            "ingress",
+            "network",
+            "software",
+            "service",
+            "repository",
+            "build",
+            "report",
+            "bootstrap-source"
+          ]
+        },
+        "installation_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "configuration_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "instance_generation": {
+          "$ref": "adapter.schema.json#/$defs/Generation"
+        },
+        "instance_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        },
+        "scope": {
+          "$ref": "adapter.schema.json#/$defs/Scope"
+        }
+      },
+      "required": [
+        "instance",
+        "role",
+        "installation_digest",
+        "configuration_digest",
+        "instance_generation",
+        "instance_digest",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "SecretPublicationPredecessor": {
+      "description": "Exact prior published artifact in one secret-source instance and entry. Publication must independently compare this predecessor before changing its target; a mismatch requires renewed review. artifact_digest identifies the protected publication artifact, not a hash of a low-entropy plaintext secret.",
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
+        },
+        "entry": {
+          "$ref": "common.schema.json#/$defs/Entry"
+        },
+        "version": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "artifact_digest": {
+          "$ref": "common.schema.json#/$defs/Digest"
+        }
+      },
+      "required": [
+        "source",
+        "entry",
+        "version",
+        "artifact_digest"
+      ],
+      "additionalProperties": false
+    },
+    "LeaseReference": {
+      "description": "Exact issuer-scoped immutable lease identity. The issuer role is credential-issuer. Lease handles must not be rebound to replacement credentials. Renewal and revocation apply only to this lease and cannot select the latest lease, all leases for an identity or another consumer. A stale issuer binding requires explicit review, never implicit reinterpretation.",
+      "type": "object",
+      "properties": {
+        "issuer": {
+          "$ref": "adapter.schema.json#/$defs/InstanceReference"
+        },
+        "identity": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        },
+        "consumer": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "lease": {
+          "$ref": "adapter.schema.json#/$defs/Handle"
+        }
+      },
+      "required": [
+        "issuer",
+        "identity",
+        "consumer",
+        "lease"
       ],
       "additionalProperties": false
     }
-  }
+  },
+  "description": "Descriptor for a separately approved implementation. Provider-owned configuration, component and source schemas retain their JSON Schema format semantics. Bare date-time asserts RFC3339 syntax and Gregorian calendar validity without normalizing strings or inheriting core Time precision/UTC restrictions. Leap-second syntax is checked only at the offset-adjusted UTC end of a month; actual insertion or negative-leap schedules require provider authority and are not qualification supplied by this validator."
 }

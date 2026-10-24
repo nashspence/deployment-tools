@@ -1192,7 +1192,8 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 24,
-                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
+                "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$",
+                "description": "Names a health hook with read mode. Readiness is observational and cannot invoke restore, configure, transition or other write procedures. The hook retains its declared executor and exact data/secret/network grants; referencing it here never broadens them."
               }
             },
             "required": [
@@ -1654,7 +1655,46 @@
               "secrets",
               "network"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Hook roles determine their access mode. Observation, assessment, verification and capture use read access to admitted datasets; configure, quiesce, transition application, restore and rebuild use write access and require separately authorized owner work. Read access also constrains remote credentials and native operations: a read-only filesystem mount alone does not make a database connection observational. Artifact output is confined separately to the operation output directory.",
+            "oneOf": [
+              {
+                "properties": {
+                  "role": {
+                    "enum": [
+                      "health",
+                      "verify-config",
+                      "dependency-check",
+                      "busy",
+                      "transition-assess",
+                      "transition-verify",
+                      "capture",
+                      "verify-restore",
+                      "verify-rebuild"
+                    ]
+                  },
+                  "mode": {
+                    "const": "read"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "role": {
+                    "enum": [
+                      "configure",
+                      "quiesce",
+                      "transition-apply",
+                      "restore",
+                      "rebuild"
+                    ]
+                  },
+                  "mode": {
+                    "const": "write"
+                  }
+                }
+              }
+            ]
           }
         },
         "lifecycle": {
@@ -1978,49 +2018,13 @@
         "kind": {
           "const": "RepoSecrets"
         },
-        "locator": {
-          "type": "object",
-          "properties": {
-            "repository": {
-              "type": "object",
-              "properties": {
-                "instance": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-                },
-                "repository_id": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "maximum": 9007199254740991
-                },
-                "name": {
-                  "type": "string",
-                  "minLength": 3,
-                  "maxLength": 160,
-                  "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
-                }
-              },
-              "required": [
-                "instance",
-                "repository_id",
-                "name"
-              ],
-              "additionalProperties": false
-            },
-            "tag": {
-              "const": "secrets-bundle"
-            },
-            "asset": {
-              "const": "secrets.tar.age"
-            }
-          },
-          "required": [
-            "repository",
-            "tag",
-            "asset"
-          ],
-          "additionalProperties": false
+        "repository": {
+          "$ref": "common.schema.json#/$defs/Repository",
+          "description": "Identity of the repository that owns this logical catalogue. Admission verifies it against the accepted source closure; it is not the selected provider location."
+        },
+        "source": {
+          "$ref": "adapter.schema.json#/$defs/Selection",
+          "description": "Explicit request for an owner-approved secret-source instance and descriptor-validated provider source selector. The receiving owner must check the secret-source role, exact permitted scope, installed artifact, configuration and source-schema identity. Provider locators and credentials belong to that instance or its provider-owned source schema. This declaration cannot install, configure, grant authority to or implicitly rebind an instance. Admitted work retains the selected instance/configuration identity and exact immutable secret generations; changing this selection does not replace them."
         },
         "entries": {
           "type": "object",
@@ -2049,10 +2053,12 @@
       "required": [
         "format",
         "kind",
-        "locator",
+        "repository",
+        "source",
         "entries"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Repository-owned logical secret catalogue, independent of the secret storage provider. Its repository identifies source custody, not a backend or management permission. Entries never contain values. The source selection names an already owner-approved secret-source instance; publication, credential issuance and consumer adoption remain distinct authorized effects."
     }
   }
 }
