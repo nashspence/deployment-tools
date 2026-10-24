@@ -91,7 +91,6 @@
             "$ref": "dns-intent.schema.json#/$defs/RRset"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "served_generation": {

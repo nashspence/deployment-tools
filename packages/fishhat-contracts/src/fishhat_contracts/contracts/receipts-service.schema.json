@@ -39,7 +39,6 @@
             ],
             "additionalProperties": false
           },
-          "maxItems": 32,
           "uniqueItems": true,
           "minItems": 1
         }

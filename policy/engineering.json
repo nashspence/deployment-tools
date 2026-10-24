@@ -8,27 +8,18 @@
   "operations": {
     "bootstrap.catalogue": {
       "capacity": [
-        "oversized records or catalogues reject before source selection"
+        "native readers enforce explicitly approved capacity without omitting sources"
       ],
       "extent": "All S sources in the catalogue; no prefix selection or silent truncation",
       "id": "bootstrap.catalogue",
-      "limits": [
-        [
-          "record_bytes",
-          1048576
-        ],
-        [
-          "sources",
-          256
-        ]
-      ],
+      "limits": [],
       "proofs": [
         "tests/test_bootstrap.py::test_catalogue_extent_and_source_visits"
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/fishhat-client/src/fishhat_client/bootstrap.py": "8d3235b919ac54052895da640b182155189493cc754faeb6c90c967aec43f496",
-        "tests/test_bootstrap.py": "795215058dd82fb192dfa99f8087188193faab9e6f3408ee047bee1d55c4041c"
+        "packages/fishhat-client/src/fishhat_client/bootstrap.py": "f8c8d08e23129898563a3cb77bf7140f004dba9b569ed192356e5b769953539b",
+        "tests/test_bootstrap.py": "3ec324d68e8cff12d672e2f32de4fab55bb898aa204e5dd58a078913755f9161"
       },
       "symbol": "fishhat_client.bootstrap:validate_catalogue",
       "work": "O(B + S) bounded reference record validation and one source identity pass"
@@ -90,8 +81,8 @@
       ],
       "qualification": "reference-model",
       "sources": {
-        "packages/fishhat-contracts/src/fishhat_contracts/record_delivery.py": "1372b54075d2ff25cbb0c41d0e3e398267a38307d317bd88b35c784c84ffb251",
-        "tests/test_record_delivery.py": "15b80ca9d810984126639c1fa54a690b4b87216114df5a319f5202f9aa164052"
+        "packages/fishhat-contracts/src/fishhat_contracts/record_delivery.py": "880d023366588672154fc8e679381fcf545840dd8cc08e9806fc631bd0e4d873",
+        "tests/test_record_delivery.py": "ea036ce02e522f4728c35c1fb5ca3acb5711f46f124c87471b108571fc0a3f67"
       },
       "symbol": "fishhat_contracts.record_delivery:RecordSnapshot.chunk",
       "work": "O(chunk_bytes)"

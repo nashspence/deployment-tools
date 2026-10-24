@@ -13,8 +13,9 @@ CHECK_PURPOSE = {
     "authority": [
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/compute-adapter.schema.json",
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/adapter.schema.json",
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/storage-adapter.schema.json",
     ],
-    "scope": "named compute requirements and allocation-bound usage evidence",
+    "scope": "named compute requirements, storage capacities and allocation-bound usage evidence",
     "relationship": "candidate",
     "reason": "Quantity/target, unit, coverage and time checks establish common data semantics, not native enforcement.",
     "claims": [],
@@ -206,3 +207,49 @@ def test_io_counters_have_separate_logical_targets_and_time_windows():
     reply["output"]["counters"][1]["target"] = None
     with pytest.raises(ContractError):
         check_response("compute", query, reply)
+
+
+@pytest.mark.parametrize("reconcile", [False, True], ids=["direct", "recovered"])
+@pytest.mark.parametrize("change", ["bytes", "inodes", "isolation"])
+def test_storage_success_meets_explicit_capacity_and_isolation(change, reconcile):
+    _, executor = installed("storage")
+    query = {
+        "contract": "fishhat.storage",
+        "method": "allocate",
+        "input": {
+            "scope": executor["scope"],
+            "allocation": "allocation:demo",
+            "capacity_bytes": 2048,
+            "capacity_inodes": 10,
+            "purposes": ["state"],
+            "hard_isolation": True,
+        },
+    }
+    invocation = invocation_for(query)
+    allocation = {
+        "handle": "allocation:demo",
+        "accounting_domain": "domain:demo",
+        "purposes": ["state"],
+        "native_identity_digest": "sha256:" + "a" * 64,
+        "counters": [counter("storage-used", 0)],
+        "hard_isolation": True,
+        "capacity_bytes": 2048,
+        "capacity_inodes": 10,
+    }
+    if reconcile:
+        query = {
+            "contract": query["contract"],
+            "method": "reconcile",
+            "input": {"scope": executor["scope"], "invocation": invocation},
+        }
+    reply = response_for(query, invocation["attempt"], {"allocations": [allocation]})
+    check_response("storage", query, reply, invocation=invocation)
+    allocation.update(
+        {"capacity_bytes": 2047}
+        if change == "bytes"
+        else {"capacity_inodes": 9}
+        if change == "inodes"
+        else {"hard_isolation": False}
+    )
+    with pytest.raises(ContractError, match="SUCCESS_OUTPUT_IDENTITY"):
+        check_response("storage", query, reply, invocation=invocation)

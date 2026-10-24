@@ -185,7 +185,6 @@
             "additionalProperties": false
           },
           "minItems": 0,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "unresolved_requests": {
@@ -194,7 +193,6 @@
             "$ref": "#/$defs/Delivery"
           },
           "minItems": 0,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "receipt_export_digest": {
@@ -250,7 +248,6 @@
             "$ref": "#/$defs/Delivery"
           },
           "minItems": 1,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "participant_evidence": {
@@ -259,7 +256,6 @@
             "$ref": "common.schema.json#/$defs/Digest"
           },
           "minItems": 0,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "credential_material": {
@@ -323,7 +319,6 @@
             "$ref": "common.schema.json#/$defs/Resource"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "executed": {
@@ -356,7 +351,6 @@
             "$ref": "#/$defs/Delivery"
           },
           "minItems": 0,
-          "maxItems": 1024,
           "uniqueItems": true
         },
         "output_digest": {

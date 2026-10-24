@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import errno
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -70,17 +72,18 @@ def test_missing_required_stats_blocks_complete_run_but_large_metrics_do_not(che
     assert not latest(checkout)["full_check_passed"]
 
 
-def test_test_stats_retention_bounds_and_sanitization(tmp_path):
+def test_test_stats_complete_retention_and_sanitization(tmp_path):
     unrelated = tmp_path / "artifacts/test-stats/keep.json"
     unrelated.parent.mkdir(parents=True)
     unrelated.write_text("retained")
     for _ in range(35):
         write_stats(tmp_path, {"format": "fishhat-pytest-timing/v1"})
-    assert len(list(unrelated.parent.glob("*.json"))) == 33
+    assert len(list(unrelated.parent.glob("*.json"))) == 36
     assert unrelated.read_text() == "retained"
     assert "PRIVATE_SENTINEL" not in safe_node("tests/example.py::test_a[PRIVATE_SENTINEL/invalid]")
-    with pytest.raises(ValueError, match="capacity"):
-        write_stats(tmp_path, {"value": "x" * 2_000_001})
+    large = write_stats(tmp_path, {"value": "x" * 2_000_001})
+    assert len(json.loads(large.read_text())["value"]) == 2_000_001
+    assert len(list(unrelated.parent.glob("*.json"))) == 37
 
 
 def test_profile_is_bounded_non_contractual_and_cannot_qualify(tmp_path, monkeypatch):
@@ -106,3 +109,25 @@ def test_parameterized_proofs_require_all_executed_cases_and_no_skips():
     assert proof_passed(reference, {reference + "[a]": "passed", reference + "[b]": "passed"})
     assert not proof_passed(reference, {reference + "[a]": "passed", reference + "[b]": "skipped"})
     assert not proof_passed(reference, {})
+
+
+@pytest.mark.parametrize("stage", ["write_text", "chmod", "replace"])
+def test_failed_stats_publication_retains_complete_history(tmp_path, monkeypatch, stage):
+    prior = write_stats(tmp_path, {"observation": "complete"})
+    original = getattr(Path, stage)
+
+    def fail_temporary(self, *args, **kwargs):
+        if self.parent == prior.parent and self.suffix == ".tmp":
+            if stage == "write_text":
+                original(self, "partial")
+            raise OSError(errno.ENOSPC, "synthetic stats capacity exhausted")
+        return original(self, *args, **kwargs)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(Path, stage, fail_temporary)
+        with pytest.raises(OSError):
+            write_stats(tmp_path, {"observation": "new"})
+    assert list(prior.parent.glob("*.json")) == [prior]
+    assert json.loads(prior.read_text()) == {"observation": "complete"}
+    recovered = write_stats(tmp_path, {"observation": "new"})
+    assert recovered != prior and prior.exists()

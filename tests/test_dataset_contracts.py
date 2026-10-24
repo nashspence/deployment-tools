@@ -14,6 +14,7 @@ CHECK_PURPOSE = {
     "authority": [
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/source.schema.json#/$defs/App",
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/hook-request.schema.json",
+        "packages/fishhat-contracts/src/fishhat_contracts/contracts/records.schema.json#/$defs/Checkpoint",
     ],
     "scope": "declared dataset custody, recovery procedures and source semantic joins",
     "relationship": "candidate",
@@ -188,3 +189,53 @@ def test_rebuild_procedures_have_explicit_hook_wire_roles(role, mode):
             "restore_input": None,
         },
     )
+
+
+@pytest.mark.parametrize(
+    "scope,evidence,valid",
+    [
+        ("independent-datasets", None, True),
+        ("independent-datasets", "sha256:" + "a" * 64, False),
+        ("application-quiesced", None, False),
+        ("application-quiesced", "sha256:" + "a" * 64, True),
+    ],
+    ids=["independent", "independent-extra-evidence", "quiesced-missing-evidence", "quiesced"],
+)
+def test_multi_dataset_checkpoint_declares_its_consistency_claim(scope, evidence, valid):
+    from tests.test_contracts import OWNER, uid, wb
+
+    d = "sha256:" + "a" * 64
+    dataset = {
+        "capture_digest": d,
+        "native_format": "synthetic.snapshot",
+        "consistency": "individually-consistent",
+        "snapshot_id": "snapshot:first",
+    }
+    value = {
+        "format": "deployment-ops/record/v1",
+        "kind": "Checkpoint",
+        "id": uid("checkpoint"),
+        "app_instance": "prod:" + "a" * 64,
+        "owner": OWNER,
+        "release_digest": d,
+        "datasets": {"database": dataset, "files": {**dataset, "snapshot_id": "snapshot:second"}},
+        "secret_generations": [],
+        "backup_backend": "backup",
+        "recovery_closure": [d],
+        "verified_at": "2026-10-24T00:00:00Z",
+        "restore_tested_at": None,
+        "consistency_scope": scope,
+        "quiescence_evidence": evidence,
+    }
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from fishhat_contracts.validation import digest
+    from fishhat_contracts.witness import sign
+
+    value["witness"] = sign(
+        {**wb(digest(value)), "kind": "checkpoint"}, Ed25519PrivateKey.generate()
+    )
+    if valid:
+        validate("records.schema.json", value, "Checkpoint")
+    else:
+        with pytest.raises(ContractError):
+            validate("records.schema.json", value, "Checkpoint")

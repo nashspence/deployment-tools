@@ -11,8 +11,7 @@
         "minLength": 1,
         "maxLength": 64
       },
-      "minItems": 1,
-      "maxItems": 4
+      "minItems": 1
     },
     "port": {
       "type": "integer",
@@ -26,8 +25,7 @@
         "minLength": 1,
         "maxLength": 300
       },
-      "minItems": 1,
-      "maxItems": 16
+      "minItems": 1
     },
     "allowed_origins": {
       "type": "array",
@@ -36,8 +34,7 @@
         "minLength": 1,
         "maxLength": 320
       },
-      "minItems": 1,
-      "maxItems": 16
+      "minItems": 1
     },
     "allowed_cidrs": {
       "type": "array",
@@ -46,8 +43,7 @@
         "minLength": 1,
         "maxLength": 64
       },
-      "minItems": 1,
-      "maxItems": 16
+      "minItems": 1
     },
     "tls": {
       "type": "object",

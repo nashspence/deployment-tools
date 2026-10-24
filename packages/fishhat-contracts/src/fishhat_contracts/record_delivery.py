@@ -10,6 +10,7 @@ import base64
 import binascii
 import copy
 import hashlib
+from collections.abc import Callable, Mapping
 from typing import Any, cast
 
 from .bounds import Bounds, bounds
@@ -57,15 +58,23 @@ def validate_record_reference(
     *,
     expected_owner: dict[str, Any] | None = None,
     expected_record: dict[str, Any] | None = None,
+    retained_readers: Mapping[str, Callable[[dict[str, Any]], None]] | None = None,
 ) -> None:
-    """Check exact installed schema and supplied independent owner/record expectations.
+    """Check exact installed/retained schema and independent owner/record expectations.
 
     Without independent expectations this checks shape and schema only, never origin
     or permission. A newer record generation cannot silently replace a pinned one.
     """
     validate("common.schema.json", reference, "RecordReference")
     uri = SCHEMAS["records.schema.json"]["$id"] + "#/$defs/" + reference["record"]["kind"]
-    _require(reference["schema"] == schema_identity(uri), "record schema substitution")
+    current = reference["schema"] == schema_identity(uri)
+    # Historical documents are read-only. The independent receiving owner installs
+    # and qualifies an immutable reader against the exact prior closure digest;
+    # an untrusted record, payload, URL or caller cannot register that reader.
+    retained = retained_readers is not None and reference["schema"]["digest"] in retained_readers
+    _require(
+        reference["schema"]["uri"] == uri and (current or retained), "record schema substitution"
+    )
     if expected_owner is not None:
         _require(reference["owner"] == expected_owner, "record owner epoch substitution")
     if expected_record is not None:
@@ -191,6 +200,7 @@ def validate_record_payload(
     *,
     expected_owner: dict[str, Any],
     expected_record: dict[str, Any] | None = None,
+    retained_readers: Mapping[str, Callable[[dict[str, Any]], None]] | None = None,
 ) -> dict[str, Any]:
     """Verify complete transferred bytes once; a transport frame cap is not a record cap.
 
@@ -198,7 +208,10 @@ def validate_record_payload(
     preserve custody on failure. This finite in-memory model asserts no native bound.
     """
     validate_record_reference(
-        reference, expected_owner=expected_owner, expected_record=expected_record
+        reference,
+        expected_owner=expected_owner,
+        expected_record=expected_record,
+        retained_readers=retained_readers,
     )
     _require(
         len(data) == reference["size"]
@@ -207,7 +220,12 @@ def validate_record_payload(
     )
     value = strict_json(data, max_bytes=reference["size"])
     _require(isinstance(value, dict), "record payload must be object")
-    _validate_record(value)
+    uri = SCHEMAS["records.schema.json"]["$id"] + "#/$defs/" + reference["record"]["kind"]
+    if reference["schema"] == schema_identity(uri):
+        _validate_record(value)
+    else:
+        assert retained_readers is not None
+        retained_readers[reference["schema"]["digest"]](value)
     _require(
         value["owner"] == reference["owner"] and _identity(value) == reference["record"],
         "record payload binding mismatch",

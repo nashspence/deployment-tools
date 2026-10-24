@@ -45,8 +45,8 @@ def validate_selection(selection: dict[str, Any]) -> dict[str, Any]:
         id="bootstrap.catalogue",
         work="O(B + S) bounded reference record validation and one source identity pass",
         extent="All S sources in the catalogue; no prefix selection or silent truncation",
-        limits=(("record_bytes", MAX_BYTES), ("sources", 256)),
-        capacity=("oversized records or catalogues reject before source selection",),
+        limits=(),
+        capacity=("native readers enforce explicitly approved capacity without omitting sources",),
         proofs=("tests/test_bootstrap.py::test_catalogue_extent_and_source_visits",),
     )
 )
@@ -56,7 +56,8 @@ def validate_catalogue(
     selection: dict[str, Any] | None = None,
     require_published: bool = False,
 ) -> dict[str, Any]:
-    _bounded(catalogue)
+    # A full catalogue can exceed one wire frame; native acquisition uses bounded
+    # reads over a pinned complete document rather than rejecting a fixed source count.
     validate("bootstrap-catalogue.schema.json", catalogue)
     if require_published and catalogue["publication_state"] != "independently-verified":
         raise ContractError("candidate is not independently retrievable recovery evidence")

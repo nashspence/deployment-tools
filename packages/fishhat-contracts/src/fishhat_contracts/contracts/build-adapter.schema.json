@@ -84,7 +84,6 @@
             "$ref": "adapter.schema.json#/$defs/Artifact"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },

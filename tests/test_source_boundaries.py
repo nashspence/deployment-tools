@@ -28,7 +28,7 @@ CHECK_PURPOSE = {
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/common.schema.json#/$defs/Time",
         "packages/fishhat-contracts/src/fishhat_contracts/contracts/adapter.schema.json#/$defs/Selection",
     ],
-    "scope": "source observation roles, explicit provider selection, core UTC timestamps and provider RFC3339 syntax",
+    "scope": "source extent, maintenance schedule policy, observation roles, provider selection and timestamp syntax",
     "relationship": "candidate",
     "reason": "Synthetic adverse selections and timestamp inputs exercise declared validation boundaries; no provider retrieval, secret publication, native hook or installed-owner authorization is executed.",
     "claims": [],
@@ -352,3 +352,38 @@ def test_core_time_profile_is_expressed_without_a_custom_format_checker(schema, 
         "2026-10-24T00:00:00Z\n",
     ):
         assert not validator.is_valid(value)
+
+
+def test_source_extent_is_independent_of_wire_frames_and_explicit_capacity():
+    from fishhat_contracts.validation import MAX_BYTES, validate_domain
+
+    text = "value: " + "x" * (MAX_BYTES + 1)
+    assert len(strict_yaml(text)["value"]) == MAX_BYTES + 1
+    assert strict_yaml(text, capacity_bytes=len(text.encode())) == strict_yaml(text)
+    with pytest.raises(ContractError, match="source capacity exceeded"):
+        strict_yaml(text, capacity_bytes=len(text.encode()) - 1)
+    domain = strict_yaml((FIXTURES / "domain/domain.yaml").read_text())
+    host = domain["hosts"]["node-a"]
+    source = domain["sources"][host["source"]]
+    for i in range(300):
+        name = f"source-{i}"
+        domain["sources"][name] = {**copy.deepcopy(source), "entrypoint": f"hosts/node-{i}.yaml"}
+        domain["hosts"][f"node-{i}"] = {**copy.deepcopy(host), "source": name}
+    validate_domain(domain)
+    domain["hosts"]["node-299"]["source"] = "missing-source"
+    with pytest.raises(ContractError):
+        validate_domain(domain)
+
+
+@pytest.mark.parametrize("field", ["calendar_language", "dst_policy", "catch_up"])
+@pytest.mark.parametrize("replacement", [None, "unsupported"])
+def test_maintenance_requires_explicit_calendar_dst_and_catch_up_policy(field, replacement):
+    app, catalogue = application()
+    validate_app(app, catalogue)
+    task = next(iter(app["maintenance"].values()))
+    if replacement is None:
+        del task[field]
+    else:
+        task[field] = replacement
+    with pytest.raises(ContractError):
+        validate_app(app, catalogue)

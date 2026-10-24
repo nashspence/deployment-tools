@@ -125,8 +125,7 @@
             "additionalProperties": false,
             "description": "Logical pool selection and hard allocation budget. Provider locators and native identities belong to the selected storage adapter. Admission joins this selection to an approved PoolIdentity and rejects aliased or overlapping capacity domains."
           },
-          "minProperties": 1,
-          "maxProperties": 256
+          "minProperties": 1
         },
         "accounts": {
           "type": "object",
@@ -393,8 +392,7 @@
             ],
             "additionalProperties": false
           },
-          "minProperties": 1,
-          "maxProperties": 256
+          "minProperties": 1
         },
         "policy": {
           "type": "object",
@@ -748,8 +746,7 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 16
+          "minItems": 0
         },
         "tmpfs_max_bytes": {
           "type": "integer",

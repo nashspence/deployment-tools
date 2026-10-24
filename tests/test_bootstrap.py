@@ -17,7 +17,7 @@ from fishhat_client.bootstrap import (
     validate_receipt,
     validate_selection,
 )
-from fishhat_contracts.validation import MAX_BYTES, ContractError, canonical, digest
+from fishhat_contracts.validation import ContractError, canonical, digest
 
 from tests.adapter_support import OWNER, D, descriptors, identifier
 from tests.support import FIXTURES
@@ -513,6 +513,16 @@ def test_bootstrap_wire_requires_repository_scope_and_an_evidenced_result(method
     }
     invocation = {"attempt": attempt, "request": copy.deepcopy(request)}
     check_response("bootstrap-source", request, response, invocation=invocation)
+    if method == "verify":
+        response["output"]["receipt"]["output_digest"] = "sha256:" + "f" * 64
+        with pytest.raises(ContractError, match="SUCCESS_OUTPUT_IDENTITY"):
+            check_response("bootstrap-source", request, response, invocation=invocation)
+        response["output"]["receipt"] = fixture("source-receipt")
+    for changed_field, replacement in (("commit", "f" * 40), ("source_id", "other")):
+        response["output"]["receipt"][changed_field] = replacement
+        with pytest.raises(ContractError, match="SUCCESS_OUTPUT_IDENTITY"):
+            check_response("bootstrap-source", request, response, invocation=invocation)
+        response["output"]["receipt"] = fixture("source-receipt")
     response["output"]["receipt"] = None
     with pytest.raises(ContractError):
         check_response("bootstrap-source", request, response, invocation=invocation)
@@ -525,9 +535,10 @@ def test_bootstrap_wire_requires_repository_scope_and_an_evidenced_result(method
 def test_catalogue_extent_and_source_visits():
     import fishhat_client.bootstrap as bootstrap
 
-    for count in (1, 16, 256):
+    for count in (1, 16, 256, 257):
         catalogue = records("git-bundle")["catalogue"]
         source = catalogue["sources"][0]
+        source["file_count"] = 1_000_001
         catalogue["sources"] = [
             {**copy.deepcopy(source), "source_id": f"source-{n}"} for n in range(count)
         ]
@@ -543,11 +554,11 @@ def test_catalogue_extent_and_source_visits():
     catalogue["sources"] = [
         {**copy.deepcopy(source), "source_id": f"source-{n}"} for n in range(257)
     ]
-    with pytest.raises(ContractError), patch.object(bootstrap, "_ref") as counted:
+    with patch.object(bootstrap, "_ref", wraps=bootstrap._ref) as counted:
         validate_catalogue(catalogue)
-    assert counted.call_count == 0
-    catalogue["padding"] = "x" * MAX_BYTES
-    with pytest.raises(ContractError, match="bootstrap record capacity"):
+    assert counted.call_count == 257
+    catalogue["sources"][-1]["ref"] = "refs/heads/invalid..ref"
+    with pytest.raises(ContractError):
         validate_catalogue(catalogue)
 
 
@@ -557,7 +568,7 @@ CHECK_OVERRIDES = {
         "authority": ["packages/fishhat-client/src/fishhat_client/bootstrap.py#validate_catalogue"],
         "scope": "bounded reference catalogue validation and complete source iteration",
         "relationship": "scoped-witness",
-        "reason": "Counts source visits at three extents and checks terminal-source, count and byte-capacity rejection; not native restore complexity or performance.",
+        "reason": "Counts every source at multiple catalogue extents and rejects an invalid terminal source; not native restore complexity or performance.",
         "claims": ["engineering:bootstrap.catalogue"],
     }
 }

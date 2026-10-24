@@ -48,23 +48,11 @@ def write_stats(root: Path, value: dict[str, Any]) -> Path:
         raise ValueError("test stats must stay inside the checkout")
     directory.mkdir(parents=True, exist_ok=True)
     content = json.dumps(value, sort_keys=True) + "\n"
-    if len(content.encode()) > 2_000_000:
-        raise ValueError("test stats record exceeds capacity")
     path = directory / (uuid.uuid4().hex + ".json")
     with FileLock(str(directory / ".lock"), timeout=10):
-        existing = [
-            p
-            for p in directory.glob("*.json")
-            if re.fullmatch(r"[a-f0-9]{32}\.json", p.name) and not p.is_symlink()
-        ]
-        size = sum(p.stat().st_size for p in existing) + len(content.encode())
-        count = len(existing) + 1
-        for old in sorted(existing, key=lambda p: p.stat().st_mtime_ns):
-            if count <= 32 and size <= 8_000_000:
-                break
-            size -= old.stat().st_size
-            count -= 1
-            old.unlink()
+        # The receipt corpus is not a bounded work page. Retain all completed
+        # observations until an explicit owner-managed retention operation; full
+        # collection growth must never silently erase prior evidence.
         temporary = path.with_suffix(".tmp")
         temporary.write_text(content, encoding="utf-8", newline="\n")
         temporary.chmod(0o600)

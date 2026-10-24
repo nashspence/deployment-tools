@@ -82,7 +82,6 @@
                 "additionalProperties": false
               },
               "minItems": 1,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "cursor": {
@@ -170,7 +169,6 @@
                 "additionalProperties": false
               },
               "minItems": 1,
-              "maxItems": 256,
               "uniqueItems": true
             },
             "cursor": {
@@ -842,7 +840,6 @@
                       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
                     },
                     "minItems": 1,
-                    "maxItems": 256,
                     "uniqueItems": true
                   }
                 },
@@ -854,8 +851,7 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 1,
-              "maxItems": 64
+              "minItems": 1
             }
           },
           "required": [
@@ -962,8 +958,7 @@
               "items": {
                 "$ref": "records.schema.json#/$defs/Witness"
               },
-              "minItems": 0,
-              "maxItems": 256
+              "minItems": 0
             },
             "owner": {
               "$ref": "common.schema.json#/$defs/Owner"

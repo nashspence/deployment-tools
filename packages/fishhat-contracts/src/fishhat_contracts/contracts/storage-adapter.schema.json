@@ -37,6 +37,10 @@
           "minItems": 1,
           "maxItems": 4,
           "uniqueItems": true
+        },
+        "hard_isolation": {
+          "type": "boolean",
+          "description": "Whether the exact allocation requires enforced byte and inode isolation, independently approved by the receiving owner."
         }
       },
       "required": [
@@ -44,7 +48,8 @@
         "allocation",
         "capacity_bytes",
         "capacity_inodes",
-        "purposes"
+        "purposes",
+        "hard_isolation"
       ],
       "additionalProperties": false
     },
@@ -83,6 +88,10 @@
           "minItems": 1,
           "maxItems": 4,
           "uniqueItems": true
+        },
+        "hard_isolation": {
+          "type": "boolean",
+          "description": "Whether the exact allocation requires enforced byte and inode isolation, independently approved by the receiving owner."
         }
       },
       "required": [
@@ -90,7 +99,8 @@
         "allocation",
         "capacity_bytes",
         "capacity_inodes",
-        "purposes"
+        "purposes",
+        "hard_isolation"
       ],
       "additionalProperties": false
     },
@@ -129,6 +139,10 @@
           "minItems": 1,
           "maxItems": 4,
           "uniqueItems": true
+        },
+        "hard_isolation": {
+          "type": "boolean",
+          "description": "Whether the exact allocation requires enforced byte and inode isolation, independently approved by the receiving owner."
         }
       },
       "required": [
@@ -136,7 +150,8 @@
         "allocation",
         "capacity_bytes",
         "capacity_inodes",
-        "purposes"
+        "purposes",
+        "hard_isolation"
       ],
       "additionalProperties": false
     },
@@ -195,7 +210,6 @@
             "$ref": "adapter.schema.json#/$defs/Allocation"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },

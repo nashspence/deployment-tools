@@ -130,7 +130,6 @@
           "items": {
             "$ref": "common.schema.json#/$defs/Owner"
           },
-          "maxItems": 64,
           "uniqueItems": true
         },
         "operations": {
@@ -138,7 +137,6 @@
           "items": {
             "$ref": "#/$defs/OperationRef"
           },
-          "maxItems": 64,
           "uniqueItems": true
         },
         "supersedes": {

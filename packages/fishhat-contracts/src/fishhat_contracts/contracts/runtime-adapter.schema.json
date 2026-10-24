@@ -17,7 +17,6 @@
             "$ref": "common.schema.json#/$defs/Id"
           },
           "minItems": 1,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },
@@ -196,7 +195,6 @@
             "$ref": "adapter.schema.json#/$defs/NativeObject"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         }
       },

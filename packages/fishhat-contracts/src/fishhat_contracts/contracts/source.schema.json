@@ -38,7 +38,6 @@
         "sources": {
           "type": "object",
           "minProperties": 1,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -103,7 +102,6 @@
         "hosts": {
           "type": "object",
           "minProperties": 1,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -170,7 +168,6 @@
         "apps": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -221,7 +218,6 @@
         "providers": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -277,7 +273,6 @@
         "backup_backends": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -370,7 +365,6 @@
           "type": "object",
           "description": "Concern and binding names label declarations; they do not partition native targets. Within one host, each native service unit, package-manager/name target and user named by a group-membership declaration has exactly one declaration. Ordinary files, secret files and artifacts share one absolute destination namespace. Duplicate targets are rejected even when their prescriptions agree; declaration order grants no precedence. Destination paths use canonical absolute spelling without empty, dot or parent segments or a trailing slash. These are lexical source checks; native admission must resolve provider, user and filesystem aliases and reject overlapping writers.",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
@@ -385,7 +379,6 @@
               "files": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
@@ -457,8 +450,7 @@
                         ],
                         "additionalProperties": false
                       },
-                      "minItems": 0,
-                      "maxItems": 256
+                      "minItems": 0
                     },
                     "reason": {
                       "type": "string",
@@ -482,7 +474,6 @@
               "secret_files": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
@@ -556,8 +547,7 @@
                         ],
                         "additionalProperties": false
                       },
-                      "minItems": 0,
-                      "maxItems": 256
+                      "minItems": 0
                     },
                     "reason": {
                       "type": "string",
@@ -581,7 +571,6 @@
               "packages": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
@@ -640,7 +629,6 @@
               "artifacts": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
@@ -696,7 +684,6 @@
               "groups": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
@@ -716,7 +703,6 @@
                         "maxLength": 64
                       },
                       "minItems": 0,
-                      "maxItems": 256,
                       "uniqueItems": true
                     },
                     "reason": {
@@ -736,7 +722,6 @@
               "services": {
                 "type": "object",
                 "minProperties": 0,
-                "maxProperties": 256,
                 "propertyNames": {
                   "$ref": "common.schema.json#/$defs/Id"
                 },
@@ -790,7 +775,6 @@
         "app_accounts": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -806,7 +790,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "reason": {
@@ -837,7 +820,6 @@
         "grants": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -873,7 +855,6 @@
                   "maxLength": 512
                 },
                 "minItems": 1,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "reason": {
@@ -925,7 +906,6 @@
                   "pattern": "^SHA256:[A-Za-z0-9+/]+$"
                 },
                 "minItems": 1,
-                "maxItems": 32,
                 "uniqueItems": true
               },
               "actions": {
@@ -936,7 +916,6 @@
                   "maxLength": 96
                 },
                 "minItems": 1,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "resources": {
@@ -973,7 +952,6 @@
                   "additionalProperties": false
                 },
                 "minItems": 1,
-                "maxItems": 256,
                 "uniqueItems": true
               }
             },
@@ -987,13 +965,11 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 0,
-          "maxItems": 256
+          "minItems": 0
         },
         "receipt_public_keys": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1022,7 +998,6 @@
         },
         "adapter_instances": {
           "type": "object",
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1089,7 +1064,6 @@
         "components": {
           "type": "object",
           "minProperties": 1,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1115,8 +1089,7 @@
                 "maxLength": 512
               },
               "native": {
-                "type": "object",
-                "maxProperties": 32
+                "type": "object"
               }
             },
             "required": [
@@ -1131,7 +1104,6 @@
         "interfaces": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1175,7 +1147,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 1,
-                "maxItems": 64,
                 "uniqueItems": true
               },
               "authentication": {
@@ -1207,7 +1178,6 @@
         "dependencies": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
@@ -1242,7 +1212,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 1,
-                "maxItems": 64,
                 "uniqueItems": true
               },
               "compatibility": {
@@ -1254,7 +1223,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 1,
-                "maxItems": 64,
                 "uniqueItems": true
               },
               "phases": {
@@ -1288,7 +1256,6 @@
         "datasets": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1324,7 +1291,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "readers": {
@@ -1336,7 +1302,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "grant": {
@@ -1559,7 +1524,6 @@
         "hooks": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1597,8 +1561,7 @@
                   "minLength": 1,
                   "maxLength": 4096
                 },
-                "minItems": 1,
-                "maxItems": 128
+                "minItems": 1
               },
               "mode": {
                 "enum": [
@@ -1620,7 +1583,6 @@
                   "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "secrets": {
@@ -1632,7 +1594,6 @@
                   "pattern": "^[a-z][a-z0-9-]{0,63}$"
                 },
                 "minItems": 0,
-                "maxItems": 256,
                 "uniqueItems": true
               },
               "network": {
@@ -1706,7 +1667,6 @@
                 "pattern": "^[a-z](?:[a-z0-9-]{0,22}[a-z0-9])?$"
               },
               "minItems": 1,
-              "maxItems": 64,
               "uniqueItems": true
             },
             "configure": {
@@ -1818,7 +1778,6 @@
           "type": "object",
           "description": "Each component and canonical absolute target pair has one secret-delivery declaration, regardless of binding name, secret entry or delivery mode. Different component namespaces may use the same target spelling. Native admission must verify that their actual destinations remain independently scoped.",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },
@@ -1884,7 +1843,6 @@
           "type": "object",
           "description": "Proposed task definitions, not grants of authority. The receiver resolves the exact task from its accepted release and requires at least both app.maintenance-run's minimum role and the expanded action's minimum role, within the current resource scope. Built-in backup, backup-check and drill tasks have no hook override. Native-maintenance selects one declared hook and requires administrator regardless of its hook role, while retaining its exact approved hook scope and all role-specific input and custody requirements. This rule applies to manual and scheduled execution. A schedule, task name or source change cannot delegate administrator authority.",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/Id"
           },
@@ -1915,12 +1873,14 @@
               "calendar": {
                 "type": "string",
                 "minLength": 1,
-                "maxLength": 160
+                "maxLength": 160,
+                "description": "systemd OnCalendar expression under the pinned native calendar parser selected by calendar_language; an unparsed or ambiguous candidate is never admissible. Syntactic validity is necessary but not an execution grant."
               },
               "timezone": {
                 "type": "string",
                 "minLength": 1,
-                "maxLength": 64
+                "maxLength": 64,
+                "description": "IANA time-zone identifier resolved against an admitted pinned timezone database. Missing/ambiguous identifiers reject the task before admission; current host timezone is never an implicit default."
               },
               "max_delay_seconds": {
                 "type": "integer",
@@ -1934,6 +1894,18 @@
               },
               "active_only": {
                 "type": "boolean"
+              },
+              "calendar_language": {
+                "const": "systemd-oncalendar",
+                "description": "The selected v1 calendar dialect. A qualified native owner must parse and normalize this expression using its pinned calendar implementation before admission; unsupported expressions block, never fall back to a different syntax."
+              },
+              "dst_policy": {
+                "const": "skip-gap-first-repeat",
+                "description": "Nonexistent wall-clock times are skipped. Repeated local wall times execute once using the first occurrence. The identity of the due occurrence persists across reboot, clock changes and retry."
+              },
+              "catch_up": {
+                "const": "latest-once",
+                "description": "At most the latest eligible missed due occurrence is attempted after downtime; no storm or independent overlap. Retain due/attempt/result identities across owner restart."
               }
             },
             "required": [
@@ -1943,7 +1915,10 @@
               "timezone",
               "max_delay_seconds",
               "timeout_seconds",
-              "active_only"
+              "active_only",
+              "calendar_language",
+              "dst_policy",
+              "catch_up"
             ],
             "additionalProperties": false,
             "oneOf": [
@@ -1971,7 +1946,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "description": " The receiver persists task occurrence identity (accepted release, task, due instant and DST fold), attempt and result, with receiver-local continuing authorization. Revoked permissions stop new attempts and detached client state never governs the schedule."
           }
         },
         "protection": {
@@ -2053,7 +2029,6 @@
         "entries": {
           "type": "object",
           "minProperties": 0,
-          "maxProperties": 256,
           "propertyNames": {
             "pattern": "^[a-z][a-z0-9-]{0,63}$"
           },

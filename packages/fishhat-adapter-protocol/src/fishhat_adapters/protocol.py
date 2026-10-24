@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import json
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -233,6 +233,8 @@ def check_response(
     if "effect" in response and _succeeded(response["effect"]):
         assert invocation is not None
         _check_success_output(role, request, response["output"], invocation["attempt"]["executor"])
+        if role == "credential-issuer" and request["method"] in {"issue", "renew"}:
+            _check_issued_lifetime(request, response["output"])
 
 
 def _succeeded(effect: dict[str, Any]) -> bool:
@@ -276,6 +278,31 @@ def _same_set(a: list[Any], b: list[Any]) -> bool:
     return len(a) == len(b) and {canonical(item) for item in a} == {canonical(item) for item in b}
 
 
+def _check_issued_lifetime(request: dict[str, Any], output: dict[str, Any]) -> None:
+    """An approved lifetime is a maximum measured from native issuance/renewal.
+
+    Historical expiry, revocation and unknown observations may have null times;
+    they cannot be presented as successful bounded issuance or renewal.
+    """
+    leases = output["leases"]
+    require(len(leases) == 1, "LEASE_RESULT_CARDINALITY")
+    lease = leases[0]
+    start, end = lease["valid_from"], lease["expires_at"]
+    require(
+        lease["validity"] == "valid" and start is not None and end is not None,
+        "LEASE_LIFETIME_UNVERIFIED",
+    )
+    if start is None or end is None:
+        return
+    begin = datetime.fromisoformat(start.replace("Z", "+00:00"))
+    finish = datetime.fromisoformat(end.replace("Z", "+00:00"))
+    require(
+        begin < finish
+        and finish - begin <= timedelta(seconds=request["input"]["lifetime_seconds"]),
+        "LEASE_LIFETIME_EXCEEDED",
+    )
+
+
 def _check_success_output(
     role: str, request: dict[str, Any], output: dict[str, Any], executor: dict[str, Any]
 ) -> None:
@@ -290,6 +317,9 @@ def _check_success_output(
         "storage": lambda: (
             output["allocations"][0]["handle"] == inputs["allocation"]
             and _same_set(output["allocations"][0]["purposes"], inputs["purposes"])
+            and (not inputs["hard_isolation"] or output["allocations"][0]["hard_isolation"])
+            and output["allocations"][0]["capacity_bytes"] >= inputs.get("capacity_bytes", 0)
+            and output["allocations"][0]["capacity_inodes"] >= inputs.get("capacity_inodes", 0)
         ),
         "backup": lambda: (
             output["objects"][0]["handle"] == inputs["object"]
@@ -319,7 +349,19 @@ def _check_success_output(
             for item in output["versions"]
         ),
         "bootstrap-source": lambda: (
-            output["receipt"]["selection_digest"] == digest(inputs["selection"])
+            output["receipt"] is not None
+            and output["receipt"]["selection_digest"] == digest(inputs["selection"])
+            and output["receipt"]["domain_id"] == inputs["selection"]["domain_id"]
+            and output["receipt"]["source_id"] == inputs["selection"]["source_id"]
+            and output["receipt"]["ref"] == inputs["selection"]["ref"]
+            and output["receipt"]["commit"] == inputs["selection"]["expected_commit"]
+            and output["receipt"]["destination"].startswith(
+                inputs["selection"]["recovery_root"].rstrip("/") + "/"
+            )
+            and (
+                request["method"] != "verify"
+                or output["receipt"]["output_digest"] == inputs["output"]["digest"]
+            )
         ),
     }
     check = checks.get(role)

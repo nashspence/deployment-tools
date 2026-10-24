@@ -164,7 +164,6 @@
             "$ref": "adapter.schema.json#/$defs/Snapshot"
           },
           "minItems": 0,
-          "maxItems": 256,
           "uniqueItems": true
         },
         "verification": {

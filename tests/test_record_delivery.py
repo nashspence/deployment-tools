@@ -365,3 +365,40 @@ CHECK_OVERRIDES = {
         "claims": ["engineering:record-delivery.chunk"],
     },
 }
+
+
+def test_retained_reader_requires_exact_digest_and_preserves_independent_identity():
+    value = workflow_record()
+    reference = RecordSnapshot(value, U).reference
+    reference["schema"]["digest"] = "sha256:" + "e" * 64
+    value["retained_extension"] = "read-only"
+    data = canonical(value)
+    reference.update(size=len(data), digest="sha256:" + hashlib.sha256(data).hexdigest())
+    calls = []
+
+    def retained_reader(record):
+        assert record["retained_extension"] == "read-only"
+        calls.append(record)
+
+    context = {"expected_owner": value["owner"], "expected_record": reference["record"]}
+    with pytest.raises(ContractError, match="schema substitution"):
+        validate_record_payload(reference, data, **context)
+    readers = {reference["schema"]["digest"]: retained_reader}
+    result = validate_record_payload(reference, data, retained_readers=readers, **context)
+    assert result == value and calls == [value]
+    with pytest.raises(ContractError, match="owner epoch"):
+        validate_record_payload(
+            reference, data, retained_readers=readers, expected_owner={**value["owner"], "epoch": V}
+        )
+    substituted = copy.deepcopy(value)
+    substituted["generation"] += 1
+    changed_data = canonical(substituted)
+    changed_ref = {
+        **reference,
+        "size": len(changed_data),
+        "digest": "sha256:" + hashlib.sha256(changed_data).hexdigest(),
+    }
+    with pytest.raises(ContractError, match="payload binding"):
+        validate_record_payload(changed_ref, changed_data, retained_readers=readers, **context)
+    with pytest.raises(ContractError, match="content identity"):
+        validate_record_payload(reference, data + b" ", retained_readers=readers, **context)

@@ -443,3 +443,31 @@ def test_pass(case): assert case == 1
         )
     assert validation.run("unit", validation.CANONICAL["unit"], checkout) != 0
     assert not latest(checkout)["full_check_passed"]
+
+
+@pytest.mark.parametrize("state", ["running", "interrupted", "completed"])
+def test_incomplete_latest_publication_blocks_prior_success(accounted, state):
+    root, source, passed = accounted
+    write_run(root, passed)
+    assert evidence.current_run(root, source)["id"] == passed["id"]
+    unfinished = copy.deepcopy(passed)
+    unfinished.update(
+        id="d" * 32,
+        started_at="2026-01-02T00:00:00+00:00",
+        state=state,
+        source_after=None,
+        full_check_passed=False,
+    )
+    write_run(root, unfinished)
+    assert evidence.current_run(root, source) is None
+
+
+def test_large_current_receipt_requires_complete_passing_evidence(accounted):
+    root, source, run = accounted
+    run["observation"] = "x" * (4 * 1024 * 1024 + 1)
+    write_run(root, run)
+    assert evidence.current_run(root, source)["id"] == run["id"]
+    last = next(reversed(run["tests"]["outcomes"]))
+    run["tests"]["outcomes"][last] = "failed"
+    write_run(root, run)
+    assert evidence.current_run(root, source) is None
